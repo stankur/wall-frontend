@@ -1,16 +1,7 @@
 import React, {ReactElement} from "react";
 import styled from "styled-components";
-
-const constants = {
-    background : [228, 228, 228],
-    radius: "7px",
-    regularFontSize: "13px",
-    smallFontSize: "11px",
-    largeFontSize: "100px",
-    smallGap: "8px",
-    smallerGap: "5px",
-    verySmallGap: "4px"
-}
+import { EventEmitter } from "../Utils";
+import constants from "./constants";
 
 const Page = styled.div`
 	width: 100vw;
@@ -28,7 +19,7 @@ const OuterContainer = styled.div`
 	border-radius: ${constants.radius};
 	display: inline-flex;
 	flex-direction: row;
-    width: 55%;
+    width: ${constants.mainContentWidth};
 `;
 
 interface SideContainerProps {
@@ -90,235 +81,191 @@ const TwoSidedCard = function ({
 	);
 };
 
-const PostInfoBarOuterContainer = styled.div`
-	padding: ${constants.smallGap};
-	box-sizing: border-box;
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-`;
 
-interface NameTimeProps {
-    name: string,
-    time: string
+interface ColorButtonProps extends React.ComponentPropsWithoutRef<"button"> {
+	r: number;
+	g: number;
+	b: number;
 }
 
-function NameTime({ name, time }: NameTimeProps) {
-	return (
-		<PostInfoBarOuterContainer>
-			<span
-				style={{
-					fontWeight: "bold",
-					fontSize: constants.regularFontSize,
-				}}
-			>
-				{name}
-			</span>
-			<span style={{ fontWeight: 500, fontSize: constants.regularFontSize}}>{time}</span>
-		</PostInfoBarOuterContainer>
-	);
-}
-
-const PlusButtonContainer = styled.div`
-	width: 14px;
-	height: 14px;
-	border-radius: 50%;
-	border: 1px solid black;
-	font-size: ${constants.regularFontSize};
-    position: relative;
-`;
-
-const PlusSignContainer = styled.span`
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-    font-weight: bold;
-    font-size: large;
-`;
-
-function PlusButton() {
-    return (
-		<PlusButtonContainer>
-			<PlusSignContainer>+</PlusSignContainer>
-		</PlusButtonContainer>
-	);
-}
-
-const SmallerGappedContainer = styled.div`
-	display: inline-flex;
-	align-items: center;
-	gap: ${constants.smallerGap};
-`;
-
-interface StatsPairProps {
-	keyName: string;
-	value: string;
-}
-
-function StatsPair({keyName, value}: StatsPairProps) {
-    return (
-		<SmallerGappedContainer>
-			<span style={{ fontSize: constants.regularFontSize, fontWeight: 500 }}>
-				{keyName}
-			</span>
-			<span style={{ fontWeight: "bold" }}>{value}</span>
-		</SmallerGappedContainer>
-	);
-}
-
-function StatsPairAndPlusButton({ keyName, value }: StatsPairProps) {
-	return (
-		<SmallerGappedContainer>
-			<PlusButton />
-			<StatsPair keyName={keyName} value={value} />
-		</SmallerGappedContainer>
-	);
-} 
-
-interface StatsProps {
-    points: number,
-    likes: number,
-    dislikes: number
-}
-function Stats({ points, likes, dislikes }: StatsProps) {
-	return (
-		<PostInfoBarOuterContainer>
-			<StatsPair keyName="POINTS" value={points.toString()} />
-			<StatsPairAndPlusButton keyName="LIKES" value={likes.toString()} />
-			<StatsPairAndPlusButton
-				keyName="DISLIKES"
-				value={dislikes.toString()}
-			/>
-		</PostInfoBarOuterContainer>
-	);
-}
-
-interface ImageSideProps extends StatsProps, NameTimeProps {
-	imageUrl: string;
-}
-
-const ImageSideContainer = styled.div`
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-`;
-function ImageSide({
-	name,
-	time,
-	points,
-	likes,
-	dislikes,
-	imageUrl,
-}: ImageSideProps) {
-	return (
-		<ImageSideContainer>
-			<NameTime name={name} time={time} />
-			<img alt="post" src={imageUrl} width="100%" />
-			<Stats points={points} dislikes={dislikes} likes={likes} />
-		</ImageSideContainer>
-	);
-}
-
-const CaptionContainer = styled.div`
-	padding: ${constants.smallGap};
-	padding-top: 2px;
-`;
-
-interface CaptionProps {
-	text: string;
-}
-
-function Caption({ text }: CaptionProps) {
-	return <CaptionContainer>{text}</CaptionContainer>;
-}
-
-const CaptionGroupContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    border-bottom: 1px solid black;
-`
-
-interface CaptionGroupProps {
-    text: string;
-    name: string;
-    time: string;
-    points: number;
-    likes: number;
-    dislikes: number;
-}
-
-function CaptionGroup({
-	text,
-	name,
-	time,
-	points,
-	likes,
-	dislikes,
-}: CaptionGroupProps) {
-	return (
-		<CaptionGroupContainer>
-			<NameTime name={name} time={time} />
-			<Caption text={text} />
-			<Stats points={points} likes={likes} dislikes={dislikes} />
-		</CaptionGroupContainer>
-	);
-}
-
-const InnerButtonContainer = styled.div`
+const BackgroundColorButtonContainer = styled.button<ColorButtonProps>`
 	display: inline-block;
 	padding: ${constants.verySmallGap};
 	border: 1px solid black;
 	border-radius: ${constants.radius};
 	background-color: rgb(
+		${(props) => props.r},
+		${(props) => props.g},
+		${(props) => props.b}
+	);
+	font-weight: 500 !important;
+	font-family: roboto;
+	font-size: ${constants.regularFontSize};
+`;
+
+interface ButtonProps {
+	text: string;
+    onClick: React.MouseEventHandler
+}
+function BackgroundColorButton({ text, onClick }: ButtonProps) {
+	return (
+		<BackgroundColorButtonContainer
+			r={constants.background[0]}
+			g={constants.background[1]}
+			b={constants.background[2]}
+			onClick={onClick}
+		>
+			{text}
+		</BackgroundColorButtonContainer>
+	);
+}
+
+function WhiteButton({ text, onClick }: ButtonProps) {
+	return (
+		<BackgroundColorButtonContainer
+			r={255}
+			g={255}
+			b={255}
+			onClick={onClick}
+		>
+			{text}
+		</BackgroundColorButtonContainer>
+	);
+}
+
+const ImagesContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: ${constants.enormousGap};
+	align-items: center;
+`;
+
+const QuoteOuterContainer = styled.div`
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    padding: ${constants.humongousGap};
+`
+const QuoteInnerContainer = styled.div`
+	font-size: ${constants.mediumFontSize};
+	font-weight: bold;
+`;
+function Quote() {
+	return (
+		<QuoteOuterContainer>
+			<QuoteInnerContainer>
+                LOVE IS TEMPORARY, SHREK IS ETERNAL
+            </QuoteInnerContainer>
+		</QuoteOuterContainer>
+	);
+}
+
+const LabeledInputContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	align-items: flex-start;
+	gap: ${constants.smallerGap};
+`;
+
+const BackgroundColorInput = styled.input`
+	background-color: rgb(
 		${constants.background[0]},
 		${constants.background[1]},
 		${constants.background[2]}
 	);
-	font-weight: 500;
-	font-size: ${constants.regularFontSize};
+	border: 1px solid black;
+	border-radius: ${constants.radius};
+	box-sizing: border-box;
+	width: 100%;
+	outline: none;
+	height: 1.8em;
+`;
+interface LabeledInputProps {
+    name: string
+}
+function LabeledInput({name}: LabeledInputProps) {
+    return (
+    <LabeledInputContainer>
+        <span style={{fontSize: constants.regularFontSize, fontWeight:"bold"}}>{name}</span>
+        <BackgroundColorInput/>
+    </LabeledInputContainer>
+    )
+}
+const InputsOuterContainer = styled.div`
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+    flex-basis: 0;
+    flex-grow: 1;
+`;
+const InputsInnerContainer = styled.div`
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: ${constants.bigGap};
 `;
 
-interface InnerButtonProps {
-	text: string;
-}
-function InnerButton({ text }: InnerButtonProps) {
-	return <InnerButtonContainer>{text}</InnerButtonContainer>;
-}
-
-const CaptionOptionsContainer = styled.div`
-    display: flex;
-    flex-direction: row-reverse;
-    align-items: flex-end;
-    padding: ${constants.smallerGap};
-    gap: ${constants.smallGap};
-    /* border-top: 1px solid black; */
-    margin-top: -1px;
-`
-
-function CaptionOptions() {
+function Inputs() {
 	return (
-		<CaptionOptionsContainer>
-			<InnerButton text="EXPAND" />
-			<InnerButton text="ADD CAPTION" />
-		</CaptionOptionsContainer>
+		<InputsOuterContainer>
+			<InputsInnerContainer>
+				<LabeledInput name="USERNAME" />
+				<LabeledInput name="PASSWORD" />
+			</InputsInnerContainer>
+		</InputsOuterContainer>
 	);
 }
 
-const LogoContainer = styled.span`
-	font-weight: bold;
-	font-size: ${constants.largeFontSize};
-	text-shadow: 2px 2px 9px rgba(0, 0, 0, 0.25);
+const InputsGroupOuterContainer = styled.div`
+	width: 100%;
+	height: 100%;
+	padding: ${constants.mediumGap};
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
 `;
 
-function Logo() {
-	return <LogoContainer>WALL</LogoContainer>
+interface InputsGroupProps {
+	onClick: React.MouseEventHandler;
+}
+
+function InputsGroup({ onClick }: InputsGroupProps) {
+	return (
+		<InputsGroupOuterContainer>
+			<Inputs />
+			<span style={{ alignSelf: "flex-end" }}>
+				<BackgroundColorButton onClick={onClick} text="JOIN WALL" />
+			</span>
+		</InputsGroupOuterContainer>
+	);
+}
+function AuthenticationCard() {
+	return (
+		<TwoSidedCard
+			left={<Quote />}
+			right={
+				<InputsGroup
+					onClick={() => {
+						EventEmitter.emit(
+							"error",
+							"THE ERROR IS WHEN YOUR MOM DECIDED TO GIVE BIRTH TO YOUR STUPID ASS"
+						);
+					}}
+				/>
+			}
+			leftProportion={2}
+			rightProportion={5}
+		/>
+	);
 }
 
 
-
-
-
-
-export { Page, TwoSidedCard, ImageSide, CaptionGroup, CaptionOptions, Logo };
+export {
+	Page,
+	TwoSidedCard,
+	ImagesContainer,
+	WhiteButton,
+    BackgroundColorButton,
+	AuthenticationCard,
+};

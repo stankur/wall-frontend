@@ -1,4 +1,9 @@
-const getImages = function () {
+import {ImageData} from "../types/types"
+
+interface ImagesData {
+    images: ImageData[]
+}
+const getImages = function (): ImagesData {
 	return {
 		images: [
 			{
@@ -10,7 +15,7 @@ const getImages = function () {
 				likes: 1,
 				dislikes: 0,
 				points: 1,
-				topCaptions: [
+				captions: [
 					{
 						id: "f7bed58d-f594-4acc-8766-6fbc048335a0",
 						text: "caption14",
@@ -67,7 +72,7 @@ const getImages = function () {
 				likes: 1,
 				dislikes: 0,
 				points: 1,
-				topCaptions: [],
+				captions: [],
 				imageUrl:
 					"https://drive.google.com/uc?export=view&id=10YegY5CiPpFTytQSLYZfkaWrtocNVxRc",
 			},
@@ -81,7 +86,7 @@ const getImages = function () {
 				likes: 0,
 				dislikes: 0,
 				points: 0,
-				topCaptions: [],
+				captions: [],
 				imageUrl:
 					"https://drive.google.com/uc?export=view&id=1m6BmKzwBexfYzmWMIKPg0kvmoubUgshm",
 			},
@@ -95,7 +100,7 @@ const getImages = function () {
 				likes: 0,
 				dislikes: 0,
 				points: 0,
-				topCaptions: [
+				captions: [
 					{
 						id: "9c4c6f2e-f7e8-4229-894a-b7c8b49d2c99",
 						text: "caption43",
@@ -151,7 +156,7 @@ const getImages = function () {
 				likes: 0,
 				dislikes: 0,
 				points: 0,
-				topCaptions: [],
+				captions: [],
 				imageUrl:
 					"https://drive.google.com/uc?export=view&id=10YegY5CiPpFTytQSLYZfkaWrtocNVxRc",
 			},
@@ -164,7 +169,7 @@ const getImages = function () {
 				likes: 0,
 				dislikes: 0,
 				points: 0,
-				topCaptions: [],
+				captions: [],
 				imageUrl:
 					"https://drive.google.com/uc?export=view&id=1m6BmKzwBexfYzmWMIKPg0kvmoubUgshm",
 			},
@@ -172,7 +177,7 @@ const getImages = function () {
 	};
 };
 
-const getImageWithTopCaptions = function () {
+const getImageWithTopCaptions = function (): ImageData {
 	return {
 		id: "d72f345e-27d5-4143-b76b-ba080bf62ba7",
 		user: "3f131c59-cdbf-4ada-a549-8605e274b210",
@@ -182,7 +187,7 @@ const getImageWithTopCaptions = function () {
 		likes: 1,
 		dislikes: 0,
 		points: 1,
-		topCaptions: [
+		captions: [
 			{
 				id: "f7bed58d-f594-4acc-8766-6fbc048335a0",
 				text: "caption14",
