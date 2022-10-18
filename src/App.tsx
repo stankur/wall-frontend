@@ -1,18 +1,7 @@
 import React from "react";
 import { createGlobalStyle } from "styled-components";
-import Hero from "./components/Hero"
-import Navigation from "./components/Navigation";
-import Errors from "./components/Errors";
-import {getImages, getImageWithTopCaptions} from "./testData/testData"
-import {
-	Page,
-	AuthenticationCard,
-	ImagesContainer,
-	TwoSidedCard,
-} from "./components/Utils";
-import {
-	ImageCaptionsCard,
-} from "./components/ImageCaptions";
+import Notification from "./components/Notification";
+import { Outlet } from "react-router-dom";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -21,33 +10,14 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 function App() {
+	console.log(process.env.REACT_APP_BACKEND_URL);
 	return (
 		<>
-			<Errors
-				errors={[
-					{ message: "YOU ARE THE ERROR" },
-					{ message: "ACTUALLY NO, YOU ARE GORGOEUS" },
-					{ message: "ACTUALLY NO, YOU ARE GORGOEUS" },
-					{ message: "ERROR BEEP BOP BEEP BOP MADAFAKA" },
-				]}
-			/>
+			<Notification notification={{ type: "success", message: "lol" }} />
 			<GlobalStyle />
-			<Page>
-				<Hero />
-				{/* <Navigation /> */}
-				<ImagesContainer>
-					<AuthenticationCard />
-					<ImagesContainer>
-						{getImages().images.map((image) => (
-							<ImageCaptionsCard data={image} />
-						))}
-					</ImagesContainer>
-				</ImagesContainer>
-			</Page>
+			<Outlet />
 		</>
 	);
 }
-
-
 
 export default App;

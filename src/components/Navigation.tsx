@@ -2,6 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import constants from "./constants";
 import { WhiteButton } from "./Utils";
+import { Link } from "react-router-dom";
+import { EventEmitter } from "../Utils";
 
 interface ImagesNumberProps {
 	shown: number;
@@ -28,8 +30,12 @@ const NavigationButtonsContainer = styled.span`
 function NavigationButtons() {
 	return (
 		<NavigationButtonsContainer>
-			<WhiteButton onClick={() => {}} text="SIGN IN" />
-			<WhiteButton onClick={() => {}} text="CREATE ACCOUNT" />
+			<Link to="/sign-in">
+				<WhiteButton text="SIGN IN" />
+			</Link>
+			<Link to="/sign-up">
+				<WhiteButton text="CREATE ACCOUNT" />
+			</Link>
 			<WhiteButton onClick={() => {}} text="ADD IMAGE" />
 		</NavigationButtonsContainer>
 	);

@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState, ReactEventHandler } from "react";
 import styled from "styled-components";
 import constants from "./constants";
-import { WhiteButton, TwoSidedCard } from "./Utils";
+import { WhiteButton, TwoSidedCard, LoaderDiv } from "./Utils";
 import { ImageData, RankedCaptionData } from "../types/types";
 import { convertTimeToElapsedTime, immutableSortRank } from "./helper";
 import {v4 as uuid} from "uuid"
@@ -129,6 +129,17 @@ const SideContainer = styled.div`
 	display: flex;
 	flex-direction: column;
 `;
+
+function useImageLoaded() {
+    const [loaded, setLoaded] = useState(false);
+
+    function onLoad() {
+        setLoaded(true);
+    }
+
+    return [loaded, onLoad];
+}
+
 function ImageSide({
 	name,
 	time,
@@ -137,10 +148,37 @@ function ImageSide({
 	dislikes,
 	imageUrl,
 }: ImageSideProps) {
+    const [loaded, onLoad] = useImageLoaded();
+
 	return (
 		<SideContainer>
 			<NameTime name={name} time={time} />
-			<img alt="post" src={imageUrl} width="100%" />
+			<img
+				alt="post"
+				src={imageUrl}
+				width="100%"
+				style={
+					loaded
+						? {
+								borderTop: "1px solid black",
+								borderBottom: "1px solid black",
+						  }
+						: {}
+				}
+				onLoad={onLoad as ReactEventHandler<HTMLImageElement>}
+			/>
+			{!loaded && (
+				<div
+					style={{
+						height: "20vw",
+						borderTop: "1px solid black",
+						borderBottom: "1px solid black",
+					}}
+				>
+					<LoaderDiv />
+				</div>
+			)}
+
 			<Stats points={points} dislikes={dislikes} likes={likes} />
 		</SideContainer>
 	);
@@ -260,6 +298,7 @@ function CaptionGroups({ captions }: CaptionGroupsProps) {
 						points={caption.points}
 						likes={caption.likes}
 						dislikes={caption.dislikes}
+                        key={uuid()}
 					/>
 				);
 			})}

@@ -1,5 +1,5 @@
-import React, {ReactElement} from "react";
-import styled from "styled-components";
+import React, {ReactElement, useState} from "react";
+import styled, { keyframes} from "styled-components";
 import { EventEmitter } from "../Utils";
 import constants from "./constants";
 
@@ -65,6 +65,7 @@ const TwoSidedCard = function ({
 	right,
 	leftProportion = 1,
 	rightProportion = 1,
+
 }: TwoSidedCardProps) {
 	if (leftProportion < 0 || rightProportion < 0) {
 		throw new Error(
@@ -72,7 +73,7 @@ const TwoSidedCard = function ({
 		);
 	}
 	return (
-		<OuterContainer>
+		<OuterContainer >
 			<LeftContainer proportion={leftProportion}>{left}</LeftContainer>
 			<RightContainer proportion={rightProportion}>
 				{right}
@@ -105,7 +106,7 @@ const BackgroundColorButtonContainer = styled.button<ColorButtonProps>`
 
 interface ButtonProps {
 	text: string;
-    onClick: React.MouseEventHandler
+    onClick?: React.MouseEventHandler
 }
 function BackgroundColorButton({ text, onClick }: ButtonProps) {
 	return (
@@ -133,130 +134,45 @@ function WhiteButton({ text, onClick }: ButtonProps) {
 	);
 }
 
-const ImagesContainer = styled.div`
+const CenteredColumnContainer = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: ${constants.enormousGap};
 	align-items: center;
 `;
 
-const QuoteOuterContainer = styled.div`
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    padding: ${constants.humongousGap};
-`
-const QuoteInnerContainer = styled.div`
-	font-size: ${constants.mediumFontSize};
+const LogoContainer = styled.span`
 	font-weight: bold;
+	font-size: ${constants.largeFontSize};
+	text-shadow: 2px 2px 9px rgba(0, 0, 0, 0.25);
+	padding-bottom: ${constants.bigGap};
 `;
-function Quote() {
+
+const LoaderOpacityAnimation = keyframes`
+    from {
+        opacity: 0.2
+    }
+
+    to {
+        opacity: 0.5
+    }
+`;
+
+const LoaderContainer = styled(LogoContainer)`
+	font-size: ${constants.mediumFontSize};
+	padding-bottom: 0;
+	animation: ${LoaderOpacityAnimation} 1s ease-in-out infinite alternate;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+`;
+
+function LoaderDiv() {
 	return (
-		<QuoteOuterContainer>
-			<QuoteInnerContainer>
-                LOVE IS TEMPORARY, SHREK IS ETERNAL
-            </QuoteInnerContainer>
-		</QuoteOuterContainer>
-	);
-}
-
-const LabeledInputContainer = styled.div`
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-	align-items: flex-start;
-	gap: ${constants.smallerGap};
-`;
-
-const BackgroundColorInput = styled.input`
-	background-color: rgb(
-		${constants.background[0]},
-		${constants.background[1]},
-		${constants.background[2]}
-	);
-	border: 1px solid black;
-	border-radius: ${constants.radius};
-	box-sizing: border-box;
-	width: 100%;
-	outline: none;
-	height: 1.8em;
-`;
-interface LabeledInputProps {
-    name: string
-}
-function LabeledInput({name}: LabeledInputProps) {
-    return (
-    <LabeledInputContainer>
-        <span style={{fontSize: constants.regularFontSize, fontWeight:"bold"}}>{name}</span>
-        <BackgroundColorInput/>
-    </LabeledInputContainer>
-    )
-}
-const InputsOuterContainer = styled.div`
-	display: flex;
-	align-items: center;
-	box-sizing: border-box;
-    flex-basis: 0;
-    flex-grow: 1;
-`;
-const InputsInnerContainer = styled.div`
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	gap: ${constants.bigGap};
-`;
-
-function Inputs() {
-	return (
-		<InputsOuterContainer>
-			<InputsInnerContainer>
-				<LabeledInput name="USERNAME" />
-				<LabeledInput name="PASSWORD" />
-			</InputsInnerContainer>
-		</InputsOuterContainer>
-	);
-}
-
-const InputsGroupOuterContainer = styled.div`
-	width: 100%;
-	height: 100%;
-	padding: ${constants.mediumGap};
-	display: flex;
-	flex-direction: column;
-	box-sizing: border-box;
-`;
-
-interface InputsGroupProps {
-	onClick: React.MouseEventHandler;
-}
-
-function InputsGroup({ onClick }: InputsGroupProps) {
-	return (
-		<InputsGroupOuterContainer>
-			<Inputs />
-			<span style={{ alignSelf: "flex-end" }}>
-				<BackgroundColorButton onClick={onClick} text="JOIN WALL" />
-			</span>
-		</InputsGroupOuterContainer>
-	);
-}
-function AuthenticationCard() {
-	return (
-		<TwoSidedCard
-			left={<Quote />}
-			right={
-				<InputsGroup
-					onClick={() => {
-						EventEmitter.emit(
-							"error",
-							"THE ERROR IS WHEN YOUR MOM DECIDED TO GIVE BIRTH TO YOUR STUPID ASS"
-						);
-					}}
-				/>
-			}
-			leftProportion={2}
-			rightProportion={5}
-		/>
+		<div style={{ width: "100%", height: "100%", position: "relative" }}>
+			<LoaderContainer>WALL</LoaderContainer>
+		</div>
 	);
 }
 
@@ -264,8 +180,9 @@ function AuthenticationCard() {
 export {
 	Page,
 	TwoSidedCard,
-	ImagesContainer,
+	CenteredColumnContainer,
 	WhiteButton,
-    BackgroundColorButton,
-	AuthenticationCard,
+	BackgroundColorButton,
+	LogoContainer,
+	LoaderDiv
 };

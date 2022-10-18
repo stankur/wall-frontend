@@ -19,4 +19,20 @@ function immutableSortRank<Type extends Ranked>(arr: Type[]) {
 	return [...arr].sort((before, after) => before.rank - after.rank);
 }
 
-export { makeNumDigits, convertTimeToElapsedTime, immutableSortRank };
+function immutableRemove<Type>(
+	arr: Type[],
+	matchCondition: (elem: Type) => boolean
+) {
+	let index: number = arr.findIndex(matchCondition);
+	if (index === -1) {
+		throw new Error("no match found in the give array");
+	}
+	return [...arr.slice(0, index), ...arr.slice(index + 1)];
+}
+
+export {
+	makeNumDigits,
+	convertTimeToElapsedTime,
+	immutableSortRank,
+	immutableRemove,
+};

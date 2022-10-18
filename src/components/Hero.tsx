@@ -2,16 +2,53 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { makeNumDigits } from "./helper";
 import constants from "./constants";
+import { Link } from "react-router-dom";
+import { LogoContainer } from "./Utils";
 
-const LogoContainer = styled.span`
-	font-weight: bold;
-	font-size: ${constants.largeFontSize};
-	text-shadow: 2px 2px 9px rgba(0, 0, 0, 0.25);
-	padding-bottom: ${constants.smallGap};
+const SloganContainer = styled.span`
+	display: inline-flex;
+    align-items: center;
+    gap: 5px;
+	font-size: ${constants.regularLargerSize};
+	font-weight: 500;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -200%);
+	z-index: 1;
 `;
 
+const IgLogo = styled.img`
+    display: inline;
+`
+
 function Logo() {
-	return <LogoContainer>WALL</LogoContainer>;
+	return (
+		<Link to="/" style={{ textDecoration: "none", color: "black" }}>
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					alignItems: "center",
+					gap: constants.smallGap,
+				}}
+			>
+				<LogoContainer>WALL</LogoContainer>
+				<span style={{ position: "relative" }}>
+					<SloganContainer
+						onClick={() => {
+							window.open(
+								"https://www.instagram.com/everything_wall/"
+							);
+						}}
+					>
+						<IgLogo width="15px" src="./ig.png" />
+						<span>everything_wall</span>
+					</SloganContainer>
+				</span>
+			</div>
+		</Link>
+	);
 }
 
 const RoundContainer = styled.div`
@@ -164,4 +201,13 @@ function Hero() {
 	);
 }
 
-export default Hero
+function LogoHero() {
+    return (
+		<HeroContainer style={{paddingBottom: "70px"}}>
+			<Logo />
+		</HeroContainer>
+	);
+}
+
+export default Hero;
+export { LogoHero };

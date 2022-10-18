@@ -1,7 +1,9 @@
 const constants = {
 	background: [228, 228, 228],
-    error: [255, 173, 173],
+	error: [255, 173, 173],
+	success: [173, 206, 255],
 	radius: "7px",
+	regularLargerSize: "16px",
 	regularFontSize: "13px",
 	smallFontSize: "11px",
 	largeFontSize: "100px",
