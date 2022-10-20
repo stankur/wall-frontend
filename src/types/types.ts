@@ -23,3 +23,9 @@ export interface ImageData extends PostData {
 	captions: RankedCaptionData[];
 }
 
+// interfaces resulted from fetching backend (must align with backend):
+
+export interface UserData {
+    username: string,
+    id: string
+}

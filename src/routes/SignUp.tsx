@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Page, CenteredColumnContainer, WhiteButton } from "../components/Utils";
 import { LogoHero } from "../components/Hero";
 import AuthenticationCard from "../components/AuthenticationCard";
 
 import styled from "styled-components";
 import constants from "../components/constants";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import { useInternalUserData } from "../App";
+import { useSignUp } from "../hooks/authenticationHooks";
+import { UserData } from "../types/types";
+import { EventEmitter } from "../Utils";
 
 const Description = styled.div`
 	display: inline-block;
@@ -27,6 +32,22 @@ const RedirectSuggestionContainer = styled.div`
 `;
 
 function SignUp() {
+	const [userData, setUserData] = useInternalUserData();
+	const [signingUp, requestSignUp] = useSignUp(
+		userData,
+		setUserData,
+		handleSignUpSuccess
+	);
+	const navigate = useNavigate();
+
+	function handleSignUpSuccess(userData: UserData) {
+		navigate("/");
+		EventEmitter.emit(
+			"success",
+			`WELCOME TO WALL, ${userData.username}!`
+		);
+	}
+
 	return (
 		<Page>
 			<LogoHero />
@@ -35,8 +56,10 @@ function SignUp() {
 			</div>
 			<CenteredColumnContainer>
 				<AuthenticationCard
-					buttonOnClick={() => {}}
+					submitUsernamePassword={requestSignUp}
 					buttonText="JOIN WALL"
+					passwordDescription="AT LEAST 10 CHARACTERS"
+					usernameDescription="5 - 30 UPPERCASE ALPHANUMERIC"
 				/>
 			</CenteredColumnContainer>
 			<div style={{ textAlign: "center" }}>

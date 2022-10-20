@@ -56,6 +56,7 @@ function Notification({ notification }: NotificationProps) {
 	const [internalNotification, setInternalNotification] = useState<
 		NotificationObj | false
 	>(notification);
+    
 
 	EventEmitter.on("error", function (message) {
 		return setInternalNotification({ type: "error", message });

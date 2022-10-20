@@ -48,6 +48,7 @@ const BackgroundColorInput = styled.input`
 
 interface LabeledInputProps {
 	name: string;
+    description?: string;
 	type?: React.HTMLInputTypeAttribute;
 	value: string;
 	onChange: (event: React.FormEvent<HTMLInputElement>) => void;
@@ -55,6 +56,7 @@ interface LabeledInputProps {
 function LabeledInput({
 	name,
 	value,
+    description = undefined,
 	type = "text",
 	onChange,
 }: LabeledInputProps) {
@@ -68,6 +70,15 @@ function LabeledInput({
 			>
 				{name}
 			</span>
+			{!!description && (
+				<span
+					style={{
+						fontSize: constants.regularFontSize,
+					}}
+				>
+					{description}
+				</span>
+			)}
 			<BackgroundColorInput
 				type={type}
 				value={value}
@@ -93,12 +104,16 @@ const InputsInnerContainer = styled.div`
 interface InputsProps {
 	username: string;
 	password: string;
+	usernameDescription?: string;
+	passwordDescription?: string;
 	changeUsername: (newUsername: string) => void;
 	changePassword: (newPassword: string) => void;
 }
 function Inputs({
 	username,
 	password,
+	usernameDescription = undefined,
+	passwordDescription = undefined,
 	changeUsername,
 	changePassword,
 }: InputsProps) {
@@ -108,6 +123,7 @@ function Inputs({
 				<LabeledInput
 					name="USERNAME"
 					value={username}
+					description={usernameDescription}
 					onChange={(e) => {
 						return changeUsername(e.currentTarget.value);
 					}}
@@ -116,6 +132,7 @@ function Inputs({
 					name="PASSWORD"
 					type="password"
 					value={password}
+					description={passwordDescription}
 					onChange={(e) => {
 						return changePassword(e.currentTarget.value);
 					}}
@@ -143,14 +160,18 @@ function InputsGroup({
 	onClick,
 	buttonText,
 	username,
-    password,
-    changeUsername,
+	password,
+	usernameDescription = undefined,
+	passwordDescription = undefined,
+	changeUsername,
 	changePassword,
 }: InputsGroupProps) {
 	return (
 		<InputsGroupOuterContainer>
 			<Inputs
 				username={username}
+				usernameDescription={usernameDescription}
+				passwordDescription={passwordDescription}
 				password={password}
 				changeUsername={changeUsername}
 				changePassword={changePassword}
@@ -163,8 +184,10 @@ function InputsGroup({
 }
 
 interface AuthenticationCardProps {
-	buttonOnClick: React.MouseEventHandler;
+	submitUsernamePassword: (username: string, password: string) => void;
 	buttonText: string;
+	usernameDescription?: string;
+	passwordDescription?: string;
 }
 function useUsernamePassword(): [
 	string,
@@ -190,18 +213,23 @@ function useUsernamePassword(): [
 	return [username, password, changeUsername, changePassword];
 }
 function AuthenticationCard({
-	buttonOnClick,
+	submitUsernamePassword,
 	buttonText,
+	passwordDescription = undefined,
+	usernameDescription = undefined,
 }: AuthenticationCardProps) {
-    const [username, password, changeUsername, changePassword] = useUsernamePassword();
+	const [username, password, changeUsername, changePassword] =
+		useUsernamePassword();
 	return (
 		<TwoSidedCard
 			left={<Quote />}
 			right={
 				<InputsGroup
-					onClick={buttonOnClick}
+					onClick={() => submitUsernamePassword(username, password)}
 					buttonText={buttonText}
 					username={username}
+					passwordDescription={passwordDescription}
+					usernameDescription={usernameDescription}
 					password={password}
 					changePassword={changePassword}
 					changeUsername={changeUsername}

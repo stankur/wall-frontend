@@ -7,6 +7,7 @@ import { ImageCaptionsCard } from "../components/ImageCaptions";
 import { v4 as uuid } from "uuid";
 
 function Main() {
+    
 	return (
 		<Page>
 			<Hero />

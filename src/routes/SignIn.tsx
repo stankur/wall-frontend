@@ -40,7 +40,7 @@ function SignIn() {
 			</div>
 			<CenteredColumnContainer>
 				<AuthenticationCard
-					buttonOnClick={() => {
+					submitUsernamePassword={() => {
 						navigate("/");
 					}}
 					buttonText="SIGN IN"
