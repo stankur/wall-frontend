@@ -3,8 +3,6 @@ import { EventEmitter } from "../Utils";
 import constants from "./constants";
 import styled from "styled-components";
 import { WhiteButton } from "./Utils";
-import { v4 as uuid} from "uuid";
-import { immutableRemove} from "./helper"
 
 const NotificationOuterContainer = styled.div`
 	position: fixed;

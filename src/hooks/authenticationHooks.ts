@@ -20,7 +20,12 @@ function useUserData(): [
 				let fetchedUserData = await errorThrowingFetch(
 					(process.env.REACT_APP_BACKEND_URL as string) +
 						"/api/authentication",
-					undefined,
+					{
+						credentials: "include",
+						headers: {
+							"Content-Type": "application/json",
+						},
+					},
 					handleError
 				);
 
@@ -53,6 +58,7 @@ function useSignUp(
 					{
 						body: JSON.stringify({ username, password }),
 						method: "POST",
+						credentials: "include",
 						headers: {
 							"Content-Type": "application/json",
 						},
@@ -114,6 +120,7 @@ function useSignIn(
 						headers: {
 							"Content-Type": "application/json",
 						},
+						credentials: "include",
 						body: JSON.stringify({ username, password }),
 						method: "POST",
 					},

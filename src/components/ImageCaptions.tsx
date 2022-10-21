@@ -154,7 +154,7 @@ function ImageSide({
 		<SideContainer>
 			<NameTime name={name} time={time} />
 			<img
-				alt="post"
+				alt=""
 				src={imageUrl}
 				width="100%"
 				style={
@@ -163,7 +163,9 @@ function ImageSide({
 								borderTop: "1px solid black",
 								borderBottom: "1px solid black",
 						  }
-						: {}
+						: {
+                            display: "none"
+                        }
 				}
 				onLoad={onLoad as ReactEventHandler<HTMLImageElement>}
 			/>

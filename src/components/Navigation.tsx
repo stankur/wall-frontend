@@ -3,7 +3,7 @@ import styled from "styled-components";
 import constants from "./constants";
 import { WhiteButton } from "./Utils";
 import { Link } from "react-router-dom";
-import { EventEmitter } from "../Utils";
+import { UserDataState } from "../hooks/authenticationHooks";
 
 interface ImagesNumberProps {
 	shown: number;
@@ -25,17 +25,37 @@ function ImagesNumber({ shown, total }: ImagesNumberProps) {
 
 const NavigationButtonsContainer = styled.span`
 	display: inline-flex;
+    align-items: center;
 	gap: ${constants.smallGap};
 `;
-function NavigationButtons() {
+
+interface NavigationButtonsProps {
+    userData: UserDataState
+}
+function NavigationButtons({ userData }: NavigationButtonsProps) {
 	return (
 		<NavigationButtonsContainer>
-			<Link to="/sign-in">
-				<WhiteButton text="SIGN IN" />
-			</Link>
-			<Link to="/sign-up">
-				<WhiteButton text="CREATE ACCOUNT" />
-			</Link>
+			{!userData ? (
+				userData === undefined ? (
+					<></>
+				) : (
+					<>
+						<Link to="/sign-in">
+							<WhiteButton text="SIGN IN" />
+						</Link>
+						<Link to="/sign-up">
+							<WhiteButton text="CREATE ACCOUNT" />
+						</Link>
+					</>
+				)
+			) : (
+				<>
+					<span style={{ fontWeight: "bold" }}>
+						{userData.username}
+					</span>
+					<WhiteButton text="SIGN OUT" />
+				</>
+			)}
 			<WhiteButton onClick={() => {}} text="ADD IMAGE" />
 		</NavigationButtonsContainer>
 	);
@@ -59,12 +79,16 @@ const NavigationInnerContainer = styled.div`
 	align-items: baseline;
 `;
 
-function Navigation() {
+interface NavigationProps {
+    userData:UserDataState
+}
+
+function Navigation({userData}: NavigationProps) {
 	return (
 		<NavigationOuterContainer>
 			<NavigationInnerContainer>
 				<ImagesNumber shown={3} total={10} />
-				<NavigationButtons />
+				<NavigationButtons userData={userData} />
 			</NavigationInnerContainer>
 		</NavigationOuterContainer>
 	);
