@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { UserData } from "../types/types";
-import { errorThrowingFetch, EventEmitter } from "../Utils";
+import { isAuthenticationError, UserData } from "../types/types";
+import { authHandlingFetch, errorHandlingFetch, EventEmitter } from "../Utils";
 
 type UserDataState =  UserData | false | undefined;
+
+const requiredConfig = { credentials: "include" as "include" };
 
 function useUserData(): [
 	UserDataState,
@@ -12,24 +14,20 @@ function useUserData(): [
 
 	useEffect(function () {
 		(async function () {
-			let handleError = function () {
-				setUserData(false);
-			};
-
 			if (userData === undefined) {
-				let fetchedUserData = await errorThrowingFetch(
+				let fetchedUserData = await authHandlingFetch(
 					(process.env.REACT_APP_BACKEND_URL as string) +
 						"/api/authentication",
+					setUserData,
 					{
-						credentials: "include",
+						...requiredConfig,
 						headers: {
 							"Content-Type": "application/json",
 						},
-					},
-					handleError
+					}
 				);
 
-				if (!fetchedUserData.error) {
+				if (fetchedUserData && !fetchedUserData.error) {
 					return setUserData(fetchedUserData);
 				}
 			}
@@ -52,13 +50,13 @@ function useSignUp(
 	useEffect(function () {
 		(async function () {
 			if (signingUp) {
-				let response = await errorThrowingFetch(
+				let response = await errorHandlingFetch(
 					(process.env.REACT_APP_BACKEND_URL as string) +
 						"/api/authentication/sign-up",
 					{
 						body: JSON.stringify({ username, password }),
 						method: "POST",
-						credentials: "include",
+						...requiredConfig,
 						headers: {
 							"Content-Type": "application/json",
 						},
@@ -66,7 +64,7 @@ function useSignUp(
 					signUpFailHandler
 				);
 
-				if (!response.error) {
+				if (response && !response.error) {
 					let username: string = response.username;
 					let id: string = response.id;
 					setUserData({ username, id });
@@ -113,21 +111,22 @@ function useSignIn(
 	useEffect(function () {
 		(async function () {
 			if (signingIn) {
-				let response = await errorThrowingFetch(
+				let response = await authHandlingFetch(
 					(process.env.REACT_APP_BACKEND_URL as string) +
 						"/api/authentication/sign-in",
+					setUserData,
 					{
 						headers: {
 							"Content-Type": "application/json",
 						},
-						credentials: "include",
+						...requiredConfig,
 						body: JSON.stringify({ username, password }),
 						method: "POST",
 					},
 					signUpFailHandler
 				);
 
-				if (!response.error) {
+				if (response && !response.error) {
 					let username: string = response.username;
 					let id: string = response.id;
 					setUserData({ username, id });
@@ -160,6 +159,82 @@ function useSignIn(
 	return [signingIn, requestSignIn];
 }
 
-export { useUserData, useSignUp, useSignIn };
+function useSignOut(
+	userData: UserDataState,
+	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>,
+	signOutSuccessHandler?: () => void,
+	signOutFailHandler?: (error: Error) => void
+):[boolean, () => void] {
+	const [signingOut, setSigningOut] = useState(false);
+
+	function fetchSignOutErrorHandler(err: Error) {
+		if (isAuthenticationError({ error: err })) {
+			if (signOutSuccessHandler) {
+				return signOutSuccessHandler();
+			}
+			return EventEmitter.emit("success", "SUCCESSFULLY SIGNED OUT!");
+		}
+
+
+		if (signOutFailHandler) {
+			return signOutFailHandler(err);
+		}
+
+		return EventEmitter.emit("error", err.message);
+	}
+
+	useEffect(function () {
+		(async function () {
+			if (signingOut) {
+				let response = await authHandlingFetch(
+					(process.env.REACT_APP_BACKEND_URL as string) +
+						"/api/authentication/sign-out",
+					setUserData,
+					{
+						...requiredConfig,
+						method: "POST",
+					},
+					fetchSignOutErrorHandler
+				);
+
+				if (response && !response.error) {
+					if (signOutFailHandler) {
+						signOutFailHandler(
+							new Error(
+								"FAILED TO SIGN OUT DUE TO INTERNAL REASONS. PLEASE CONTACT THE DEVELOPER"
+							)
+						);
+					} else {
+						EventEmitter.emit(
+							"error",
+							"FAILED TO SIGN OUT DUE TO INTERNAL REASONS. PLEASE CONTACT THE DEVELOPER"
+						);
+					}
+				}
+
+				return setSigningOut(false);
+			}
+		})();
+	});
+
+	const requestSignOut = function () {
+		if (userData === undefined) {
+			return EventEmitter.emit(
+				"error",
+				"PLEASE TRY AGAIN IN A LITTLE WHILE"
+			);
+		}
+
+		if (userData === false) {
+			return EventEmitter.emit("error", "YOU ARE NOT SIGNED IN");
+		}
+
+		return setSigningOut(true);
+	};
+
+	return [signingOut, requestSignOut];
+}
+
+export { useUserData, useSignUp, useSignIn, useSignOut };
 
 export { type UserDataState };

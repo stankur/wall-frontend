@@ -8,13 +8,12 @@ import { v4 as uuid } from "uuid";
 import { useInternalUserData } from "../App";
 
 function Main() {
-    const [userData] = useInternalUserData();
-
+	const [userData, setUserData] = useInternalUserData();
 
 	return (
 		<Page>
 			<Hero />
-			<Navigation userData={userData} />
+			<Navigation userData={userData} setUserData={setUserData} />
 			<CenteredColumnContainer>
 				{getImages().images.map((image) => (
 					<ImageCaptionsCard data={image} key={uuid()} />

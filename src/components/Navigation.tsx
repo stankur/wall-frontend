@@ -3,7 +3,7 @@ import styled from "styled-components";
 import constants from "./constants";
 import { WhiteButton } from "./Utils";
 import { Link } from "react-router-dom";
-import { UserDataState } from "../hooks/authenticationHooks";
+import { UserDataState, useSignOut } from "../hooks/authenticationHooks";
 
 interface ImagesNumberProps {
 	shown: number;
@@ -30,9 +30,13 @@ const NavigationButtonsContainer = styled.span`
 `;
 
 interface NavigationButtonsProps {
-    userData: UserDataState
+	userData: UserDataState;
+	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>;
 }
-function NavigationButtons({ userData }: NavigationButtonsProps) {
+
+
+function NavigationButtons({ userData, setUserData }: NavigationButtonsProps) {
+	const [signingOut, requestSignOut] = useSignOut(userData, setUserData);
 	return (
 		<NavigationButtonsContainer>
 			{!userData ? (
@@ -53,7 +57,12 @@ function NavigationButtons({ userData }: NavigationButtonsProps) {
 					<span style={{ fontWeight: "bold" }}>
 						{userData.username}
 					</span>
-					<WhiteButton text="SIGN OUT" />
+					<WhiteButton
+						onClick={() => {
+							requestSignOut();
+						}}
+						text="SIGN OUT"
+					/>
 				</>
 			)}
 			<WhiteButton onClick={() => {}} text="ADD IMAGE" />
@@ -79,16 +88,14 @@ const NavigationInnerContainer = styled.div`
 	align-items: baseline;
 `;
 
-interface NavigationProps {
-    userData:UserDataState
-}
+interface NavigationProps extends NavigationButtonsProps {}
 
-function Navigation({userData}: NavigationProps) {
+function Navigation({userData, setUserData}: NavigationProps) {
 	return (
 		<NavigationOuterContainer>
 			<NavigationInnerContainer>
 				<ImagesNumber shown={3} total={10} />
-				<NavigationButtons userData={userData} />
+				<NavigationButtons userData={userData} setUserData={setUserData}/>
 			</NavigationInnerContainer>
 		</NavigationOuterContainer>
 	);

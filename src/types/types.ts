@@ -26,6 +26,27 @@ export interface ImageData extends PostData {
 // interfaces resulted from fetching backend (must align with backend):
 
 export interface UserData {
-    username: string,
-    id: string
+	username: string;
+	id: string;
 }
+
+interface BackendGeneratedError {
+    error: {
+        message: string;
+    }
+}
+
+type AuthenticationError = {
+	error: {
+		message: "YOU ARE NOT SIGNED IN";
+	};
+};
+
+function isAuthenticationError(
+	err: BackendGeneratedError
+): err is AuthenticationError {
+    console.log(err.error.message);
+	return err.error.message === "YOU ARE NOT SIGNED IN";
+}
+
+export { isAuthenticationError };

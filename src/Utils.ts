@@ -1,4 +1,6 @@
 import { createNanoEvents } from "nanoevents";
+import { UserDataState } from "./hooks/authenticationHooks";
+import { isAuthenticationError } from "./types/types";
 
 interface Events {
 	error: (message: string) => void;
@@ -6,7 +8,7 @@ interface Events {
 }
 const EventEmitter = createNanoEvents<Events>();
 
-async function errorThrowingFetch(
+async function errorHandlingFetch(
 	api: string,
 	config?: RequestInit,
 	customErrorHandler?: (err: Error) => void
@@ -28,14 +30,30 @@ async function errorThrowingFetch(
 		);
 	}
 
-	if (body.error) {
+	if (body && body.error) {
 		if (customErrorHandler) {
-			return customErrorHandler(body.error);
+			customErrorHandler(body.error);
+		} else {
+			EventEmitter.emit("error", body.error.message);
 		}
-		return EventEmitter.emit("error", body.error.message);
 	}
 
 	return body;
 }
 
-export { EventEmitter, errorThrowingFetch };
+async function authHandlingFetch(
+	api: string,
+	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>,
+	config?: RequestInit,
+	customErrorHandler?: (err: Error) => void
+) {
+	let body: any = await errorHandlingFetch(api, config, customErrorHandler);
+
+	if (body && body.error && isAuthenticationError({error: body.error})) {
+		setUserData(false);
+	}
+
+	return body;
+}
+
+export { EventEmitter, errorHandlingFetch, authHandlingFetch };

@@ -10,6 +10,10 @@ import AuthenticationCard from "../components/AuthenticationCard";
 import styled from "styled-components";
 import constants from "../components/constants";
 import { Link, useNavigate } from "react-router-dom";
+import { useInternalUserData } from "../App";
+import { useSignIn } from "../hooks/authenticationHooks";
+import { EventEmitter } from "../Utils";
+import { UserData } from "../types/types";
 
 const Description = styled.div`
 	display: inline-block;
@@ -32,6 +36,18 @@ const RedirectSuggestionContainer = styled.div`
 
 function SignIn() {
 	const navigate = useNavigate();
+	const [userData, setUserData] = useInternalUserData();
+	const [signingIn, requestSignIn] = useSignIn(
+		userData,
+		setUserData,
+		handleSignInSuccess
+	);
+
+	function handleSignInSuccess(userData: UserData) {
+		navigate("/");
+		EventEmitter.emit("success", `WELCOME TO WALL, ${userData.username}!`);
+	}
+
 	return (
 		<Page>
 			<LogoHero />
@@ -40,9 +56,7 @@ function SignIn() {
 			</div>
 			<CenteredColumnContainer>
 				<AuthenticationCard
-					submitUsernamePassword={() => {
-						navigate("/");
-					}}
+					submitUsernamePassword={requestSignIn}
 					buttonText="SIGN IN"
 				/>
 			</CenteredColumnContainer>
