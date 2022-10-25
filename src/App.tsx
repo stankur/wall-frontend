@@ -15,7 +15,7 @@ function App() {
 
 	return (
 		<>
-			<Notification notification={{ type: "success", message: "lol" }} />
+			<Notification notification={false} />
 			<GlobalStyle />
 			<Outlet context={[userData, setUserData]} />
 		</>

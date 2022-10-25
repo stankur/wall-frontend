@@ -177,6 +177,16 @@ function LoaderDiv() {
 }
 
 
+// for pages which consists of only one two-sided card and needs a small description on top of the card
+const Description = styled.div`
+	display: inline-block;
+	padding-bottom: ${constants.bigGap};
+	text-align: left;
+	font-size: ${constants.regularFontSize};
+	width: ${constants.mainContentWidth};
+`;
+
+
 export {
 	Page,
 	TwoSidedCard,
@@ -184,5 +194,6 @@ export {
 	WhiteButton,
 	BackgroundColorButton,
 	LogoContainer,
-	LoaderDiv
+	LoaderDiv,
+    Description
 };

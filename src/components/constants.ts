@@ -1,6 +1,8 @@
 const constants = {
 	background: [228, 228, 228],
+	backgroundLite: [243, 243, 243],
 	error: [255, 173, 173],
+	watermark: [180, 180, 180],
 	success: [173, 206, 255],
 	radius: "7px",
 	regularLargerSize: "16px",

@@ -3,6 +3,7 @@ import {
 	Page,
 	CenteredColumnContainer,
 	WhiteButton,
+	Description,
 } from "../components/Utils";
 import { LogoHero } from "../components/Hero";
 import AuthenticationCard from "../components/AuthenticationCard";
@@ -15,13 +16,6 @@ import { useSignIn } from "../hooks/authenticationHooks";
 import { EventEmitter } from "../Utils";
 import { UserData } from "../types/types";
 
-const Description = styled.div`
-	display: inline-block;
-	padding-bottom: ${constants.bigGap};
-	text-align: left;
-	font-size: ${constants.regularFontSize};
-	width: ${constants.mainContentWidth};
-`;
 
 const RedirectSuggestionContainer = styled.div`
 	display: inline-flex;

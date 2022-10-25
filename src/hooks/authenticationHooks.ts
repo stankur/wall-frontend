@@ -24,7 +24,8 @@ function useUserData(): [
 						headers: {
 							"Content-Type": "application/json",
 						},
-					}
+					},
+					handleError
 				);
 
 				if (fetchedUserData && !fetchedUserData.error) {
@@ -34,6 +35,12 @@ function useUserData(): [
 		})();
 	});
 
+
+    function handleError(err: Error) {
+		if (!isAuthenticationError({ error: err })) {
+			EventEmitter.emit("error", err.message);
+		}
+	}
 	return [userData, setUserData];
 }
 

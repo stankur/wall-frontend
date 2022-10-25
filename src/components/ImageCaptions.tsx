@@ -1,10 +1,11 @@
-import React, { useState, ReactEventHandler } from "react";
+import React, { useState, ReactEventHandler, useRef } from "react";
 import styled from "styled-components";
 import constants from "./constants";
 import { WhiteButton, TwoSidedCard, LoaderDiv } from "./Utils";
-import { ImageData, RankedCaptionData } from "../types/types";
+import { ImageData, RankedCaptionData, UserData } from "../types/types";
 import { convertTimeToElapsedTime, immutableSortRank } from "./helper";
 import {v4 as uuid} from "uuid"
+import { EventEmitter } from "../Utils";
 
 const PostInfoBarOuterContainer = styled.div`
 	padding: ${constants.smallGap};
@@ -33,7 +34,7 @@ function NameTime({ name, time }: NameTimeProps) {
 			<span
 				style={{ fontWeight: 500, fontSize: constants.regularFontSize }}
 			>
-				{time}
+				{convertTimeToElapsedTime(time)}
 			</span>
 		</PostInfoBarOuterContainer>
 	);
@@ -56,6 +57,7 @@ const PlusSignContainer = styled.span`
 	z-index: 1;
 	font-weight: bold;
 	font-size: large;
+    cursor: pointer;
 `;
 
 function PlusButton() {
@@ -119,40 +121,53 @@ function Stats({ points, likes, dislikes }: StatsProps) {
 	);
 }
 
-interface ImageSideProps extends StatsProps, NameTimeProps {
+interface LoadableImageProps {
 	imageUrl: string;
+    onClick?: React.MouseEventHandler
 }
-
-const SideContainer = styled.div`
-	width: 100%;
-    height: 100%;
-	display: flex;
-	flex-direction: column;
-`;
 
 function useImageLoaded() {
-    const [loaded, setLoaded] = useState(false);
+	const [loaded, setLoaded] = useState(false);
 
-    function onLoad() {
-        setLoaded(true);
-    }
+	function onLoad() {
+		setLoaded(true);
+	}
 
-    return [loaded, onLoad];
+	return [loaded, onLoad];
 }
 
-function ImageSide({
-	name,
-	time,
-	points,
-	likes,
-	dislikes,
+const NoImageContainer = styled.div`
+    height: 20vw;
+    border-top: 1px solid black;
+    border-bottom:1px solid black;
+`
+
+interface LoadingImageProps {
+	onClick?: React.MouseEventHandler;
+}
+
+function LoadingImage({
+	onClick = () => {
+		return;
+	},
+}: LoadingImageProps) {
+	return (
+		<NoImageContainer onClick={onClick}>
+			<LoaderDiv />
+		</NoImageContainer>
+	);
+}
+
+function LoadableImage({
 	imageUrl,
-}: ImageSideProps) {
-    const [loaded, onLoad] = useImageLoaded();
+	onClick = () => {
+		return;
+	},
+}: LoadableImageProps) {
+	const [loaded, onLoad] = useImageLoaded();
 
 	return (
-		<SideContainer>
-			<NameTime name={name} time={time} />
+		<>
 			<img
 				alt=""
 				src={imageUrl}
@@ -164,23 +179,42 @@ function ImageSide({
 								borderBottom: "1px solid black",
 						  }
 						: {
-                            display: "none"
-                        }
+								display: "none",
+						  }
 				}
 				onLoad={onLoad as ReactEventHandler<HTMLImageElement>}
+				onClick={onClick}
 			/>
-			{!loaded && (
-				<div
-					style={{
-						height: "20vw",
-						borderTop: "1px solid black",
-						borderBottom: "1px solid black",
-					}}
-				>
-					<LoaderDiv />
-				</div>
-			)}
+			{!loaded && <LoadingImage onClick={onClick} />}
+		</>
+	);
+}
 
+interface ImageSideProps
+	extends StatsProps,
+		NameTimeProps,
+		Pick<LoadableImageProps, "imageUrl"> {}
+
+const SideContainer = styled.div`
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+`;
+
+
+function ImageSide({
+	name,
+	time,
+	points,
+	likes,
+	dislikes,
+	imageUrl,
+}: ImageSideProps) {
+	return (
+		<SideContainer>
+			<NameTime name={name} time={time} />
+			<LoadableImage imageUrl={imageUrl} />
 			<Stats points={points} dislikes={dislikes} likes={likes} />
 		</SideContainer>
 	);
@@ -295,7 +329,7 @@ function CaptionGroups({ captions }: CaptionGroupsProps) {
 				return (
 					<CaptionGroup
 						name={caption.username.toUpperCase()}
-						time={convertTimeToElapsedTime(caption.created_at)}
+						time={caption.created_at}
 						text={caption.text}
 						points={caption.points}
 						likes={caption.likes}
@@ -328,7 +362,7 @@ function ImageCaptionsCard({data}: ImageCaptionsCardProps) {
 			left={
 				<ImageSide
 					name={data.username}
-					time={convertTimeToElapsedTime(data.created_at)}
+					time={data.created_at}
 					points={data.points}
 					likes={data.likes}
 					dislikes={data.dislikes}
@@ -339,5 +373,169 @@ function ImageCaptionsCard({data}: ImageCaptionsCardProps) {
 		/>
 	);
 }
+// here and below are the components specifically for add-image route
+interface ImagePreviewProps extends Omit<ImageSideProps, "imageUrl"> {
+	imageUrl: string | false;
+	requestChangeImage: (newImageUrl: string | false) => void;
+}
 
-export { ImageCaptionsCard };
+function ImagePreview({
+	imageUrl,
+	requestChangeImage,
+	name,
+	time,
+	points,
+	dislikes,
+	likes,
+}: ImagePreviewProps) {
+    const fileInput = useRef<HTMLInputElement>(null);
+
+	function popUpFileSelection() {
+		if (fileInput.current) {
+			fileInput.current.click();
+            console.log("clicked")
+		} else {
+			EventEmitter.emit("error", "PLEASE TRY AGAIN IN A LITTLE WHILE");
+		}
+	}
+
+    function handleSelectedFileChange(
+		event: React.ChangeEvent<HTMLInputElement>
+	) {
+		if (!event.target.files) {
+			return requestChangeImage(false);
+		}
+
+		return requestChangeImage(URL.createObjectURL(event.target.files[0]));
+	}
+
+	return (
+		<SideContainer>
+			<NameTime name={name} time={time} />
+			<input
+				type={"file"}
+				ref={fileInput}
+				style={{ display: "none" }}
+				accept="image/png, image/jpeg, image/jpg"
+				onChange={handleSelectedFileChange}
+			/>
+			{!!imageUrl ? (
+				<LoadableImage
+					onClick={popUpFileSelection}
+					imageUrl={imageUrl}
+				/>
+			) : (
+				<NoImageContainer onClick={popUpFileSelection}>
+					<div
+						style={{
+							width: "100%",
+							height: "100%",
+							display: "flex",
+							flexDirection: "column",
+							justifyContent: "center",
+						}}
+					>
+						<div style={{ textAlign: "center" }}>
+							<span
+								style={{
+									fontSize: constants.regularLargerSize,
+									fontWeight: "bold",
+									color: `rgb(${constants.watermark[0]},${constants.watermark[1]},${constants.watermark[2]})`,
+									cursor: "default",
+								}}
+							>
+								CLICK TO CHOOSE IMAGE
+							</span>
+						</div>
+					</div>
+				</NoImageContainer>
+			)}
+			<Stats points={points} dislikes={dislikes} likes={likes} />
+		</SideContainer>
+	);
+}
+
+const FakeCaptionTextArea = styled.div`
+	flex-grow: 1;
+	flex-basis: 0;
+	border: 1px solid black;
+	border-radius: ${constants.radius};
+	background-color: rgb(
+		${constants.backgroundLite[0]},
+		${constants.backgroundLite[1]},
+		${constants.backgroundLite[2]}
+	);
+`;
+
+interface AddImagePanelProps {
+    requestAddImage: React.MouseEventHandler
+}
+
+function AddImagePanel({ requestAddImage }: AddImagePanelProps) {
+	return (
+		<AddCaptionContainer>
+			<TextAreaContainer>
+				<FakeCaptionTextArea />
+			</TextAreaContainer>
+			<WhiteButton text="ADD IMAGE" onClick={requestAddImage} />
+		</AddCaptionContainer>
+	);
+}
+
+interface AddImagePreviewCaptionSideProps extends AddImagePanelProps {
+    captions: RankedCaptionData[],
+}
+function AddImagePreviewCaptionSide({
+	captions,
+	requestAddImage,
+}: AddImagePreviewCaptionSideProps) {
+	return (
+		<SideContainer>
+			<CaptionGroups captions={captions} />
+			<AddImagePanel requestAddImage={requestAddImage} />
+		</SideContainer>
+	);
+}
+
+interface AddImagePreviewProps
+	extends Omit<ImagePreviewProps, "name">,
+		AddImagePreviewCaptionSideProps {
+	userData: UserData;
+}
+
+function AddImagePreview({
+	userData,
+	requestChangeImage,
+	imageUrl,
+	time,
+	points,
+	dislikes,
+	likes,
+	captions,
+	requestAddImage,
+}: AddImagePreviewProps) {
+	return (
+		<TwoSidedCard
+			left={
+				<ImagePreview
+					imageUrl={imageUrl}
+					requestChangeImage={requestChangeImage}
+					name={userData.username}
+					time={time}
+					points={points}
+					dislikes={dislikes}
+					likes={likes}
+				/>
+			}
+			right={
+				<AddImagePreviewCaptionSide
+					captions={captions}
+					requestAddImage={requestAddImage}
+				/>
+			}
+		/>
+	);
+}
+
+
+export { ImageCaptionsCard, AddImagePreview };

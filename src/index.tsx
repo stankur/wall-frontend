@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Main from "./routes/Main";
 import SignUp from "./routes/SignUp";
 import SignIn from "./routes/SignIn";
+import AddImage from "./routes/AddImage";
 
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement
@@ -19,6 +20,7 @@ root.render(
 					<Route index element={<Main />} />
 					<Route path="/sign-up" element={<SignUp />} />
 					<Route path="/sign-in" element={<SignIn />} />
+					<Route path="/add-image" element={<AddImage />} />
 				</Route>
 			</Routes>
 		</BrowserRouter>

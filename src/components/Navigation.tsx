@@ -2,8 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import constants from "./constants";
 import { WhiteButton } from "./Utils";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserDataState, useSignOut } from "../hooks/authenticationHooks";
+import { EventEmitter } from "../Utils";
 
 interface ImagesNumberProps {
 	shown: number;
@@ -37,6 +38,22 @@ interface NavigationButtonsProps {
 
 function NavigationButtons({ userData, setUserData }: NavigationButtonsProps) {
 	const [signingOut, requestSignOut] = useSignOut(userData, setUserData);
+    const navigate = useNavigate()
+
+    function requestAddImage() {
+        if (userData === undefined) {
+            return EventEmitter.emit(
+				"error",
+				"PLEASE TRY AGAIN IN A LITTLE WHILE"
+			);
+        }
+
+        if (!userData) {
+            return EventEmitter.emit("error", "YOU MUST BE SIGNED IN TO ADD A NEW IMAGE")
+        }
+
+        return navigate("/add-image")
+    }
 	return (
 		<NavigationButtonsContainer>
 			{!userData ? (
@@ -65,7 +82,7 @@ function NavigationButtons({ userData, setUserData }: NavigationButtonsProps) {
 					/>
 				</>
 			)}
-			<WhiteButton onClick={() => {}} text="ADD IMAGE" />
+			<WhiteButton onClick={requestAddImage} text="ADD IMAGE" />
 		</NavigationButtonsContainer>
 	);
 }

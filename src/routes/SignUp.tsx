@@ -1,24 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { Page, CenteredColumnContainer, WhiteButton } from "../components/Utils";
+import React from "react";
+import {
+	Page,
+	CenteredColumnContainer,
+	WhiteButton,
+	Description,
+} from "../components/Utils";
 import { LogoHero } from "../components/Hero";
 import AuthenticationCard from "../components/AuthenticationCard";
 
 import styled from "styled-components";
 import constants from "../components/constants";
 import { Link, useNavigate } from "react-router-dom";
-
 import { useInternalUserData } from "../App";
 import { useSignUp } from "../hooks/authenticationHooks";
 import { UserData } from "../types/types";
 import { EventEmitter } from "../Utils";
-
-const Description = styled.div`
-	display: inline-block;
-	padding-bottom: ${constants.bigGap};
-	text-align: left;
-	font-size: ${constants.regularFontSize};
-	width: ${constants.mainContentWidth};
-`;
 
 const RedirectSuggestionContainer = styled.div`
 	display: inline-flex;
@@ -42,10 +38,7 @@ function SignUp() {
 
 	function handleSignUpSuccess(userData: UserData) {
 		navigate("/");
-		EventEmitter.emit(
-			"success",
-			`WELCOME TO WALL, ${userData.username}!`
-		);
+		EventEmitter.emit("success", `WELCOME TO WALL, ${userData.username}!`);
 	}
 
 	return (
