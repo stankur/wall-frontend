@@ -23,5 +23,4 @@ const constants = {
 	mainContentWidth: "55%",
 };
 
-
 export default constants;

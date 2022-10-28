@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled
  from "styled-components";
 import { TwoSidedCard, BackgroundColorButton } from "./Utils";
-import constants from "./constants";
+import constants from "../constants/ComponentConstants";
 
 const QuoteOuterContainer = styled.div`
 	height: 100%;

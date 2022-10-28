@@ -1,6 +1,6 @@
 import React, { useState, ReactEventHandler, useRef } from "react";
 import styled from "styled-components";
-import constants from "./constants";
+import constants from "../constants/ComponentConstants";
 import { WhiteButton, TwoSidedCard, LoaderDiv } from "./Utils";
 import { ImageData, RankedCaptionData, UserData } from "../types/types";
 import { convertTimeToElapsedTime, immutableSortRank } from "./helper";
@@ -376,7 +376,7 @@ function ImageCaptionsCard({data}: ImageCaptionsCardProps) {
 // here and below are the components specifically for add-image route
 interface ImagePreviewProps extends Omit<ImageSideProps, "imageUrl"> {
 	imageUrl: string | false;
-	requestChangeImage: (newImageUrl: string | false) => void;
+	requestChangeImage: (newImage: File| undefined) => void;
 }
 
 function ImagePreview({
@@ -389,24 +389,36 @@ function ImagePreview({
 	likes,
 }: ImagePreviewProps) {
     const fileInput = useRef<HTMLInputElement>(null);
+    const [waitingForInput, setWaitingForInput] = useState(false);
 
 	function popUpFileSelection() {
-		if (fileInput.current) {
-			fileInput.current.click();
-            console.log("clicked")
-		} else {
-			EventEmitter.emit("error", "PLEASE TRY AGAIN IN A LITTLE WHILE");
+		console.log("pop up file selection waiting: " + waitingForInput);
+		if (!waitingForInput) {
+			if (fileInput.current) {
+                setWaitingForInput(true);
+                setTimeout(() => setWaitingForInput(false), 200)
+				fileInput.current.click();
+			} else {
+				EventEmitter.emit(
+					"error",
+					"PLEASE TRY AGAIN IN A LITTLE WHILE"
+				);
+			}
 		}
 	}
 
-    function handleSelectedFileChange(
+	function handleSelectedFileChange(
 		event: React.ChangeEvent<HTMLInputElement>
 	) {
+		setWaitingForInput(false);
+
+		console.log("handle selected file change waiting: " + waitingForInput);
+
 		if (!event.target.files) {
-			return requestChangeImage(false);
+			return requestChangeImage(undefined);
 		}
 
-		return requestChangeImage(URL.createObjectURL(event.target.files[0]));
+		return requestChangeImage(event.target.files[0]);
 	}
 
 	return (
@@ -416,7 +428,7 @@ function ImagePreview({
 				type={"file"}
 				ref={fileInput}
 				style={{ display: "none" }}
-				accept="image/png, image/jpeg, image/jpg"
+				accept="image/jpeg, image/jpg"
 				onChange={handleSelectedFileChange}
 			/>
 			{!!imageUrl ? (
@@ -435,7 +447,7 @@ function ImagePreview({
 							justifyContent: "center",
 						}}
 					>
-						<div style={{ textAlign: "center" }}>
+						<div style={{ textAlign: "center", display: "flex", flexDirection:"column", justifyContent:"center", gap:constants.smallGap }}>
 							<span
 								style={{
 									fontSize: constants.regularLargerSize,
@@ -445,6 +457,15 @@ function ImagePreview({
 								}}
 							>
 								CLICK TO CHOOSE IMAGE
+							</span>
+							<span
+								style={{
+									fontSize: constants.regularFontSize,
+									color: `rgb(${constants.watermark[0]},${constants.watermark[1]},${constants.watermark[2]})`,
+									cursor: "default",
+								}}
+							>
+								(MUST BE JPG/JPEG)
 							</span>
 						</div>
 					</div>
@@ -498,15 +519,16 @@ function AddImagePreviewCaptionSide({
 }
 
 interface AddImagePreviewProps
-	extends Omit<ImagePreviewProps, "name">,
+	extends Omit<ImagePreviewProps, "name"| "imageUrl">,
 		AddImagePreviewCaptionSideProps {
+    image: File | undefined
 	userData: UserData;
 }
 
 function AddImagePreview({
 	userData,
 	requestChangeImage,
-	imageUrl,
+	image,
 	time,
 	points,
 	dislikes,
@@ -518,7 +540,7 @@ function AddImagePreview({
 		<TwoSidedCard
 			left={
 				<ImagePreview
-					imageUrl={imageUrl}
+					imageUrl={!!image? URL.createObjectURL(image): false}
 					requestChangeImage={requestChangeImage}
 					name={userData.username}
 					time={time}

@@ -50,3 +50,7 @@ function isAuthenticationError(
 }
 
 export { isAuthenticationError };
+
+export interface AddImageResponse {
+    id: string;
+}

@@ -1,7 +1,7 @@
 import React, {ReactElement, useState} from "react";
 import styled, { keyframes} from "styled-components";
 import { EventEmitter } from "../Utils";
-import constants from "./constants";
+import constants from "../constants/ComponentConstants";
 
 const Page = styled.div`
 	width: 100vw;

@@ -56,4 +56,8 @@ async function authHandlingFetch(
 	return body;
 }
 
-export { EventEmitter, errorHandlingFetch, authHandlingFetch };
+export {
+	EventEmitter,
+	errorHandlingFetch,
+	authHandlingFetch,
+};

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { isAuthenticationError, UserData } from "../types/types";
 import { authHandlingFetch, errorHandlingFetch, EventEmitter } from "../Utils";
+import AuthenticationConstants from "../constants/AuthenticationConstants";
 
 type UserDataState =  UserData | false | undefined;
-
-const requiredConfig = { credentials: "include" as "include" };
 
 function useUserData(): [
 	UserDataState,
@@ -20,7 +19,7 @@ function useUserData(): [
 						"/api/authentication",
 					setUserData,
 					{
-						...requiredConfig,
+						...AuthenticationConstants.requiredConfig,
 						headers: {
 							"Content-Type": "application/json",
 						},
@@ -63,7 +62,7 @@ function useSignUp(
 					{
 						body: JSON.stringify({ username, password }),
 						method: "POST",
-						...requiredConfig,
+						...AuthenticationConstants.requiredConfig,
 						headers: {
 							"Content-Type": "application/json",
 						},
@@ -126,7 +125,7 @@ function useSignIn(
 						headers: {
 							"Content-Type": "application/json",
 						},
-						...requiredConfig,
+						...AuthenticationConstants.requiredConfig,
 						body: JSON.stringify({ username, password }),
 						method: "POST",
 					},
@@ -198,7 +197,7 @@ function useSignOut(
 						"/api/authentication/sign-out",
 					setUserData,
 					{
-						...requiredConfig,
+						...AuthenticationConstants.requiredConfig,
 						method: "POST",
 					},
 					fetchSignOutErrorHandler

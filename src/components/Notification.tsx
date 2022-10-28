@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { EventEmitter } from "../Utils";
-import constants from "./constants";
+import constants from "../constants/ComponentConstants";
 import styled from "styled-components";
 import { WhiteButton } from "./Utils";
 

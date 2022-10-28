@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { makeNumDigits } from "./helper";
-import constants from "./constants";
+import constants from "../constants/ComponentConstants";
 import { Link } from "react-router-dom";
 import { LogoContainer } from "./Utils";
 

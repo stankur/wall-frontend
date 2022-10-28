@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import constants from "./constants";
+import constants from "../constants/ComponentConstants";
 import { WhiteButton } from "./Utils";
 import { Link, useNavigate } from "react-router-dom";
 import { UserDataState, useSignOut } from "../hooks/authenticationHooks";

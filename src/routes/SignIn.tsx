@@ -9,7 +9,7 @@ import { LogoHero } from "../components/Hero";
 import AuthenticationCard from "../components/AuthenticationCard";
 
 import styled from "styled-components";
-import constants from "../components/constants";
+import constants from "../constants/ComponentConstants";
 import { Link, useNavigate } from "react-router-dom";
 import { useInternalUserData } from "../App";
 import { useSignIn } from "../hooks/authenticationHooks";
