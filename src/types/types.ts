@@ -54,3 +54,7 @@ export { isAuthenticationError };
 export interface AddImageResponse {
     id: string;
 }
+
+export interface AddCaptionResponse {
+	id: string;
+}

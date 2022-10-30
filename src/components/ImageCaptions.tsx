@@ -1,10 +1,10 @@
 import React, { useState, ReactEventHandler, useRef } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import constants from "../constants/ComponentConstants";
 import { WhiteButton, TwoSidedCard, LoaderDiv } from "./Utils";
 import { ImageData, RankedCaptionData, UserData } from "../types/types";
 import { convertTimeToElapsedTime, immutableSortRank } from "./helper";
-import {v4 as uuid} from "uuid"
+import { v4 as uuid } from "uuid";
 import { EventEmitter } from "../Utils";
 
 const PostInfoBarOuterContainer = styled.div`
@@ -57,12 +57,16 @@ const PlusSignContainer = styled.span`
 	z-index: 1;
 	font-weight: bold;
 	font-size: large;
-    cursor: pointer;
+	cursor: pointer;
 `;
 
-function PlusButton() {
+interface PlusButtonProps {
+    onClick: () => void
+}
+
+function PlusButton({onClick}: PlusButtonProps) {
 	return (
-		<PlusButtonContainer>
+		<PlusButtonContainer onClick={onClick}>
 			<PlusSignContainer>+</PlusSignContainer>
 		</PlusButtonContainer>
 	);
@@ -92,11 +96,19 @@ function StatsPair({ keyName, value }: StatsPairProps) {
 	);
 }
 
-function StatsPairAndPlusButton({ keyName, value }: StatsPairProps) {
+interface StatsPairAndPlusButtonProps extends StatsPairProps {
+	onPlusButtonClick?: () => void;
+}
+
+function StatsPairAndPlusButton({
+	keyName,
+	value,
+	onPlusButtonClick = () => {},
+}: StatsPairAndPlusButtonProps) {
 	return (
 		<SmallerGappedContainer>
 			<span style={{ position: "relative", top: "1px" }}>
-				<PlusButton />
+				<PlusButton onClick={onPlusButtonClick} />
 			</span>
 			<StatsPair keyName={keyName} value={value} />
 		</SmallerGappedContainer>
@@ -107,15 +119,28 @@ interface StatsProps {
 	points: number;
 	likes: number;
 	dislikes: number;
+    onDislikeClick?: () => void;
+    onLikeClick?: () => void;
 }
-function Stats({ points, likes, dislikes }: StatsProps) {
+function Stats({
+	points,
+	likes,
+	dislikes,
+	onDislikeClick = () => {},
+	onLikeClick = () => {},
+}: StatsProps) {
 	return (
 		<PostInfoBarOuterContainer>
 			<StatsPair keyName="POINTS" value={points.toString()} />
-			<StatsPairAndPlusButton keyName="LIKES" value={likes.toString()} />
+			<StatsPairAndPlusButton
+				keyName="LIKES"
+				value={likes.toString()}
+				onPlusButtonClick={onLikeClick}
+			/>
 			<StatsPairAndPlusButton
 				keyName="DISLIKES"
 				value={dislikes.toString()}
+				onPlusButtonClick={onDislikeClick}
 			/>
 		</PostInfoBarOuterContainer>
 	);
@@ -123,7 +148,7 @@ function Stats({ points, likes, dislikes }: StatsProps) {
 
 interface LoadableImageProps {
 	imageUrl: string;
-    onClick?: React.MouseEventHandler
+	onClick?: React.MouseEventHandler;
 }
 
 function useImageLoaded() {
@@ -137,10 +162,10 @@ function useImageLoaded() {
 }
 
 const NoImageContainer = styled.div`
-    height: 20vw;
-    border-top: 1px solid black;
-    border-bottom:1px solid black;
-`
+	height: 20vw;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+`;
 
 interface LoadingImageProps {
 	onClick?: React.MouseEventHandler;
@@ -193,7 +218,9 @@ function LoadableImage({
 interface ImageSideProps
 	extends StatsProps,
 		NameTimeProps,
-		Pick<LoadableImageProps, "imageUrl"> {}
+		Pick<LoadableImageProps, "imageUrl"> {
+            id: string
+        }
 
 const SideContainer = styled.div`
 	width: 100%;
@@ -202,8 +229,8 @@ const SideContainer = styled.div`
 	flex-direction: column;
 `;
 
-
 function ImageSide({
+    id,
 	name,
 	time,
 	points,
@@ -301,30 +328,33 @@ const CaptionTextArea = styled.textarea`
 
 interface AddCaptionPanelProps {
 	onClick: React.MouseEventHandler;
+	value: string;
+	onChange: React.ChangeEventHandler<HTMLTextAreaElement>;
 }
 
-function AddCaptionPanel({ onClick }: AddCaptionPanelProps) {
+function AddCaptionPanel({ onClick, value, onChange }: AddCaptionPanelProps) {
 	return (
 		<AddCaptionContainer>
 			<TextAreaContainer>
-				<CaptionTextArea />
+				<CaptionTextArea value={value} onChange={onChange} />
 			</TextAreaContainer>
 			<WhiteButton text="ADD CAPTION" onClick={onClick} />
 		</AddCaptionContainer>
 	);
 }
+
+const CaptionGroupsContainer = styled.div`
+    flex-basis: 0;
+    flex-grow: 1;
+    overflow: scroll;
+`
 interface CaptionGroupsProps {
 	captions: RankedCaptionData[];
+
 }
 function CaptionGroups({ captions }: CaptionGroupsProps) {
 	return (
-		<div
-			style={{
-				flexBasis: 0,
-				flexGrow: 1,
-				overflow: "scroll",
-			}}
-		>
+		<CaptionGroupsContainer>
 			{immutableSortRank(captions).map(function (caption) {
 				return (
 					<CaptionGroup
@@ -334,33 +364,51 @@ function CaptionGroups({ captions }: CaptionGroupsProps) {
 						points={caption.points}
 						likes={caption.likes}
 						dislikes={caption.dislikes}
-                        key={uuid()}
+						key={uuid()}
 					/>
 				);
 			})}
-		</div>
+		</CaptionGroupsContainer>
 	);
 }
 
+interface CaptionsSideProps extends CaptionGroupsProps , AddCaptionPanelProps{
 
-function CaptionsSide({ captions }: CaptionGroupsProps) {
+}
+
+function CaptionsSide({
+	captions,
+	onClick,
+	value,
+	onChange,
+}: CaptionsSideProps) {
 	return (
 		<SideContainer>
 			<CaptionGroups captions={captions} />
-			<AddCaptionPanel onClick={() => {}} />
+			<AddCaptionPanel
+				onClick={onClick}
+				value={value}
+				onChange={onChange}
+			/>
 		</SideContainer>
 	);
 }
 
-interface ImageCaptionsCardProps {
+interface ImageCaptionsCardProps extends Omit<CaptionsSideProps, "captions"> {
 	data: ImageData;
 }
 
-function ImageCaptionsCard({data}: ImageCaptionsCardProps) {
+function ImageCaptionsCard({
+	data,
+	onClick,
+	value,
+	onChange,
+}: ImageCaptionsCardProps) {
 	return (
 		<TwoSidedCard
 			left={
 				<ImageSide
+					id={data.id}
 					name={data.username}
 					time={data.created_at}
 					points={data.points}
@@ -369,14 +417,21 @@ function ImageCaptionsCard({data}: ImageCaptionsCardProps) {
 					imageUrl={data.imageUrl}
 				/>
 			}
-			right={<CaptionsSide captions={data.captions} />}
+			right={
+				<CaptionsSide
+					captions={data.captions}
+					onClick={onClick}
+					value={value}
+					onChange={onChange}
+				/>
+			}
 		/>
 	);
 }
-// here and below are the components specifically for add-image route
+// here and below up to the next comment breakpoint are the components specifically for add-image route
 interface ImagePreviewProps extends Omit<ImageSideProps, "imageUrl"> {
 	imageUrl: string | false;
-	requestChangeImage: (newImage: File| undefined) => void;
+	requestChangeImage: (newImage: File | undefined) => void;
 }
 
 function ImagePreview({
@@ -388,15 +443,15 @@ function ImagePreview({
 	dislikes,
 	likes,
 }: ImagePreviewProps) {
-    const fileInput = useRef<HTMLInputElement>(null);
-    const [waitingForInput, setWaitingForInput] = useState(false);
+	const fileInput = useRef<HTMLInputElement>(null);
+	const [waitingForInput, setWaitingForInput] = useState(false);
 
 	function popUpFileSelection() {
 		console.log("pop up file selection waiting: " + waitingForInput);
 		if (!waitingForInput) {
 			if (fileInput.current) {
-                setWaitingForInput(true);
-                setTimeout(() => setWaitingForInput(false), 200)
+				setWaitingForInput(true);
+				setTimeout(() => setWaitingForInput(false), 500);
 				fileInput.current.click();
 			} else {
 				EventEmitter.emit(
@@ -447,7 +502,15 @@ function ImagePreview({
 							justifyContent: "center",
 						}}
 					>
-						<div style={{ textAlign: "center", display: "flex", flexDirection:"column", justifyContent:"center", gap:constants.smallGap }}>
+						<div
+							style={{
+								textAlign: "center",
+								display: "flex",
+								flexDirection: "column",
+								justifyContent: "center",
+								gap: constants.smallGap,
+							}}
+						>
 							<span
 								style={{
 									fontSize: constants.regularLargerSize,
@@ -489,7 +552,7 @@ const FakeCaptionTextArea = styled.div`
 `;
 
 interface AddImagePanelProps {
-    requestAddImage: React.MouseEventHandler
+	requestAddImage: React.MouseEventHandler;
 }
 
 function AddImagePanel({ requestAddImage }: AddImagePanelProps) {
@@ -504,7 +567,7 @@ function AddImagePanel({ requestAddImage }: AddImagePanelProps) {
 }
 
 interface AddImagePreviewCaptionSideProps extends AddImagePanelProps {
-    captions: RankedCaptionData[],
+	captions: RankedCaptionData[];
 }
 function AddImagePreviewCaptionSide({
 	captions,
@@ -519,13 +582,14 @@ function AddImagePreviewCaptionSide({
 }
 
 interface AddImagePreviewProps
-	extends Omit<ImagePreviewProps, "name"| "imageUrl">,
+	extends Omit<ImagePreviewProps, "name" | "imageUrl">,
 		AddImagePreviewCaptionSideProps {
-    image: File | undefined
+	image: File | undefined;
 	userData: UserData;
 }
 
 function AddImagePreview({
+	id,
 	userData,
 	requestChangeImage,
 	image,
@@ -540,7 +604,8 @@ function AddImagePreview({
 		<TwoSidedCard
 			left={
 				<ImagePreview
-					imageUrl={!!image? URL.createObjectURL(image): false}
+					id={id}
+					imageUrl={!!image ? URL.createObjectURL(image) : false}
 					requestChangeImage={requestChangeImage}
 					name={userData.username}
 					time={time}
@@ -559,5 +624,141 @@ function AddImagePreview({
 	);
 }
 
+// here and below up to the next comment breakpoint are the components specifically for LoadingImageCaption
 
-export { ImageCaptionsCard, AddImagePreview };
+const LoaderOpacityAnimation = keyframes`
+    from {
+        background-color: rgb(
+		${constants.backgroundDarker[0]},
+		${constants.backgroundDarker[1]},
+		${constants.backgroundDarker[2]}	
+        )
+    }
+
+    to {
+        background-color: rgb(
+		${constants.background[0]},
+		${constants.background[1]},
+		${constants.background[2]},
+        )    
+    }
+
+`;
+interface loadingBarProps {
+	width?: string;
+	display?: "inline-block";
+}
+const LoadingBar = styled.span<loadingBarProps>`
+	border: 1px solid black;
+	background-color: rgb(
+		${constants.background[0]},
+		${constants.background[1]},
+		${constants.background[2]}
+	);
+	animation: ${LoaderOpacityAnimation} 0.5s ease-in-out infinite alternate;
+	height: ${constants.loadingBarHeight};
+	width: ${(props) => (props.width ? props.width : "100%")};
+	display: ${(props) => (props.display ? props.display : "inline")};
+`;
+
+function LoadingNameTime() {
+	return (
+		<PostInfoBarOuterContainer>
+			<LoadingBar width="20%" />
+			<LoadingBar width="30%" />
+		</PostInfoBarOuterContainer>
+	);
+}
+
+function LoadingStats() {
+	return (
+		<PostInfoBarOuterContainer>
+			<LoadingBar />
+		</PostInfoBarOuterContainer>
+	);
+}
+
+function LoadingCaption() {
+	return (
+		<CaptionContainer>
+				<LoadingBar width="60%" display="inline-block"/>
+		</CaptionContainer>
+	);
+}
+
+function LoadingCaptionGroup() {
+	return (
+		<CaptionGroupContainer>
+			<LoadingNameTime />
+			<LoadingCaption />
+			<LoadingStats />
+		</CaptionGroupContainer>
+	);
+}
+
+const LoadingAddCaptionButton = styled.div`
+	width: 30%;
+	height: ${constants.loadingButtonHeight};
+	border: 1px solid black;
+	border-radius: ${constants.radius};
+	background-color: rgb(
+		${constants.backgroundLite[0]},
+		${constants.backgroundLite[1]},
+		${constants.backgroundLite[2]}
+	);
+`;
+
+function LoadingAddCapionPanel() {
+	return (
+		<AddCaptionContainer>
+			<TextAreaContainer>
+				<FakeCaptionTextArea />
+			</TextAreaContainer>
+			<LoadingAddCaptionButton />
+		</AddCaptionContainer>
+	);
+}
+
+interface LoadingCaptionGroupsProps {
+    captions: number
+}
+
+function LoadingCaptionGroups({ captions }: LoadingCaptionGroupsProps) {
+	let decoyArr = [];
+	for (let i = 0; i < captions; i++) {
+		decoyArr.push(1);
+	}
+	return <CaptionGroupsContainer>
+		{decoyArr.map(() => (
+			<LoadingCaptionGroup key={uuid()} />
+		))}
+	</CaptionGroupsContainer>;
+}
+
+function LoadingCaptionSide() {
+	return <SideContainer>
+		<LoadingCaptionGroups captions={3} />
+		<LoadingAddCapionPanel />
+	</SideContainer>;
+}
+
+function LoadingImageSide() {
+	return (
+		<SideContainer>
+			<LoadingNameTime />
+			<LoadingImage />
+			<LoadingStats />
+		</SideContainer>
+	);
+}
+
+function LoadingImageCaptionsCard() {
+	return (
+		<TwoSidedCard
+			left={<LoadingImageSide />}
+			right={<LoadingCaptionSide />}
+		/>
+	);
+}
+export { ImageCaptionsCard, AddImagePreview, LoadingImageCaptionsCard };
+export type { ImageCaptionsCardProps };

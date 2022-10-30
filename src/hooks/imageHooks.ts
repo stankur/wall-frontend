@@ -24,7 +24,7 @@ function useAddImage(
 					{
 						...AuthenticationConstants.requiredConfig,
 						method: "POST",
-                        body: formData
+						body: formData,
 					},
 					failHandler
 				);
@@ -41,6 +41,19 @@ function useAddImage(
 	});
 
 	async function requestAddImage(newImage: File | undefined) {
+		if (userData === false) {
+			return EventEmitter.emit(
+				"error",
+				"YOU MUST BE SIGNED IN TO ADD AN IMAGE"
+			);
+		}
+
+		if (userData === undefined) {
+			return EventEmitter.emit(
+				"error",
+				"PLEASE TRY AGAIN IN A LITTLE WHILE"
+			);
+		}
 		if (!newImage) {
 			return EventEmitter.emit("error", "YOU MUST CHOOSE AN IMAGE FIRST");
 		}
@@ -65,5 +78,6 @@ function useAddImage(
 
 	return [addingImage, requestAddImage];
 }
+
 
 export { useAddImage };

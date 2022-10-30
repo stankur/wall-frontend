@@ -1,6 +1,7 @@
 const constants = {
 	background: [228, 228, 228],
 	backgroundLite: [243, 243, 243],
+	backgroundDarker: [200, 200, 200],
 	error: [255, 173, 173],
 	watermark: [180, 180, 180],
 	success: [173, 206, 255],
@@ -21,6 +22,8 @@ const constants = {
 	smallerGap: "5px",
 	verySmallGap: "4px",
 	mainContentWidth: "55%",
+	loadingBarHeight: "15px",
+	loadingButtonHeight: "21px",
 };
 
 export default constants;

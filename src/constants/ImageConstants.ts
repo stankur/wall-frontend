@@ -22,7 +22,7 @@ const constants = {
 
 	isDimensionValid: async function (dataURL: string) {
 		let dimensions = await getDimensions(dataURL);
-		let aspectRatio = dimensions.height / dimensions.width;
+		let aspectRatio = dimensions.width / dimensions.height;
 		return (
 			aspectRatio >= minAccAspectRatio && aspectRatio <= maxAccAspectRatio
 		);
