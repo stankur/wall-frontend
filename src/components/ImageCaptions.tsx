@@ -2,10 +2,22 @@ import React, { useState, ReactEventHandler, useRef } from "react";
 import styled, { keyframes } from "styled-components";
 import constants from "../constants/ComponentConstants";
 import { WhiteButton, TwoSidedCard, LoaderDiv } from "./Utils";
-import { ImageData, RankedCaptionData, UserData } from "../types/types";
+import {
+	ImageData,
+	ImageDataWithInteractions,
+	Interaction,
+	PostType,
+	RankedCaptionData,
+	RankedCaptionDataWithInteractions,
+	UserData,
+} from "../types/types";
 import { convertTimeToElapsedTime, immutableSortRank } from "./helper";
 import { v4 as uuid } from "uuid";
 import { EventEmitter } from "../Utils";
+import {
+	RequestInteractFunction,
+	RequestInteractFunctionGivenPostData,
+} from "../hooks/interactionHooks";
 
 const PostInfoBarOuterContainer = styled.div`
 	padding: ${constants.smallGap};
@@ -39,14 +51,21 @@ function NameTime({ name, time }: NameTimeProps) {
 		</PostInfoBarOuterContainer>
 	);
 }
+interface PlusButtonContainerProps {
+	chosen: boolean;
+}
 
-const PlusButtonContainer = styled.div`
+const PlusButtonContainer = styled.div<PlusButtonContainerProps>`
 	width: 14px;
 	height: 14px;
 	border-radius: 50%;
 	border: 1px solid black;
 	font-size: ${constants.regularFontSize};
 	position: relative;
+	background-color: ${(props) =>
+		props.chosen
+			? `rgb(${constants.background[0]}, ${constants.background[1]}, ${constants.background[2]})`
+			: "white"};
 `;
 
 const PlusSignContainer = styled.span`
@@ -61,13 +80,14 @@ const PlusSignContainer = styled.span`
 `;
 
 interface PlusButtonProps {
-    onClick: () => void
+	onClick: () => void;
+	chosen: boolean;
 }
 
-function PlusButton({onClick}: PlusButtonProps) {
+function PlusButton({ onClick, chosen }: PlusButtonProps) {
 	return (
-		<PlusButtonContainer onClick={onClick}>
-			<PlusSignContainer>+</PlusSignContainer>
+		<PlusButtonContainer chosen={chosen} onClick={onClick}>
+			{!chosen && <PlusSignContainer>+</PlusSignContainer>}
 		</PlusButtonContainer>
 	);
 }
@@ -98,17 +118,19 @@ function StatsPair({ keyName, value }: StatsPairProps) {
 
 interface StatsPairAndPlusButtonProps extends StatsPairProps {
 	onPlusButtonClick?: () => void;
+	chosen: boolean;
 }
 
 function StatsPairAndPlusButton({
 	keyName,
 	value,
+	chosen,
 	onPlusButtonClick = () => {},
 }: StatsPairAndPlusButtonProps) {
 	return (
 		<SmallerGappedContainer>
 			<span style={{ position: "relative", top: "1px" }}>
-				<PlusButton onClick={onPlusButtonClick} />
+				<PlusButton onClick={onPlusButtonClick} chosen={chosen} />
 			</span>
 			<StatsPair keyName={keyName} value={value} />
 		</SmallerGappedContainer>
@@ -119,16 +141,29 @@ interface StatsProps {
 	points: number;
 	likes: number;
 	dislikes: number;
-    onDislikeClick?: () => void;
-    onLikeClick?: () => void;
+	requestChangeInteraction: RequestInteractFunctionGivenPostData;
+	interaction: Interaction;
 }
 function Stats({
 	points,
 	likes,
 	dislikes,
-	onDislikeClick = () => {},
-	onLikeClick = () => {},
+	requestChangeInteraction,
+	interaction,
 }: StatsProps) {
+	function onLikeClick() {
+		if (interaction === "like") {
+			return requestChangeInteraction(interaction, null);
+		}
+		requestChangeInteraction(interaction, "like");
+	}
+
+	function onDislikeClick() {
+		if (interaction === "dislike") {
+			return requestChangeInteraction(interaction, null);
+		}
+		requestChangeInteraction(interaction, "dislike");
+	}
 	return (
 		<PostInfoBarOuterContainer>
 			<StatsPair keyName="POINTS" value={points.toString()} />
@@ -136,11 +171,13 @@ function Stats({
 				keyName="LIKES"
 				value={likes.toString()}
 				onPlusButtonClick={onLikeClick}
+				chosen={interaction === "like"}
 			/>
 			<StatsPairAndPlusButton
 				keyName="DISLIKES"
 				value={dislikes.toString()}
 				onPlusButtonClick={onDislikeClick}
+				chosen={interaction === "dislike"}
 			/>
 		</PostInfoBarOuterContainer>
 	);
@@ -219,8 +256,8 @@ interface ImageSideProps
 	extends StatsProps,
 		NameTimeProps,
 		Pick<LoadableImageProps, "imageUrl"> {
-            id: string
-        }
+	requestChangeInteraction: RequestInteractFunctionGivenPostData;
+}
 
 const SideContainer = styled.div`
 	width: 100%;
@@ -230,19 +267,26 @@ const SideContainer = styled.div`
 `;
 
 function ImageSide({
-    id,
 	name,
 	time,
 	points,
 	likes,
 	dislikes,
 	imageUrl,
+	interaction,
+	requestChangeInteraction,
 }: ImageSideProps) {
 	return (
 		<SideContainer>
 			<NameTime name={name} time={time} />
 			<LoadableImage imageUrl={imageUrl} />
-			<Stats points={points} dislikes={dislikes} likes={likes} />
+			<Stats
+				requestChangeInteraction={requestChangeInteraction}
+				points={points}
+				dislikes={dislikes}
+				likes={likes}
+				interaction={interaction}
+			/>
 		</SideContainer>
 	);
 }
@@ -275,6 +319,8 @@ interface CaptionGroupProps {
 	points: number;
 	likes: number;
 	dislikes: number;
+	interaction: Interaction;
+	requestChangeInteraction: RequestInteractFunctionGivenPostData;
 }
 
 function CaptionGroup({
@@ -284,12 +330,20 @@ function CaptionGroup({
 	points,
 	likes,
 	dislikes,
+	interaction,
+	requestChangeInteraction,
 }: CaptionGroupProps) {
 	return (
 		<CaptionGroupContainer>
 			<NameTime name={name} time={time} />
 			<Caption text={text} />
-			<Stats points={points} likes={likes} dislikes={dislikes} />
+			<Stats
+				requestChangeInteraction={requestChangeInteraction}
+				points={points}
+				likes={likes}
+				dislikes={dislikes}
+				interaction={interaction}
+			/>
 		</CaptionGroupContainer>
 	);
 }
@@ -344,20 +398,35 @@ function AddCaptionPanel({ onClick, value, onChange }: AddCaptionPanelProps) {
 }
 
 const CaptionGroupsContainer = styled.div`
-    flex-basis: 0;
-    flex-grow: 1;
-    overflow: scroll;
-`
+	flex-basis: 0;
+	flex-grow: 1;
+	overflow: scroll;
+`;
 interface CaptionGroupsProps {
-	captions: RankedCaptionData[];
-
+	captions: RankedCaptionData[] | RankedCaptionDataWithInteractions[];
+	requestInteract?: RequestInteractFunction;
 }
-function CaptionGroups({ captions }: CaptionGroupsProps) {
+function CaptionGroups({
+	captions,
+	requestInteract = () => () => {},
+}: CaptionGroupsProps) {
 	return (
 		<CaptionGroupsContainer>
-			{immutableSortRank(captions).map(function (caption) {
+			{immutableSortRank<
+				RankedCaptionData | RankedCaptionDataWithInteractions
+			>(captions).map(function (caption) {
+				function requestChangeInteraction(
+					prevInteractionType: Interaction,
+					newInteractionType: Interaction
+				) {
+					return requestInteract("caption", caption.id)(
+						prevInteractionType,
+						newInteractionType
+					);
+				}
 				return (
 					<CaptionGroup
+						requestChangeInteraction={requestChangeInteraction}
 						name={caption.username.toUpperCase()}
 						time={caption.created_at}
 						text={caption.text}
@@ -365,6 +434,11 @@ function CaptionGroups({ captions }: CaptionGroupsProps) {
 						likes={caption.likes}
 						dislikes={caption.dislikes}
 						key={uuid()}
+						interaction={
+							"interaction" in caption
+								? caption.interaction
+								: null
+						}
 					/>
 				);
 			})}
@@ -372,19 +446,21 @@ function CaptionGroups({ captions }: CaptionGroupsProps) {
 	);
 }
 
-interface CaptionsSideProps extends CaptionGroupsProps , AddCaptionPanelProps{
-
-}
+interface CaptionsSideProps extends CaptionGroupsProps, AddCaptionPanelProps {}
 
 function CaptionsSide({
 	captions,
 	onClick,
 	value,
 	onChange,
+	requestInteract,
 }: CaptionsSideProps) {
 	return (
 		<SideContainer>
-			<CaptionGroups captions={captions} />
+			<CaptionGroups
+				captions={captions}
+				requestInteract={requestInteract}
+			/>
 			<AddCaptionPanel
 				onClick={onClick}
 				value={value}
@@ -394,8 +470,11 @@ function CaptionsSide({
 	);
 }
 
-interface ImageCaptionsCardProps extends Omit<CaptionsSideProps, "captions"> {
-	data: ImageData;
+interface ImageCaptionsCardProps
+	extends Omit<CaptionsSideProps, "captions" | "requestInteract"> {
+	data: ImageData | ImageDataWithInteractions;
+	requestChangeImageInteraction: RequestInteractFunctionGivenPostData;
+	requestInteractCaption: RequestInteractFunction;
 }
 
 function ImageCaptionsCard({
@@ -403,22 +482,28 @@ function ImageCaptionsCard({
 	onClick,
 	value,
 	onChange,
+	requestInteractCaption,
+	requestChangeImageInteraction,
 }: ImageCaptionsCardProps) {
 	return (
 		<TwoSidedCard
 			left={
 				<ImageSide
-					id={data.id}
+					requestChangeInteraction={requestChangeImageInteraction}
 					name={data.username}
 					time={data.created_at}
 					points={data.points}
 					likes={data.likes}
 					dislikes={data.dislikes}
 					imageUrl={data.imageUrl}
+					interaction={
+						"interaction" in data ? data["interaction"] : null
+					}
 				/>
 			}
 			right={
 				<CaptionsSide
+					requestInteract={requestInteractCaption}
 					captions={data.captions}
 					onClick={onClick}
 					value={value}
@@ -429,7 +514,11 @@ function ImageCaptionsCard({
 	);
 }
 // here and below up to the next comment breakpoint are the components specifically for add-image route
-interface ImagePreviewProps extends Omit<ImageSideProps, "imageUrl"> {
+interface ImagePreviewProps
+	extends Omit<
+		ImageSideProps,
+		"imageUrl" | "interaction" | "requestChangeInteraction"
+	> {
 	imageUrl: string | false;
 	requestChangeImage: (newImage: File | undefined) => void;
 }
@@ -534,7 +623,13 @@ function ImagePreview({
 					</div>
 				</NoImageContainer>
 			)}
-			<Stats points={points} dislikes={dislikes} likes={likes} />
+			<Stats
+				requestChangeInteraction={() => {}}
+				points={points}
+				dislikes={dislikes}
+				likes={likes}
+				interaction={null}
+			/>
 		</SideContainer>
 	);
 }
@@ -589,7 +684,6 @@ interface AddImagePreviewProps
 }
 
 function AddImagePreview({
-	id,
 	userData,
 	requestChangeImage,
 	image,
@@ -604,7 +698,6 @@ function AddImagePreview({
 		<TwoSidedCard
 			left={
 				<ImagePreview
-					id={id}
 					imageUrl={!!image ? URL.createObjectURL(image) : false}
 					requestChangeImage={requestChangeImage}
 					name={userData.username}
@@ -681,7 +774,7 @@ function LoadingStats() {
 function LoadingCaption() {
 	return (
 		<CaptionContainer>
-				<LoadingBar width="60%" display="inline-block"/>
+			<LoadingBar width="60%" display="inline-block" />
 		</CaptionContainer>
 	);
 }
@@ -720,7 +813,7 @@ function LoadingAddCapionPanel() {
 }
 
 interface LoadingCaptionGroupsProps {
-    captions: number
+	captions: number;
 }
 
 function LoadingCaptionGroups({ captions }: LoadingCaptionGroupsProps) {
@@ -728,18 +821,22 @@ function LoadingCaptionGroups({ captions }: LoadingCaptionGroupsProps) {
 	for (let i = 0; i < captions; i++) {
 		decoyArr.push(1);
 	}
-	return <CaptionGroupsContainer>
-		{decoyArr.map(() => (
-			<LoadingCaptionGroup key={uuid()} />
-		))}
-	</CaptionGroupsContainer>;
+	return (
+		<CaptionGroupsContainer>
+			{decoyArr.map(() => (
+				<LoadingCaptionGroup key={uuid()} />
+			))}
+		</CaptionGroupsContainer>
+	);
 }
 
 function LoadingCaptionSide() {
-	return <SideContainer>
-		<LoadingCaptionGroups captions={3} />
-		<LoadingAddCapionPanel />
-	</SideContainer>;
+	return (
+		<SideContainer>
+			<LoadingCaptionGroups captions={3} />
+			<LoadingAddCapionPanel />
+		</SideContainer>
+	);
 }
 
 function LoadingImageSide() {

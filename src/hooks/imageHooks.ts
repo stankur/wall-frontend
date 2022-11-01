@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import { AddImageResponse } from "../types/types";
 import { authHandlingFetch, EventEmitter } from "../Utils";
 import { UserDataState } from "./authenticationHooks";
@@ -40,41 +40,45 @@ function useAddImage(
 		})();
 	});
 
-	async function requestAddImage(newImage: File | undefined) {
-		if (userData === false) {
-			return EventEmitter.emit(
-				"error",
-				"YOU MUST BE SIGNED IN TO ADD AN IMAGE"
+	
+		async function requestAddImage(newImage: File | undefined) {
+			if (userData === false) {
+				return EventEmitter.emit(
+					"error",
+					"YOU MUST BE SIGNED IN TO ADD AN IMAGE"
+				);
+			}
+
+			if (userData === undefined) {
+				return EventEmitter.emit(
+					"error",
+					"PLEASE TRY AGAIN IN A LITTLE WHILE"
+				);
+			}
+			if (!newImage) {
+				return EventEmitter.emit(
+					"error",
+					"YOU MUST CHOOSE AN IMAGE FIRST"
+				);
+			}
+
+			let imageValid = await ImageConstants.isDimensionValid(
+				URL.createObjectURL(newImage)
 			);
+
+			if (!imageValid) {
+				return EventEmitter.emit(
+					"error",
+					`IMAGE ASPECT RATIO MUST BE BETWEEN ${ImageConstants.minAccAspectRatio} AND ${ImageConstants.maxAccAspectRatio}`
+				);
+			}
+
+			let formData: FormData = new FormData();
+			formData.append("image", newImage);
+
+			setFormData(formData);
+			setAddingImage(true);
 		}
-
-		if (userData === undefined) {
-			return EventEmitter.emit(
-				"error",
-				"PLEASE TRY AGAIN IN A LITTLE WHILE"
-			);
-		}
-		if (!newImage) {
-			return EventEmitter.emit("error", "YOU MUST CHOOSE AN IMAGE FIRST");
-		}
-
-		let imageValid = await ImageConstants.isDimensionValid(
-			URL.createObjectURL(newImage)
-		);
-
-		if (!imageValid) {
-			return EventEmitter.emit(
-				"error",
-				`IMAGE ASPECT RATIO MUST BE BETWEEN ${ImageConstants.minAccAspectRatio} AND ${ImageConstants.maxAccAspectRatio}`
-			);
-		}
-
-		let formData: FormData = new FormData();
-		formData.append("image", newImage);
-
-		setFormData(formData);
-		setAddingImage(true);
-	}
 
 	return [addingImage, requestAddImage];
 }

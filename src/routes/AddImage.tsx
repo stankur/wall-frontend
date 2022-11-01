@@ -110,7 +110,6 @@ function AddImage() {
 			</div>
 			<CenteredColumnContainer>
 				<AddImagePreview
-                    id={""}
 					userData={userData}
 					image={image}
 					time={PreviewConstants.previewData.time}

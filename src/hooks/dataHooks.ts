@@ -23,6 +23,7 @@ function useFetchingImage(): [undefined | ImageData[], boolean, () => void] {
 				}
 
 				if (response && !response.error) {
+                    console.log(JSON.stringify(response.images));
 					setImages(response.images);
 				}
 

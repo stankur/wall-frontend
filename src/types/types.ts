@@ -45,16 +45,37 @@ type AuthenticationError = {
 function isAuthenticationError(
 	err: BackendGeneratedError
 ): err is AuthenticationError {
-    console.log(err.error.message);
+	console.log(err.error.message);
 	return err.error.message === "YOU ARE NOT SIGNED IN";
 }
 
 export { isAuthenticationError };
 
 export interface AddImageResponse {
-    id: string;
+	id: string;
 }
 
 export interface AddCaptionResponse {
+	id: string;
+}
+
+export type PostType = "caption" | "image";
+export type Interaction = "like" | "dislike" | null;
+
+interface WithInteraction {
+	interaction: Interaction;
+}
+
+interface PostDataWithInteractions extends PostData, WithInteraction {}
+export interface RankedCaptionDataWithInteractions
+	extends RankedCaptionData,
+		WithInteraction {}
+
+export interface ImageDataWithInteractions extends PostDataWithInteractions {
+	imageUrl: string;
+	captions: RankedCaptionDataWithInteractions[];
+}
+
+export interface VoteCaptionResponse {
 	id: string;
 }
