@@ -26,34 +26,50 @@ function ImagesNumber({ shown, total }: ImagesNumberProps) {
 
 const NavigationButtonsContainer = styled.span`
 	display: inline-flex;
-    align-items: center;
+	align-items: center;
 	gap: ${constants.smallGap};
 `;
 
 interface NavigationButtonsProps {
 	userData: UserDataState;
 	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>;
+	requestFetchImages: () => void;
 }
 
+function NavigationButtons({
+	userData,
+	setUserData,
+	requestFetchImages,
+}: NavigationButtonsProps) {
+	const [signingOut, requestSignOut] = useSignOut(
+		userData,
+		setUserData,
+		handleSignOutSuccess
+	);
+	const navigate = useNavigate();
 
-function NavigationButtons({ userData, setUserData }: NavigationButtonsProps) {
-	const [signingOut, requestSignOut] = useSignOut(userData, setUserData);
-    const navigate = useNavigate()
+	function handleSignOutSuccess() {
+		requestFetchImages();
+		return EventEmitter.emit("success", "SUCCESSFULLY SIGNED OUT!");
+	}
 
-    function requestAddImage() {
-        if (userData === undefined) {
-            return EventEmitter.emit(
+	function requestAddImage() {
+		if (userData === undefined) {
+			return EventEmitter.emit(
 				"error",
 				"PLEASE TRY AGAIN IN A LITTLE WHILE"
 			);
-        }
+		}
 
-        if (!userData) {
-            return EventEmitter.emit("error", "YOU MUST BE SIGNED IN TO ADD A NEW IMAGE")
-        }
+		if (!userData) {
+			return EventEmitter.emit(
+				"error",
+				"YOU MUST BE SIGNED IN TO ADD A NEW IMAGE"
+			);
+		}
 
-        return navigate("/add-image")
-    }
+		return navigate("/add-image");
+	}
 	return (
 		<NavigationButtonsContainer>
 			{!userData ? (
@@ -107,12 +123,20 @@ const NavigationInnerContainer = styled.div`
 
 interface NavigationProps extends NavigationButtonsProps {}
 
-function Navigation({userData, setUserData}: NavigationProps) {
+function Navigation({
+	userData,
+	setUserData,
+	requestFetchImages,
+}: NavigationProps) {
 	return (
 		<NavigationOuterContainer>
 			<NavigationInnerContainer>
 				<ImagesNumber shown={3} total={10} />
-				<NavigationButtons userData={userData} setUserData={setUserData}/>
+				<NavigationButtons
+					userData={userData}
+					setUserData={setUserData}
+					requestFetchImages={requestFetchImages}
+				/>
 			</NavigationInnerContainer>
 		</NavigationOuterContainer>
 	);

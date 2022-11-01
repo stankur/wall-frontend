@@ -178,7 +178,6 @@ function useSignOut(
 			if (signOutSuccessHandler) {
 				return signOutSuccessHandler();
 			}
-			return EventEmitter.emit("success", "SUCCESSFULLY SIGNED OUT!");
 		}
 
 

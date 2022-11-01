@@ -69,15 +69,18 @@ function Main() {
 		handleInteractSuccess
 	);
 
-    function handleInteractSuccess() {
+	function handleInteractSuccess() {
 		return requestFetchImages();
 	}
 	return (
 		<Page>
 			<Hero />
-			<Navigation userData={userData} setUserData={setUserData} />
+			<Navigation
+				userData={userData}
+				setUserData={setUserData}
+				requestFetchImages={requestFetchImages}
+			/>
 			<CenteredColumnContainer>
-				<LoadingImageCaptionsCard />
 				{!images ? (
 					<LoadingImageCaptionsCard />
 				) : (
