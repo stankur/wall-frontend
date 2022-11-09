@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import styled from "styled-components";
 import { makeNumDigits } from "./helper";
-import constants from "../constants/ComponentConstants";
+import {
+	desktopConstants,
+	mobileConstants,
+} from "../constants/ComponentConstants";
 import { Link } from "react-router-dom";
-import { LogoContainer } from "./Utils";
+import { LogoContainer, MobileLogoContainer } from "./Utils";
 
 const SloganContainer = styled.span`
 	display: inline-flex;
-    align-items: center;
-    gap: 5px;
-	font-size: ${constants.regularLargerSize};
+	align-items: center;
+	gap: 5px;
+	font-size: ${desktopConstants.regularLargerSize};
 	font-weight: 500;
 	position: absolute;
 	top: 50%;
@@ -19,8 +22,8 @@ const SloganContainer = styled.span`
 `;
 
 const IgLogo = styled.img`
-    display: inline;
-`
+	display: inline;
+`;
 
 function Logo() {
 	return (
@@ -30,16 +33,14 @@ function Logo() {
 					display: "flex",
 					flexDirection: "column",
 					alignItems: "center",
-					gap: constants.smallGap,
+					gap: desktopConstants.smallGap,
 				}}
 			>
 				<LogoContainer>WALL</LogoContainer>
 				<span style={{ position: "relative" }}>
 					<SloganContainer
 						onClick={() => {
-							window.open(
-								"https://www.instagram.com/everything_wall/"
-							);
+							window.open(process.env.REACT_APP_INSTAGRAM_URL);
 						}}
 					>
 						<IgLogo width="15px" src="./ig.png" />
@@ -53,22 +54,36 @@ function Logo() {
 
 const RoundContainer = styled.div`
 	display: flex;
-	gap: ${constants.bigGap};
-	font-size: ${constants.mediumFontSize};
+	gap: ${desktopConstants.bigGap};
+	font-size: ${desktopConstants.mediumFontSize};
 	font-weight: bold;
 `;
 
 interface RoundProps {
 	number: number;
 }
+
+function RoundContent({ number }: RoundProps) {
+	return (
+		<>
+			<span>ROUND</span>
+			<span>#{makeNumDigits(3, number)}</span>
+		</>
+	);
+}
 function Round({ number }: RoundProps) {
 	return (
 		<RoundContainer>
-			<span>ROUND</span>
-			<span>#{makeNumDigits(3, number)}</span>
+			<RoundContent number={number} />
 		</RoundContainer>
 	);
 }
+
+const TimeTimeUnitContainer = styled.div`
+	display: inline-flex;
+	gap: ${desktopConstants.smallerGap};
+	align-items: baseline;
+`;
 
 interface TimeTimeUnitProps {
 	time: number;
@@ -77,16 +92,10 @@ interface TimeTimeUnitProps {
 
 function TimeTimeUnit({ time, unit }: TimeTimeUnitProps) {
 	return (
-		<div
-			style={{
-				display: "inline-flex",
-				gap: constants.smallerGap,
-				alignItems: "baseline",
-			}}
-		>
+		<TimeTimeUnitContainer>
 			<span
 				style={{
-					fontSize: constants.mediumSmallFontSize,
+					fontSize: desktopConstants.mediumSmallFontSize,
 					fontWeight: "bold",
 				}}
 			>
@@ -94,22 +103,22 @@ function TimeTimeUnit({ time, unit }: TimeTimeUnitProps) {
 			</span>
 			<span
 				style={{
-					fontSize: constants.mediumSmallerFontSize,
+					fontSize: desktopConstants.mediumSmallerFontSize,
 					fontWeight: 500,
 				}}
 			>
 				{unit}
 			</span>
-		</div>
+		</TimeTimeUnitContainer>
 	);
 }
 
 const CountdownContainer = styled.div`
-	padding: ${constants.smallGap};
+	padding: ${desktopConstants.smallGap};
 	border: 1px solid black;
-	border-radius: ${constants.radius};
+	border-radius: ${desktopConstants.radius};
 	display: inline-flex;
-	gap: ${constants.EnormousGap};
+	gap: ${desktopConstants.EnormousGap};
 	background-color: white;
 `;
 
@@ -127,46 +136,46 @@ function useCountdown({ hours, minutes, seconds }: CountdownProps) {
 	const maxMinutes: number = 59;
 	const maxSeconds: number = 59;
 
-    function decrementHour() {
-        if (internalHours === 0) {
-            setInternalHours(hours);
-            setInternalMinutes(minutes);
-            setInternalSeconds(seconds);
-            return
-        }
+	function decrementHour() {
+		if (internalHours === 0) {
+			setInternalHours(hours);
+			setInternalMinutes(minutes);
+			setInternalSeconds(seconds);
+			return;
+		}
 
-        setInternalHours(internalHours - 1);
-    }
+		setInternalHours(internalHours - 1);
+	}
 
-    function decrementMinute() {
-        if (internalMinutes === 0) {
-            setInternalMinutes(maxMinutes);
-            decrementHour()
-            return
-        }
+	function decrementMinute() {
+		if (internalMinutes === 0) {
+			setInternalMinutes(maxMinutes);
+			decrementHour();
+			return;
+		}
 
-        setInternalMinutes(internalMinutes - 1);
-    }
+		setInternalMinutes(internalMinutes - 1);
+	}
 
-    function decrementSecond() {
-        if (internalSeconds === 0) { 
-            setInternalSeconds(maxSeconds);
-            decrementMinute();
-            return
-        }
+	function decrementSecond() {
+		if (internalSeconds === 0) {
+			setInternalSeconds(maxSeconds);
+			decrementMinute();
+			return;
+		}
 
-        setInternalSeconds(internalSeconds - 1);
-    }
+		setInternalSeconds(internalSeconds - 1);
+	}
 
 	useEffect(function () {
-        setTimeout(() => decrementSecond(), 1000);
-    });
+		setTimeout(() => decrementSecond(), 1000);
+	});
 
-    return [internalHours, internalMinutes, internalSeconds];
+	return [internalHours, internalMinutes, internalSeconds];
 }
 
 function Countdown({ hours, minutes, seconds }: CountdownProps) {
-    const [internalHours, internalMinutes, internalSeconds] = useCountdown({
+	const [internalHours, internalMinutes, internalSeconds] = useCountdown({
 		hours,
 		minutes,
 		seconds,
@@ -188,7 +197,8 @@ const HeroContainer = styled.div`
 	align-items: center;
 	padding-top: 100px;
 	padding-bottom: 50px;
-	gap: ${constants.smallGap};
+	box-sizing: border-box;
+	gap: ${desktopConstants.smallGap};
 `;
 
 function Hero() {
@@ -202,12 +212,152 @@ function Hero() {
 }
 
 function LogoHero() {
-    return (
-		<HeroContainer style={{paddingBottom: "70px"}}>
+	return (
+		<HeroContainer style={{ paddingBottom: "70px" }}>
 			<Logo />
 		</HeroContainer>
 	);
 }
 
-export default Hero;
-export { LogoHero };
+//////////////////////////////////////////////////////////// MOBILE COMPONENTS ////////////////////////////////////////////////////////////
+
+const MobileHeaderContainer = styled.div`
+	width: 100%;
+	display: flex;
+	align-items: flex-start;
+	padding: ${mobileConstants.mediumSmallerGap};
+	box-sizing: border-box;
+	justify-content: space-between;
+`;
+
+const IgContainer = styled.div`
+	display: inline-flex;
+	gap: ${mobileConstants.smallGap};
+	align-items: center;
+	font-size: ${mobileConstants.regularFontSize};
+	font-weight: 500;
+`;
+
+function MobileIg() {
+	return (
+		<IgContainer>
+			<IgLogo width="18px" src="./ig.png" />
+			<span style={{fontWeight: 500}}>everything_wall</span>
+		</IgContainer>
+	);
+}
+
+interface MobileHeaderProps {
+	navigation?: ReactElement | undefined;
+}
+
+function MobileHeader({ navigation = undefined }: MobileHeaderProps) {
+	return (
+		<MobileHeaderContainer>
+			<MobileIg />
+			{!!navigation ? (
+				<div style={{ display: "inline-block", position: "relative" }}>
+					<div style={{ position: "absolute", right: 0, top: 0 }}>
+						{navigation}
+					</div>
+				</div>
+			) : (
+				<span style={{ flexGrow: 1 }} />
+			)}
+		</MobileHeaderContainer>
+	);
+}
+
+const MobileRoundContainer = styled(RoundContainer)`
+	gap: ${mobileConstants.mediumGap};
+	font-size: ${mobileConstants.mediumFontSize};
+`;
+
+function MobileRound({ number }: RoundProps) {
+	return (
+		<MobileRoundContainer>
+			<RoundContent number={number} />
+		</MobileRoundContainer>
+	);
+}
+
+const MobileTimeTimeUnitContainer = styled(TimeTimeUnitContainer)`
+	gap: ${mobileConstants.smallerGap};
+`;
+
+function MobileTimeTimeUnit({ time, unit }: TimeTimeUnitProps) {
+	return (
+		<MobileTimeTimeUnitContainer>
+			<span
+				style={{
+					fontSize: mobileConstants.mediumSmallFontSize,
+					fontWeight: "bold",
+				}}
+			>
+				{makeNumDigits(2, time)}
+			</span>
+			<span
+				style={{
+					fontSize: mobileConstants.mediumSmallerFontSize,
+					fontWeight: 500,
+				}}
+			>
+				{unit}
+			</span>
+		</MobileTimeTimeUnitContainer>
+	);
+}
+
+const MobileCountdownContainer = styled(CountdownContainer)`
+	padding: ${mobileConstants.smallGap};
+	border-radius: ${mobileConstants.outerRadius};
+	gap: ${mobileConstants.mediumGap};
+`;
+
+function MobileCountdown({ hours, minutes, seconds }: CountdownProps) {
+	const [internalHours, internalMinutes, internalSeconds] = useCountdown({
+		hours,
+		minutes,
+		seconds,
+	});
+	return (
+		<MobileCountdownContainer>
+			<MobileTimeTimeUnit time={internalHours} unit="H" />
+			<MobileTimeTimeUnit time={internalMinutes} unit="M" />
+			<MobileTimeTimeUnit time={internalSeconds} unit="S" />
+		</MobileCountdownContainer>
+	);
+}
+
+const MobileHeroContainer = styled.div`
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: ${mobileConstants.smallGap};
+	padding-bottom: ${mobileConstants.mediumLargeGap};
+`;
+
+interface MobileHeroProps extends MobileHeaderProps {}
+
+function MobileHero({ navigation = undefined }: MobileHeroProps) {
+	return (
+		<MobileHeroContainer>
+			<MobileHeader navigation={navigation} />
+			<MobileLogoContainer>WALL</MobileLogoContainer>
+			<MobileRound number={3} />
+			<MobileCountdown hours={1} minutes={20} seconds={30} />
+		</MobileHeroContainer>
+	);
+}
+
+function MobileLogoHero({ navigation = undefined }: MobileHeroProps) {
+	return (
+		<MobileHeroContainer>
+			<MobileHeader navigation={navigation} />
+			<MobileLogoContainer>WALL</MobileLogoContainer>
+		</MobileHeroContainer>
+	);
+}
+
+export { Hero, LogoHero, MobileLogoHero, MobileHero };

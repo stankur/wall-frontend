@@ -12,6 +12,8 @@ import AddImage from "./routes/AddImage";
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement
 );
+
+
 root.render(
 	<React.StrictMode>
 		<BrowserRouter>

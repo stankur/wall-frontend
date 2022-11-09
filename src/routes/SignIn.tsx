@@ -9,7 +9,7 @@ import { LogoHero } from "../components/Hero";
 import AuthenticationCard from "../components/AuthenticationCard";
 
 import styled from "styled-components";
-import constants from "../constants/ComponentConstants";
+import {desktopConstants} from "../constants/ComponentConstants";
 import { Link, useNavigate } from "react-router-dom";
 import { useInternalUserData } from "../App";
 import { useSignIn } from "../hooks/authenticationHooks";
@@ -19,13 +19,13 @@ import { UserData } from "../types/types";
 
 const RedirectSuggestionContainer = styled.div`
 	display: inline-flex;
-	padding-top: ${constants.bigGap};
+	padding-top: ${desktopConstants.bigGap};
 	flex-direction: row;
 	justify-content: flex-start;
 	align-items: center;
-	gap: ${constants.smallGap};
-	width: ${constants.mainContentWidth};
-	font-size: ${constants.regularFontSize};
+	gap: ${desktopConstants.smallGap};
+	width: ${desktopConstants.mainContentWidth};
+	font-size: ${desktopConstants.regularFontSize};
 `;
 
 function SignIn() {

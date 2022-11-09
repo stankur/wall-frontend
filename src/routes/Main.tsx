@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Page, CenteredColumnContainer } from "../components/Utils";
-import Hero from "../components/Hero";
-import Navigation from "../components/Navigation";
+import { Hero, MobileHero } from "../components/Hero";
+import { MobileNavigation, Navigation } from "../components/Navigation";
 import {
 	ImageCaptionsCard,
 	LoadingImageCaptionsCard,
+    MobileImageCaptionsCard,
 } from "../components/ImageCaptions";
 import { useInternalUserData } from "../App";
 import useFetchingImage from "../hooks/dataHooks";
@@ -12,6 +13,7 @@ import { ImageData } from "../types/types";
 import { useAddCaption } from "../hooks/captionHooks";
 import { UserDataState } from "../hooks/authenticationHooks";
 import { RequestInteractFunction, RequestInteractFunctionGivenPostData, useInteract } from "../hooks/interactionHooks";
+import { DeviceContext } from "../hooks/deviceHooks";
 
 interface ControlledImageCaptionsCardProps {
 	data: ImageData;
@@ -68,19 +70,37 @@ function Main() {
 		setUserData,
 		handleInteractSuccess
 	);
+    const device = useContext(DeviceContext);
+
 
 	function handleInteractSuccess() {
 		return requestFetchImages();
 	}
+
 	return (
 		<Page>
-			<Hero />
-			<Navigation
-				userData={userData}
-				setUserData={setUserData}
-				requestFetchImages={requestFetchImages}
-			/>
+			{device === "mobile" ? (
+				<MobileHero
+					navigation={
+						<MobileNavigation
+							userData={userData}
+							setUserData={setUserData}
+							requestFetchImages={requestFetchImages}
+						/>
+					}
+				/>
+			) : (
+				<>
+					<Hero />
+					<Navigation
+						userData={userData}
+						setUserData={setUserData}
+						requestFetchImages={requestFetchImages}
+					/>
+				</>
+			)}
 			<CenteredColumnContainer>
+				<MobileImageCaptionsCard />
 				{!images ? (
 					<LoadingImageCaptionsCard />
 				) : (

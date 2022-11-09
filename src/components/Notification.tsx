@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { EventEmitter } from "../Utils";
-import constants from "../constants/ComponentConstants";
+import {desktopConstants} from "../constants/ComponentConstants";
 import styled from "styled-components";
 import { WhiteButton } from "./Utils";
 
@@ -27,15 +27,15 @@ const NotificationInnerContainer = styled.div<NotificationContainerProps>`
 		${(props) => props.containerColor[1]},
 		${(props) => props.containerColor[2]}
 	);
-	padding: ${constants.smallGap};
-	padding-left: ${constants.bigGap};
-	padding-right: ${constants.bigGap};
+	padding: ${desktopConstants.smallGap};
+	padding-left: ${desktopConstants.bigGap};
+	padding-right: ${desktopConstants.bigGap};
 	box-sizing: border-box;
 	border-bottom: 1px solid black;
 `;
 
 const MessageContainer = styled.span`
-	font-size: ${constants.regularFontSize};
+	font-size: ${desktopConstants.regularFontSize};
 	font-weight: 500;
 	display: "inline-flex";
 	justify-content: "flex-start";
@@ -71,8 +71,8 @@ function Notification({ notification }: NotificationProps) {
 					<NotificationInnerContainer
 						containerColor={
 							internalNotification.type === "error"
-								? constants.error
-								: constants.success
+								? desktopConstants.error
+								: desktopConstants.success
 						}
 					>
 						<MessageContainer>

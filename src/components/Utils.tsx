@@ -1,37 +1,40 @@
-import React, {ReactElement, useState} from "react";
-import styled, { keyframes} from "styled-components";
+import React, { ReactElement, useState } from "react";
+import styled, { keyframes } from "styled-components";
 import { EventEmitter } from "../Utils";
-import constants from "../constants/ComponentConstants";
+import {
+	desktopConstants,
+	mobileConstants,
+} from "../constants/ComponentConstants";
 
 const Page = styled.div`
 	width: 100vw;
 	min-height: 100vh;
 	box-sizing: border-box;
 	background-color: rgb(
-		${constants.background[0]},
-		${constants.background[1]},
-		${constants.background[2]}
+		${desktopConstants.background[0]},
+		${desktopConstants.background[1]},
+		${desktopConstants.background[2]}
 	);
 `;
 const OuterContainer = styled.div`
 	background-color: white;
 	border: 1px solid black;
-	border-radius: ${constants.radius};
+	border-radius: ${desktopConstants.radius};
 	display: inline-flex;
 	flex-direction: row;
-    width: ${constants.mainContentWidth};
+	width: ${desktopConstants.mainContentWidth};
 `;
 
 interface SideContainerProps {
-    proportion: number
+	proportion: number;
 }
 
 const LeftContainer = styled.div<SideContainerProps>`
 	display: inline-flex;
 	flex-direction: column;
 	border: 1px solid black;
-	border-top-left-radius: ${constants.radius};
-	border-bottom-left-radius: ${constants.radius};
+	border-top-left-radius: ${desktopConstants.radius};
+	border-bottom-left-radius: ${desktopConstants.radius};
 	margin: -1px;
 	margin-right: 0px;
 	box-sizing: border-box;
@@ -44,13 +47,13 @@ const RightContainer = styled.div<SideContainerProps>`
 	flex-direction: column;
 	border: 1px solid black;
 	border-left: none;
-	border-top-right-radius: ${constants.radius};
-	border-bottom-right-radius: ${constants.radius};
+	border-top-right-radius: ${desktopConstants.radius};
+	border-bottom-right-radius: ${desktopConstants.radius};
 	margin: -1px;
 	margin-left: 0px;
 	box-sizing: border-box;
 	flex-grow: ${(props) => props.proportion};
-    flex-basis: 0;
+	flex-basis: 0;
 `;
 
 interface TwoSidedCardProps {
@@ -65,7 +68,6 @@ const TwoSidedCard = function ({
 	right,
 	leftProportion = 1,
 	rightProportion = 1,
-
 }: TwoSidedCardProps) {
 	if (leftProportion < 0 || rightProportion < 0) {
 		throw new Error(
@@ -73,7 +75,7 @@ const TwoSidedCard = function ({
 		);
 	}
 	return (
-		<OuterContainer >
+		<OuterContainer>
 			<LeftContainer proportion={leftProportion}>{left}</LeftContainer>
 			<RightContainer proportion={rightProportion}>
 				{right}
@@ -81,7 +83,6 @@ const TwoSidedCard = function ({
 		</OuterContainer>
 	);
 };
-
 
 interface ColorButtonProps extends React.ComponentPropsWithoutRef<"button"> {
 	r: number;
@@ -91,9 +92,9 @@ interface ColorButtonProps extends React.ComponentPropsWithoutRef<"button"> {
 
 const BackgroundColorButtonContainer = styled.button<ColorButtonProps>`
 	display: inline-block;
-	padding: ${constants.verySmallGap};
+	padding: ${desktopConstants.verySmallGap};
 	border: 1px solid black;
-	border-radius: ${constants.radius};
+	border-radius: ${desktopConstants.radius};
 	background-color: rgb(
 		${(props) => props.r},
 		${(props) => props.g},
@@ -101,19 +102,20 @@ const BackgroundColorButtonContainer = styled.button<ColorButtonProps>`
 	);
 	font-weight: 500 !important;
 	font-family: roboto;
-	font-size: ${constants.regularFontSize};
+	font-size: ${desktopConstants.regularFontSize};
+    white-space: nowrap;
 `;
 
 interface ButtonProps {
 	text: string;
-    onClick?: React.MouseEventHandler
+	onClick?: React.MouseEventHandler;
 }
 function BackgroundColorButton({ text, onClick }: ButtonProps) {
 	return (
 		<BackgroundColorButtonContainer
-			r={constants.background[0]}
-			g={constants.background[1]}
-			b={constants.background[2]}
+			r={desktopConstants.background[0]}
+			g={desktopConstants.background[1]}
+			b={desktopConstants.background[2]}
 			onClick={onClick}
 		>
 			{text}
@@ -137,15 +139,15 @@ function WhiteButton({ text, onClick }: ButtonProps) {
 const CenteredColumnContainer = styled.div`
 	display: flex;
 	flex-direction: column;
-	gap: ${constants.enormousGap};
+	gap: ${desktopConstants.enormousGap};
 	align-items: center;
 `;
 
 const LogoContainer = styled.span`
 	font-weight: bold;
-	font-size: ${constants.largeFontSize};
+	font-size: ${desktopConstants.largeFontSize};
 	text-shadow: 2px 2px 9px rgba(0, 0, 0, 0.25);
-	padding-bottom: ${constants.bigGap};
+	padding-bottom: ${desktopConstants.bigGap};
 `;
 
 const LoaderOpacityAnimation = keyframes`
@@ -159,7 +161,7 @@ const LoaderOpacityAnimation = keyframes`
 `;
 
 const LoaderContainer = styled(LogoContainer)`
-	font-size: ${constants.mediumFontSize};
+	font-size: ${desktopConstants.mediumFontSize};
 	padding-bottom: 0;
 	animation: ${LoaderOpacityAnimation} 1s ease-in-out infinite alternate;
 	position: absolute;
@@ -176,15 +178,93 @@ function LoaderDiv() {
 	);
 }
 
-
 // for pages which consists of only one two-sided card and needs a small description on top of the card
 const Description = styled.div`
 	display: inline-block;
-	padding-bottom: ${constants.bigGap};
+	padding-bottom: ${desktopConstants.bigGap};
 	text-align: left;
-	font-size: ${constants.regularFontSize};
-	width: ${constants.mainContentWidth};
+	font-size: ${desktopConstants.regularFontSize};
+	width: ${desktopConstants.mainContentWidth};
 `;
+
+
+//////////////////////////////////////////////////////////// MOBILE COMPONENTS ////////////////////////////////////////////////////////////
+
+const MobileOuterContainer = styled(OuterContainer)`
+	flex-direction: column;
+	width: ${mobileConstants.mainContentWidth};
+`;
+
+const MobileTopContainer = styled.div`
+	border-bottom: 1px solid black;
+	box-sizing: border-box;
+`;
+
+interface MobileTwoSidedCardProps {
+	top: ReactElement;
+	bottom: ReactElement;
+}
+
+function MobileTwoSidedCard({ top, bottom }: MobileTwoSidedCardProps) {
+	return (
+		<MobileOuterContainer>
+			<MobileTopContainer>{top}</MobileTopContainer>
+			{bottom}
+		</MobileOuterContainer>
+	);
+}
+
+const MobileLoaderContainer = styled(LoaderContainer)`
+	font-size: ${mobileConstants.mediumFontSize};
+`;
+
+function MobileLoaderDiv() {
+	return (
+		<div style={{ width: "100%", height: "100%", position: "relative" }}>
+			<MobileLoaderContainer>WALL</MobileLoaderContainer>
+		</div>
+	);
+}
+
+const MobileBackgroundColorButtonContainer = styled(BackgroundColorButtonContainer)`
+	padding: ${mobileConstants.smallerGap};
+	border-radius: ${mobileConstants.innerRadius};
+	font-size: ${mobileConstants.regularFontSize};
+`;
+
+function MobileBackgroundColorButton({ text, onClick }: ButtonProps) {
+	return (
+		<MobileBackgroundColorButtonContainer
+			r={mobileConstants.background[0]}
+			g={mobileConstants.background[1]}
+			b={mobileConstants.background[2]}
+			onClick={onClick}
+		>
+			{text}
+		</MobileBackgroundColorButtonContainer>
+	);
+}
+
+function MobileWhiteButton({ text, onClick }: ButtonProps) {
+	return (
+		<MobileBackgroundColorButtonContainer
+			r={255}
+			g={255}
+			b={255}
+			onClick={onClick}
+		>
+			{text}
+		</MobileBackgroundColorButtonContainer>
+	);
+}
+
+const MobileLogoContainer = styled(LogoContainer)`
+	font-size: ${mobileConstants.largeFontSize};
+	padding-top: ${mobileConstants.bigGap};
+	padding-bottom: 0;
+`;
+
+
 
 
 export {
@@ -195,5 +275,13 @@ export {
 	BackgroundColorButton,
 	LogoContainer,
 	LoaderDiv,
-    Description
+	Description,
+};
+
+export {
+	MobileTwoSidedCard,
+	MobileLoaderDiv,
+	MobileBackgroundColorButton,
+    MobileWhiteButton,
+    MobileLogoContainer
 };

@@ -52,7 +52,7 @@ function useAddCaption(
 		if (userData === false) {
 			return EventEmitter.emit(
 				"error",
-				"YOU MUST BE SIGNED IN TO ADD AN IMAGE"
+				"YOU MUST BE SIGNED IN TO SUGGEST A CAPTION"
 			);
 		}
 

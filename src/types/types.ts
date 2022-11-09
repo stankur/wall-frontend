@@ -1,3 +1,5 @@
+export type Device = "desktop" | "tablet" | "mobile";
+
 interface PostData {
 	id: string;
 	user: string;
@@ -21,6 +23,7 @@ export interface RankedCaptionData extends CaptionData {
 export interface ImageData extends PostData {
 	imageUrl: string;
 	captions: RankedCaptionData[];
+	round?: number;
 }
 
 // interfaces resulted from fetching backend (must align with backend):
@@ -31,9 +34,9 @@ export interface UserData {
 }
 
 interface BackendGeneratedError {
-    error: {
-        message: string;
-    }
+	error: {
+		message: string;
+	};
 }
 
 type AuthenticationError = {
@@ -74,6 +77,7 @@ export interface RankedCaptionDataWithInteractions
 export interface ImageDataWithInteractions extends PostDataWithInteractions {
 	imageUrl: string;
 	captions: RankedCaptionDataWithInteractions[];
+	reound?: number;
 }
 
 export interface VoteCaptionResponse {

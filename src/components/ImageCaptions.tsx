@@ -1,12 +1,14 @@
-import React, { useState, ReactEventHandler, useRef } from "react";
+import React, { useState, ReactEventHandler, useRef, ReactElement } from "react";
 import styled, { keyframes } from "styled-components";
-import constants from "../constants/ComponentConstants";
-import { WhiteButton, TwoSidedCard, LoaderDiv } from "./Utils";
+import {
+	desktopConstants,
+	mobileConstants,
+} from "../constants/ComponentConstants";
+import { WhiteButton, TwoSidedCard, LoaderDiv, MobileLoaderDiv, MobileTwoSidedCard, MobileBackgroundColorButton } from "./Utils";
 import {
 	ImageData,
 	ImageDataWithInteractions,
 	Interaction,
-	PostType,
 	RankedCaptionData,
 	RankedCaptionDataWithInteractions,
 	UserData,
@@ -18,9 +20,10 @@ import {
 	RequestInteractFunction,
 	RequestInteractFunctionGivenPostData,
 } from "../hooks/interactionHooks";
+import dayjs from "dayjs";
 
 const PostInfoBarOuterContainer = styled.div`
-	padding: ${constants.smallGap};
+	padding: ${desktopConstants.smallGap};
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: row;
@@ -38,13 +41,16 @@ function NameTime({ name, time }: NameTimeProps) {
 			<span
 				style={{
 					fontWeight: "bold",
-					fontSize: constants.regularFontSize,
+					fontSize: desktopConstants.regularFontSize,
 				}}
 			>
 				{name.toUpperCase()}
 			</span>
 			<span
-				style={{ fontWeight: 500, fontSize: constants.regularFontSize }}
+				style={{
+					fontWeight: 500,
+					fontSize: desktopConstants.regularFontSize,
+				}}
 			>
 				{convertTimeToElapsedTime(time)}
 			</span>
@@ -60,11 +66,11 @@ const PlusButtonContainer = styled.div<PlusButtonContainerProps>`
 	height: 14px;
 	border-radius: 50%;
 	border: 1px solid black;
-	font-size: ${constants.regularFontSize};
+	font-size: ${desktopConstants.regularFontSize};
 	position: relative;
 	background-color: ${(props) =>
 		props.chosen
-			? `rgb(${constants.background[0]}, ${constants.background[1]}, ${constants.background[2]})`
+			? `rgb(${desktopConstants.background[0]}, ${desktopConstants.background[1]}, ${desktopConstants.background[2]})`
 			: "white"};
 `;
 
@@ -95,7 +101,7 @@ function PlusButton({ onClick, chosen }: PlusButtonProps) {
 const SmallerGappedContainer = styled.div`
 	display: inline-flex;
 	align-items: center;
-	gap: ${constants.smallerGap};
+	gap: ${desktopConstants.smallerGap};
 `;
 
 interface StatsPairProps {
@@ -107,7 +113,10 @@ function StatsPair({ keyName, value }: StatsPairProps) {
 	return (
 		<SmallerGappedContainer style={{ alignItems: "baseline" }}>
 			<span
-				style={{ fontSize: constants.regularFontSize, fontWeight: 500 }}
+				style={{
+					fontSize: desktopConstants.regularFontSize,
+					fontWeight: 500,
+				}}
 			>
 				{keyName}
 			</span>
@@ -183,10 +192,7 @@ function Stats({
 	);
 }
 
-interface LoadableImageProps {
-	imageUrl: string;
-	onClick?: React.MouseEventHandler;
-}
+
 
 function useImageLoaded() {
 	const [loaded, setLoaded] = useState(false);
@@ -199,7 +205,7 @@ function useImageLoaded() {
 }
 
 const NoImageContainer = styled.div`
-	height: 20vw;
+	height: ${desktopConstants.NoImageContainerHeight};
 	border-top: 1px solid black;
 	border-bottom: 1px solid black;
 `;
@@ -220,11 +226,18 @@ function LoadingImage({
 	);
 }
 
+interface LoadableImageProps {
+	imageUrl: string;
+	onClick?: React.MouseEventHandler;
+    loadingImage?: ReactElement;
+}
+
 function LoadableImage({
 	imageUrl,
 	onClick = () => {
 		return;
 	},
+	loadingImage = <LoadingImage />,
 }: LoadableImageProps) {
 	const [loaded, onLoad] = useImageLoaded();
 
@@ -247,7 +260,7 @@ function LoadableImage({
 				onLoad={onLoad as ReactEventHandler<HTMLImageElement>}
 				onClick={onClick}
 			/>
-			{!loaded && <LoadingImage onClick={onClick} />}
+			{!loaded && loadingImage}
 		</>
 	);
 }
@@ -292,7 +305,7 @@ function ImageSide({
 }
 
 const CaptionContainer = styled.div`
-	padding: ${constants.smallGap};
+	padding: ${desktopConstants.smallGap};
 	padding-top: 2px;
 	text-align: left;
 `;
@@ -351,15 +364,15 @@ function CaptionGroup({
 const AddCaptionContainer = styled.div`
 	display: flex;
 	align-items: flex-end;
-	padding: ${constants.smallerGap};
-	gap: ${constants.smallerGap};
+	padding: ${desktopConstants.smallerGap};
+	gap: ${desktopConstants.smallerGap};
 	background-color: rgb(
-		${constants.background[0]},
-		${constants.background[1]},
-		${constants.background[2]}
+		${desktopConstants.background[0]},
+		${desktopConstants.background[1]},
+		${desktopConstants.background[2]}
 	);
 	border-top: 1px solid black;
-	border-bottom-right-radius: ${constants.radius};
+	border-bottom-right-radius: ${desktopConstants.radius};
 	margin-top: -1px;
 `;
 
@@ -376,7 +389,7 @@ const CaptionTextArea = styled.textarea`
 	resize: none;
 	outline: none;
 	border: 1px solid black;
-	border-radius: ${constants.radius};
+	border-radius: ${desktopConstants.radius};
 	font-family: roboto;
 `;
 
@@ -597,14 +610,15 @@ function ImagePreview({
 								display: "flex",
 								flexDirection: "column",
 								justifyContent: "center",
-								gap: constants.smallGap,
+								gap: desktopConstants.smallGap,
 							}}
 						>
 							<span
 								style={{
-									fontSize: constants.regularLargerSize,
+									fontSize:
+										desktopConstants.regularLargerSize,
 									fontWeight: "bold",
-									color: `rgb(${constants.watermark[0]},${constants.watermark[1]},${constants.watermark[2]})`,
+									color: `rgb(${desktopConstants.watermark[0]},${desktopConstants.watermark[1]},${desktopConstants.watermark[2]})`,
 									cursor: "default",
 								}}
 							>
@@ -612,8 +626,8 @@ function ImagePreview({
 							</span>
 							<span
 								style={{
-									fontSize: constants.regularFontSize,
-									color: `rgb(${constants.watermark[0]},${constants.watermark[1]},${constants.watermark[2]})`,
+									fontSize: desktopConstants.regularFontSize,
+									color: `rgb(${desktopConstants.watermark[0]},${desktopConstants.watermark[1]},${desktopConstants.watermark[2]})`,
 									cursor: "default",
 								}}
 							>
@@ -638,11 +652,11 @@ const FakeCaptionTextArea = styled.div`
 	flex-grow: 1;
 	flex-basis: 0;
 	border: 1px solid black;
-	border-radius: ${constants.radius};
+	border-radius: ${desktopConstants.radius};
 	background-color: rgb(
-		${constants.backgroundLite[0]},
-		${constants.backgroundLite[1]},
-		${constants.backgroundLite[2]}
+		${desktopConstants.backgroundLite[0]},
+		${desktopConstants.backgroundLite[1]},
+		${desktopConstants.backgroundLite[2]}
 	);
 `;
 
@@ -722,17 +736,17 @@ function AddImagePreview({
 const LoaderOpacityAnimation = keyframes`
     from {
         background-color: rgb(
-		${constants.backgroundDarker[0]},
-		${constants.backgroundDarker[1]},
-		${constants.backgroundDarker[2]}	
+		${desktopConstants.backgroundDarker[0]},
+		${desktopConstants.backgroundDarker[1]},
+		${desktopConstants.backgroundDarker[2]}	
         )
     }
 
     to {
         background-color: rgb(
-		${constants.background[0]},
-		${constants.background[1]},
-		${constants.background[2]},
+		${desktopConstants.background[0]},
+		${desktopConstants.background[1]},
+		${desktopConstants.background[2]},
         )    
     }
 
@@ -744,12 +758,12 @@ interface loadingBarProps {
 const LoadingBar = styled.span<loadingBarProps>`
 	border: 1px solid black;
 	background-color: rgb(
-		${constants.background[0]},
-		${constants.background[1]},
-		${constants.background[2]}
+		${desktopConstants.background[0]},
+		${desktopConstants.background[1]},
+		${desktopConstants.background[2]}
 	);
 	animation: ${LoaderOpacityAnimation} 0.5s ease-in-out infinite alternate;
-	height: ${constants.loadingBarHeight};
+	height: ${desktopConstants.loadingBarHeight};
 	width: ${(props) => (props.width ? props.width : "100%")};
 	display: ${(props) => (props.display ? props.display : "inline")};
 `;
@@ -791,13 +805,13 @@ function LoadingCaptionGroup() {
 
 const LoadingAddCaptionButton = styled.div`
 	width: 30%;
-	height: ${constants.loadingButtonHeight};
+	height: ${desktopConstants.loadingButtonHeight};
 	border: 1px solid black;
-	border-radius: ${constants.radius};
+	border-radius: ${desktopConstants.radius};
 	background-color: rgb(
-		${constants.backgroundLite[0]},
-		${constants.backgroundLite[1]},
-		${constants.backgroundLite[2]}
+		${desktopConstants.backgroundLite[0]},
+		${desktopConstants.backgroundLite[1]},
+		${desktopConstants.backgroundLite[2]}
 	);
 `;
 
@@ -857,5 +871,296 @@ function LoadingImageCaptionsCard() {
 		/>
 	);
 }
+
+//////////////////////////////////////////////////////////// MOBILE COMPONENTS ////////////////////////////////////////////////////////////
+
+interface CircleButtonProps {
+	baseColor: [number, number, number];
+	colored: boolean;
+}
+const CircleButton = styled.div<CircleButtonProps>`
+	width: ${mobileConstants.buttonSize};
+	height: ${mobileConstants.buttonSize};
+	background-color: ${(props) =>
+		props.colored
+			? `rgb(${props.baseColor[0]}, ${props.baseColor[1]}, ${props.baseColor[2]})`
+			: "white"};
+	border-radius: 50%;
+	border: 1px solid black;
+`;
+
+
+const UpvoteButton = styled(CircleButton).attrs(() => {
+	return { baseColor: mobileConstants.upvoteColor };
+})``;
+
+const DownvoteButton = styled(CircleButton).attrs(() => {
+	return { baseColor: mobileConstants.downvoteColor };
+})``;
+
+const MobilePostInfoOuterContainer = styled(PostInfoBarOuterContainer)`
+	padding: ${mobileConstants.smallGap};
+`;
+
+
+interface MobileNameTimeProps {
+	name: string;
+	time?: string | undefined;
+}
+
+function MobileNameTime({ name, time = undefined }: MobileNameTimeProps) {
+	return (
+		<MobilePostInfoOuterContainer>
+			<span
+				style={{
+					fontWeight: "bold",
+					fontSize: mobileConstants.regularFontSize,
+				}}
+			>
+				{name.toUpperCase()}
+			</span>
+			{!!time ? (
+				<span
+					style={{
+						fontWeight: 500,
+						fontSize: mobileConstants.regularFontSize,
+					}}
+				>
+					{convertTimeToElapsedTime(time)}
+				</span>
+			) : (
+				<span style={{ flexGrow: 1 }} />
+			)}
+		</MobilePostInfoOuterContainer>
+	);
+}
+
+const StatsPairContainer = styled.div`
+	display: inline-flex;
+	gap: ${mobileConstants.smallGap};
+	align-items: baseline;
+`;
+
+function MobileStatsPair({ keyName, value }: StatsPairProps) {
+	return (
+		<StatsPairContainer>
+			<span
+				style={{
+					fontSize: mobileConstants.regularFontSize,
+					fontWeight: 500,
+				}}
+			>
+				{keyName}
+			</span>
+			<span
+				style={{
+					fontSize: mobileConstants.regularFontSize,
+					fontWeight: "bold",
+				}}
+			>
+				{value}
+			</span>
+		</StatsPairContainer>
+	);
+}
+
+const MobileButtonsContainer = styled.div`
+    display: inline-flex;
+    gap: ${mobileConstants.smallGap};
+`
+
+
+interface MobileStatsProps {
+	points: number;
+	requestChangeInteraction: RequestInteractFunctionGivenPostData;
+	interaction: Interaction;
+}
+
+function MobileStats({
+	points,
+	requestChangeInteraction,
+	interaction,
+}: MobileStatsProps) {
+	return (
+		<MobilePostInfoOuterContainer style={{alignItems:"center"}} >
+			<MobileButtonsContainer>
+				<UpvoteButton colored={interaction !== "dislike"} />
+				<DownvoteButton colored={interaction !== "like"} />
+			</MobileButtonsContainer>
+			<MobileStatsPair keyName="POINTS" value={points.toString()} />
+		</MobilePostInfoOuterContainer>
+	);
+};
+
+const MobileNoImageContainer = styled(NoImageContainer)`
+    height: ${mobileConstants.mainContentWidth};
+`
+
+function MobileLoadingImage({
+	onClick = () => {
+		return;
+	},
+}: LoadingImageProps) {
+	return (
+		<MobileNoImageContainer onClick={onClick}>
+			<MobileLoaderDiv />
+		</MobileNoImageContainer>
+	);
+};
+
+interface MobileImageSideProps
+	extends MobileStatsProps,
+		NameTimeProps,
+		Pick<LoadableImageProps, "imageUrl"> {}
+function MobileImageSide({
+	name,
+	time,
+	points,
+	imageUrl,
+	requestChangeInteraction,
+	interaction,
+}: MobileImageSideProps) {
+	return (
+		<SideContainer>
+			<MobileNameTime name={name} time={time} />
+			<LoadableImage
+				imageUrl={imageUrl}
+				loadingImage={<MobileLoadingImage />}
+			/>
+			<MobileStats
+				points={points}
+				requestChangeInteraction={requestChangeInteraction}
+				interaction={interaction}
+			/>
+		</SideContainer>
+	);
+}
+
+const MobileCaptionContainer = styled(CaptionContainer)`
+	padding: ${mobileConstants.smallGap};
+	padding-top: 2px;
+`;
+
+function MobileCaption({ text }: CaptionProps) {
+	return <MobileCaptionContainer>{text}</MobileCaptionContainer>;
+} 
+
+interface MobileCaptionGroupProps extends MobileNameTimeProps, CaptionProps, MobileStatsProps{
+
+}
+function MobileCaptionGroup({
+	name,
+	text,
+	points,
+	requestChangeInteraction,
+	interaction,
+}: MobileCaptionGroupProps) {
+	return (
+		<CaptionGroupContainer>
+			<MobileNameTime name={name} />
+			<MobileCaption text={text} />
+			<MobileStats
+				requestChangeInteraction={requestChangeInteraction}
+				points={points}
+				interaction={interaction}
+			/>
+		</CaptionGroupContainer>
+	);
+}
+
+
+const MobileOptionsContainer = styled.div`
+	padding: ${mobileConstants.smallGap};
+    display: flex;
+    justify-content: space-between;
+`;
+
+interface MobileOptionsProps {
+	onViewMoreClick: () => void;
+	onAddCaptionClick: () => void;
+}
+
+function MobileOptions({
+	onViewMoreClick,
+	onAddCaptionClick,
+}: MobileOptionsProps) {
+	return (
+		<MobileOptionsContainer>
+			<MobileBackgroundColorButton
+				text={"VIEW MORE"}
+				onClick={onViewMoreClick}
+			/>
+			<MobileBackgroundColorButton
+				text={"ADD CAPTION"}
+				onClick={onAddCaptionClick}
+			/>
+		</MobileOptionsContainer>
+	);
+}
+
+interface MobileCaptionsSideProps
+	extends MobileOptionsProps,
+		MobileCaptionGroupProps {}
+function MobileCaptionsSide({
+	name,
+	text,
+	points,
+	requestChangeInteraction,
+	interaction,
+	onViewMoreClick,
+	onAddCaptionClick,
+}: MobileCaptionsSideProps) {
+    return (
+		<SideContainer>
+			<MobileCaptionGroup
+				name={name}
+				text={text}
+				points={points}
+				requestChangeInteraction={requestChangeInteraction}
+				interaction={interaction}
+			/>
+			<MobileOptions
+				onViewMoreClick={onViewMoreClick}
+				onAddCaptionClick={onAddCaptionClick}
+			/>
+		</SideContainer>
+	);
+}
+
+
+
+
+function MobileImageCaptionsCard() {
+	return (
+		<MobileTwoSidedCard
+			top={
+				<MobileImageSide
+					name="STANKURN"
+					time={dayjs().subtract(1, "day").format()}
+					points={30}
+					imageUrl="https://drive.google.com/uc?export=view&id=1WyP8f_tBhlYKUp-iFMOrV9dJIy1AVbEG"
+					requestChangeInteraction={() => {}}
+					interaction={null}
+				/>
+			}
+			bottom={
+				<MobileCaptionsSide
+					name="STANKURN"
+					text="dumb caption"
+					points={34}
+					requestChangeInteraction={() => {}}
+					interaction={null}
+					onViewMoreClick={() => {}}
+					onAddCaptionClick={() => {}}
+				/>
+			}
+		/>
+	);
+}
+
+
+
+
 export { ImageCaptionsCard, AddImagePreview, LoadingImageCaptionsCard };
 export type { ImageCaptionsCardProps };
+export { MobileImageCaptionsCard };

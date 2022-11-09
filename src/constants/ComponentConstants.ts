@@ -1,10 +1,14 @@
-const constants = {
+const crossPlatformConstants = {
 	background: [228, 228, 228],
 	backgroundLite: [243, 243, 243],
 	backgroundDarker: [200, 200, 200],
 	error: [255, 173, 173],
 	watermark: [180, 180, 180],
 	success: [173, 206, 255],
+};
+
+const desktopConstants = {
+	...crossPlatformConstants,
 	radius: "7px",
 	regularLargerSize: "16px",
 	regularFontSize: "13px",
@@ -21,9 +25,33 @@ const constants = {
 	smallGap: "8px",
 	smallerGap: "5px",
 	verySmallGap: "4px",
-	mainContentWidth: "55%",
+	mainContentWidth: "max(55%, 700px)",
 	loadingBarHeight: "15px",
 	loadingButtonHeight: "21px",
+	NoImageContainerHeight: "max(20vw, 300px)", //align with mainContentWidth
 };
 
-export default constants;
+const mobileConstants = {
+	...crossPlatformConstants,
+	outerRadius: "7px",
+	innerRadius: "5px",
+	regularLargerFontSize: "16px",
+	regularFontSize: "14px",
+	regularSmallerFontSize: "12px",
+	mediumFontSize: "30px",
+	mediumSmallFontSize: "25px",
+	mediumSmallerFontSize: "20px",
+	largeFontSize: "90px",
+	buttonSize: "24px",
+	smallGap: "7px",
+	smallerGap: "4px",
+	mediumSmallerGap: "9px",
+	mediumSmallGap: "11px",
+	mediumGap: "15px",
+	mediumLargeGap: "73px",
+	bigGap: "85px",
+	mainContentWidth: "280px",
+	upvoteColor: [199, 235, 255],
+	downvoteColor: [255, 181, 176],
+};
+export { desktopConstants, mobileConstants };

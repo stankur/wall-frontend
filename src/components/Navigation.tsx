@@ -1,7 +1,7 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import styled from "styled-components";
-import constants from "../constants/ComponentConstants";
-import { WhiteButton } from "./Utils";
+import {desktopConstants, mobileConstants} from "../constants/ComponentConstants";
+import { MobileWhiteButton, WhiteButton } from "./Utils";
 import { Link, useNavigate } from "react-router-dom";
 import { UserDataState, useSignOut } from "../hooks/authenticationHooks";
 import { EventEmitter } from "../Utils";
@@ -15,7 +15,7 @@ function ImagesNumber({ shown, total }: ImagesNumberProps) {
 		<div
 			style={{
 				display: "inline-block",
-				fontSize: constants.regularFontSize,
+				fontSize: desktopConstants.regularFontSize,
 			}}
 		>
 			SHOWING <span style={{ fontWeight: "bold" }}>{shown}</span> IMAGES
@@ -27,20 +27,21 @@ function ImagesNumber({ shown, total }: ImagesNumberProps) {
 const NavigationButtonsContainer = styled.span`
 	display: inline-flex;
 	align-items: center;
-	gap: ${constants.smallGap};
+	gap: ${desktopConstants.smallGap};
 `;
 
 interface NavigationButtonsProps {
 	userData: UserDataState;
 	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>;
 	requestFetchImages: () => void;
+    SignUpButton?: ReactElement &React.ComponentPropsWithoutRef<typeof WhiteButton>
 }
 
-function NavigationButtons({
+function useInternalNavigation({
 	userData,
 	setUserData,
 	requestFetchImages,
-}: NavigationButtonsProps) {
+}: NavigationButtonsProps): [boolean, () => void, () => void] {
 	const [signingOut, requestSignOut] = useSignOut(
 		userData,
 		setUserData,
@@ -70,34 +71,53 @@ function NavigationButtons({
 
 		return navigate("/add-image");
 	}
+
+	return [signingOut, requestSignOut, requestAddImage];
+}
+
+function NavigationButtons({
+	userData,
+	setUserData,
+	requestFetchImages,
+}: NavigationButtonsProps) {
+	const [signingOut, requestSignOut, requestAddImage] = useInternalNavigation(
+		{ userData, setUserData, requestFetchImages }
+	);
 	return (
 		<NavigationButtonsContainer>
-			{!userData ? (
-				userData === undefined ? (
-					<></>
-				) : (
+			{(() => {
+				if (userData === undefined) {
+					return <></>;
+				}
+
+				if (userData === false) {
+					return (
+						<>
+							<Link to="/sign-up">
+								<WhiteButton text="SIGN UP" />
+							</Link>
+							<Link to="/sign-in">
+								<WhiteButton text="SIGN IN" />
+							</Link>
+						</>
+					);
+				}
+
+				//userData must exist at this point
+				return (
 					<>
-						<Link to="/sign-in">
-							<WhiteButton text="SIGN IN" />
-						</Link>
-						<Link to="/sign-up">
-							<WhiteButton text="CREATE ACCOUNT" />
-						</Link>
+						<span style={{ fontWeight: "bold" }}>
+							{userData.username}
+						</span>
+						<WhiteButton
+							onClick={() => {
+								requestSignOut();
+							}}
+							text="SIGN OUT"
+						/>
 					</>
-				)
-			) : (
-				<>
-					<span style={{ fontWeight: "bold" }}>
-						{userData.username}
-					</span>
-					<WhiteButton
-						onClick={() => {
-							requestSignOut();
-						}}
-						text="SIGN OUT"
-					/>
-				</>
-			)}
+				);
+			})()}
 			<WhiteButton onClick={requestAddImage} text="ADD IMAGE" />
 		</NavigationButtonsContainer>
 	);
@@ -107,7 +127,7 @@ const NavigationOuterContainer = styled.div`
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	padding: ${constants.smallGap};
+	padding: ${desktopConstants.smallGap};
 	padding-left: 0px;
 	padding-right: 0px;
 	align-items: center;
@@ -115,7 +135,7 @@ const NavigationOuterContainer = styled.div`
 `;
 
 const NavigationInnerContainer = styled.div`
-	width: ${constants.mainContentWidth};
+	width: ${desktopConstants.mainContentWidth};
 	display: flex;
 	justify-content: space-between;
 	align-items: baseline;
@@ -142,4 +162,67 @@ function Navigation({
 	);
 }
 
-export default Navigation;
+//////////////////////////////////////////////////////////// MOBILE COMPONENTS ////////////////////////////////////////////////////////////
+
+const MobileNavigationContainer = styled(NavigationButtonsContainer)`
+	flex-direction: column;
+	gap: ${mobileConstants.mediumSmallGap};
+	align-items: flex-end;
+`;
+
+function MobileNavigation({
+	userData,
+	setUserData,
+	requestFetchImages,
+}: NavigationProps) {
+	const [signingOut, requestSignOut, requestAddImage] = useInternalNavigation(
+		{
+			userData,
+			setUserData,
+			requestFetchImages,
+		}
+	);
+
+	return (
+		<MobileNavigationContainer>
+			{(() => {
+				if (userData === undefined) {
+					return <></>;
+				}
+
+				if (userData === false) {
+					return (
+						<>
+							<Link to="/sign-up">
+								<MobileWhiteButton text="SIGN UP" />
+							</Link>
+							<Link to="/sign-in">
+								<MobileWhiteButton text="SIGN IN" />
+							</Link>
+						</>
+					);
+				}
+
+				// userData must exist at this point
+				return (
+					<>
+						<span style={{ fontWeight: "bold" }}>
+							{userData.username}
+						</span>
+						<MobileWhiteButton
+							onClick={() => {
+								requestSignOut();
+							}}
+							text="SIGN OUT"
+						/>
+					</>
+				);
+			})()}
+
+			<MobileWhiteButton onClick={requestAddImage} text="ADD IMAGE" />
+		</MobileNavigationContainer>
+	);
+}
+
+
+export { Navigation, MobileNavigation };

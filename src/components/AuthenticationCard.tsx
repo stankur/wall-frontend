@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import styled
  from "styled-components";
 import { TwoSidedCard, BackgroundColorButton } from "./Utils";
-import constants from "../constants/ComponentConstants";
+import {desktopConstants} from "../constants/ComponentConstants";
 
 const QuoteOuterContainer = styled.div`
 	height: 100%;
 	display: flex;
 	justify-content: center;
-	padding: ${constants.humongousGap};
+	padding: ${desktopConstants.humongousGap};
 `;
 const QuoteInnerContainer = styled.div`
-	font-size: ${constants.mediumFontSize};
+	font-size: ${desktopConstants.mediumFontSize};
 	font-weight: bold;
 `;
 function Quote() {
@@ -29,17 +29,17 @@ const LabeledInputContainer = styled.div`
 	flex-direction: column;
 	width: 100%;
 	align-items: flex-start;
-	gap: ${constants.smallerGap};
+	gap: ${desktopConstants.smallerGap};
 `;
 
 const BackgroundColorInput = styled.input`
 	background-color: rgb(
-		${constants.background[0]},
-		${constants.background[1]},
-		${constants.background[2]}
+		${desktopConstants.background[0]},
+		${desktopConstants.background[1]},
+		${desktopConstants.background[2]}
 	);
 	border: 1px solid black;
-	border-radius: ${constants.radius};
+	border-radius: ${desktopConstants.radius};
 	box-sizing: border-box;
 	width: 100%;
 	outline: none;
@@ -64,7 +64,7 @@ function LabeledInput({
 		<LabeledInputContainer>
 			<span
 				style={{
-					fontSize: constants.regularFontSize,
+					fontSize: desktopConstants.regularFontSize,
 					fontWeight: "bold",
 				}}
 			>
@@ -73,7 +73,7 @@ function LabeledInput({
 			{!!description && (
 				<span
 					style={{
-						fontSize: constants.regularFontSize,
+						fontSize: desktopConstants.regularFontSize,
 					}}
 				>
 					{description}
@@ -98,7 +98,7 @@ const InputsInnerContainer = styled.div`
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-	gap: ${constants.bigGap};
+	gap: ${desktopConstants.bigGap};
 `;
 
 interface InputsProps {
@@ -145,7 +145,7 @@ function Inputs({
 const InputsGroupOuterContainer = styled.div`
 	width: 100%;
 	height: 100%;
-	padding: ${constants.mediumGap};
+	padding: ${desktopConstants.mediumGap};
 	display: flex;
 	flex-direction: column;
 	box-sizing: border-box;
