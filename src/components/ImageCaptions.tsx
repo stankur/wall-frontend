@@ -4,7 +4,7 @@ import {
 	desktopConstants,
 	mobileConstants,
 } from "../constants/ComponentConstants";
-import { WhiteButton, TwoSidedCard, LoaderDiv, MobileLoaderDiv, MobileTwoSidedCard, MobileBackgroundColorButton } from "./Utils";
+import { WhiteButton, TwoSidedCard, LoaderDiv, MobileLoaderDiv, MobileTwoSidedCard, MobileBackgroundColorButton, MobileWhiteButton } from "./Utils";
 import {
 	ImageData,
 	ImageDataWithInteractions,
@@ -145,6 +145,26 @@ function StatsPairAndPlusButton({
 		</SmallerGappedContainer>
 	);
 }
+function useChangeInteraction(
+	requestChangeInteraction: RequestInteractFunctionGivenPostData,
+	interaction: Interaction
+): [() => void, () => void] {
+	function onLikeClick() {
+		if (interaction === "like") {
+			return requestChangeInteraction(interaction, null);
+		}
+		requestChangeInteraction(interaction, "like");
+	}
+
+	function onDislikeClick() {
+		if (interaction === "dislike") {
+			return requestChangeInteraction(interaction, null);
+		}
+		requestChangeInteraction(interaction, "dislike");
+	}
+
+	return [onLikeClick, onDislikeClick];
+};
 
 interface StatsProps {
 	points: number;
@@ -160,19 +180,10 @@ function Stats({
 	requestChangeInteraction,
 	interaction,
 }: StatsProps) {
-	function onLikeClick() {
-		if (interaction === "like") {
-			return requestChangeInteraction(interaction, null);
-		}
-		requestChangeInteraction(interaction, "like");
-	}
-
-	function onDislikeClick() {
-		if (interaction === "dislike") {
-			return requestChangeInteraction(interaction, null);
-		}
-		requestChangeInteraction(interaction, "dislike");
-	}
+	const [onLikeClick, onDislikeClick] = useChangeInteraction(
+		requestChangeInteraction,
+		interaction
+	);
 	return (
 		<PostInfoBarOuterContainer>
 			<StatsPair keyName="POINTS" value={points.toString()} />
@@ -363,7 +374,7 @@ function CaptionGroup({
 
 const AddCaptionContainer = styled.div`
 	display: flex;
-	align-items: flex-end;
+	align-items: stretch;
 	padding: ${desktopConstants.smallerGap};
 	gap: ${desktopConstants.smallerGap};
 	background-color: rgb(
@@ -379,7 +390,6 @@ const AddCaptionContainer = styled.div`
 const TextAreaContainer = styled.div`
 	display: inline-flex;
 	flex-direction: column;
-	height: 100%;
 	flex-grow: 1;
 `;
 
@@ -415,6 +425,22 @@ const CaptionGroupsContainer = styled.div`
 	flex-grow: 1;
 	overflow: scroll;
 `;
+
+function createRequestChangeCaptionInteraction(
+	requestInteract: RequestInteractFunction,
+	id: string
+) {
+	return function (
+		prevInteractionType: Interaction,
+		newInteractionType: Interaction
+	) {
+		return requestInteract("caption", id)(
+			prevInteractionType,
+			newInteractionType
+		);
+	};
+};
+
 interface CaptionGroupsProps {
 	captions: RankedCaptionData[] | RankedCaptionDataWithInteractions[];
 	requestInteract?: RequestInteractFunction;
@@ -428,15 +454,12 @@ function CaptionGroups({
 			{immutableSortRank<
 				RankedCaptionData | RankedCaptionDataWithInteractions
 			>(captions).map(function (caption) {
-				function requestChangeInteraction(
-					prevInteractionType: Interaction,
-					newInteractionType: Interaction
-				) {
-					return requestInteract("caption", caption.id)(
-						prevInteractionType,
-						newInteractionType
+				const requestChangeInteraction =
+					createRequestChangeCaptionInteraction(
+						requestInteract,
+						caption.id
 					);
-				}
+
 				return (
 					<CaptionGroup
 						requestChangeInteraction={requestChangeInteraction}
@@ -981,11 +1004,22 @@ function MobileStats({
 	requestChangeInteraction,
 	interaction,
 }: MobileStatsProps) {
+    	const [onLikeClick, onDislikeClick] = useChangeInteraction(
+			requestChangeInteraction,
+			interaction
+		);
+
 	return (
-		<MobilePostInfoOuterContainer style={{alignItems:"center"}} >
+		<MobilePostInfoOuterContainer style={{ alignItems: "center" }}>
 			<MobileButtonsContainer>
-				<UpvoteButton colored={interaction !== "dislike"} />
-				<DownvoteButton colored={interaction !== "like"} />
+				<UpvoteButton
+					colored={interaction !== "dislike"}
+					onClick={onLikeClick}
+				/>
+				<DownvoteButton
+					colored={interaction !== "like"}
+					onClick={onDislikeClick}
+				/>
 			</MobileButtonsContainer>
 			<MobileStatsPair keyName="POINTS" value={points.toString()} />
 		</MobilePostInfoOuterContainer>
@@ -1045,9 +1079,31 @@ function MobileCaption({ text }: CaptionProps) {
 	return <MobileCaptionContainer>{text}</MobileCaptionContainer>;
 } 
 
-interface MobileCaptionGroupProps extends MobileNameTimeProps, CaptionProps, MobileStatsProps{
 
+interface MobileCaptionGroupProps extends MobileNameTimeProps, CaptionProps, MobileStatsProps{
 }
+
+function MobileCaptionGroupContent({
+	name,
+	time,
+	text,
+	points,
+	requestChangeInteraction,
+	interaction,
+}: MobileCaptionGroupProps) {
+	return (
+		<>
+			<MobileNameTime name={name} time={time} />
+			<MobileCaption text={text} />
+			<MobileStats
+				requestChangeInteraction={requestChangeInteraction}
+				points={points}
+				interaction={interaction}
+			/>
+		</>
+	);
+};
+
 function MobileCaptionGroup({
 	name,
 	text,
@@ -1057,9 +1113,9 @@ function MobileCaptionGroup({
 }: MobileCaptionGroupProps) {
 	return (
 		<CaptionGroupContainer>
-			<MobileNameTime name={name} />
-			<MobileCaption text={text} />
-			<MobileStats
+			<MobileCaptionGroupContent
+				name={name}
+				text={text}
 				requestChangeInteraction={requestChangeInteraction}
 				points={points}
 				interaction={interaction}
@@ -1098,26 +1154,59 @@ function MobileOptions({
 	);
 }
 
+const MobileCaptionGroupsContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+`
+
+// captions must be an ARRAY of the top caption (1 element) or just empty (0 element)
+function MobileCaptionGroups({
+	captions,
+	requestInteract = () => () => {},
+}: CaptionGroupsProps) {
+	return (
+		<MobileCaptionGroupsContainer>
+			{captions.map(function (caption) {
+				const requestChangeInteraction =
+					createRequestChangeCaptionInteraction(
+						requestInteract,
+						caption.id
+					);
+
+				return (
+					<MobileCaptionGroup
+						requestChangeInteraction={requestChangeInteraction}
+						name={caption.username.toUpperCase()}
+						time={caption.created_at}
+						text={caption.text}
+						points={caption.points}
+						key={uuid()}
+						interaction={
+							"interaction" in caption
+								? caption.interaction
+								: null
+						}
+					/>
+				);
+			})}
+		</MobileCaptionGroupsContainer>
+	);
+};
+
 interface MobileCaptionsSideProps
 	extends MobileOptionsProps,
-		MobileCaptionGroupProps {}
+		CaptionGroupsProps {}
 function MobileCaptionsSide({
-	name,
-	text,
-	points,
-	requestChangeInteraction,
-	interaction,
+	captions,
+	requestInteract,
 	onViewMoreClick,
 	onAddCaptionClick,
 }: MobileCaptionsSideProps) {
-    return (
+	return (
 		<SideContainer>
-			<MobileCaptionGroup
-				name={name}
-				text={text}
-				points={points}
-				requestChangeInteraction={requestChangeInteraction}
-				interaction={interaction}
+			<MobileCaptionGroups
+				captions={captions}
+				requestInteract={requestInteract}
 			/>
 			<MobileOptions
 				onViewMoreClick={onViewMoreClick}
@@ -1126,8 +1215,6 @@ function MobileCaptionsSide({
 		</SideContainer>
 	);
 }
-
-
 
 
 function MobileImageCaptionsCard() {
@@ -1145,11 +1232,7 @@ function MobileImageCaptionsCard() {
 			}
 			bottom={
 				<MobileCaptionsSide
-					name="STANKURN"
-					text="dumb caption"
-					points={34}
-					requestChangeInteraction={() => {}}
-					interaction={null}
+					captions={[]}
 					onViewMoreClick={() => {}}
 					onAddCaptionClick={() => {}}
 				/>
@@ -1159,8 +1242,237 @@ function MobileImageCaptionsCard() {
 }
 
 
+// here and below up to the next comment breakpoint are the components specifically for Mobile Image Captions Card in Extended View
+
+const MobileAddCaptionContainer = styled(AddCaptionContainer)`
+	padding: ${mobileConstants.smallerGap};
+	gap: ${mobileConstants.smallGap};
+	background-color: rgb(
+		${mobileConstants.background[0]},
+		${mobileConstants.background[1]},
+		${mobileConstants.background[2]}
+	);
+	border-radius: 0;
+	border-bottom: 1px solid black;
+`;
+
+const MobileCaptionTextArea = styled(CaptionTextArea)`
+	border-radius: ${mobileConstants.innerRadius};
+`;
+
+function MobileAddCaptionPanel({
+	onClick,
+	value,
+	onChange,
+}: AddCaptionPanelProps) {
+	return (
+		<MobileAddCaptionContainer>
+			<TextAreaContainer>
+				<MobileCaptionTextArea value={value} onChange={onChange} />
+			</TextAreaContainer>
+			<MobileWhiteButton text="ADD CAPTION" onClick={onClick} />
+		</MobileAddCaptionContainer>
+	);
+};
+
+interface MobileCaptionGroupExpandedProps extends MobileCaptionGroupProps {
+    time: string;
+}
+
+function MobileCaptionGroupExpanded({
+	text,
+	name,
+	time,
+	points,
+	interaction,
+	requestChangeInteraction,
+}: MobileCaptionGroupExpandedProps) {
+    return (
+		<CaptionGroupContainer>
+			<MobileCaptionGroupContent
+				name={name}
+                time={time}
+				text={text}
+				requestChangeInteraction={requestChangeInteraction}
+				points={points}
+				interaction={interaction}
+			/>
+		</CaptionGroupContainer>
+	);
+};
+
+
+const UnborderedCaptionGroupContainer = styled(CaptionGroupContainer)`
+	border-width: 0px;
+`;
+function MobileUnborderedCaptionGroup({
+	text,
+	name,
+	time,
+	points,
+	interaction,
+	requestChangeInteraction,
+}: MobileCaptionGroupExpandedProps) {
+	return (
+		<UnborderedCaptionGroupContainer>
+			<MobileCaptionGroupContent
+				name={name}
+				time={time}
+				text={text}
+				requestChangeInteraction={requestChangeInteraction}
+				points={points}
+				interaction={interaction}
+			/>
+		</UnborderedCaptionGroupContainer>
+	);
+}
+
+function MobileCaptionGroupsExpanded({
+	captions,
+	requestInteract = () => () => {},
+}: CaptionGroupsProps) {
+	let lastCaptionIndex = captions.length - 1;
+	return (
+		<MobileCaptionGroupsContainer>
+			{immutableSortRank<
+				RankedCaptionData | RankedCaptionDataWithInteractions
+			>(captions).map(function (caption, index) {
+				const requestChangeInteraction =
+					createRequestChangeCaptionInteraction(
+						requestInteract,
+						caption.id
+					);
+
+				if (index === lastCaptionIndex) {
+					return (
+						<MobileUnborderedCaptionGroup
+							requestChangeInteraction={requestChangeInteraction}
+							name={caption.username.toUpperCase()}
+							time={caption.created_at}
+							text={caption.text}
+							points={caption.points}
+							key={uuid()}
+							interaction={
+								"interaction" in caption
+									? caption.interaction
+									: null
+							}
+						/>
+					);
+				}
+
+				return (
+					<MobileCaptionGroupExpanded
+						requestChangeInteraction={requestChangeInteraction}
+						name={caption.username.toUpperCase()}
+						time={caption.created_at}
+						text={caption.text}
+						points={caption.points}
+						key={uuid()}
+						interaction={
+							"interaction" in caption
+								? caption.interaction
+								: null
+						}
+					/>
+				);
+			})}
+		</MobileCaptionGroupsContainer>
+	);
+};
+
+function MobileCaptionsSideExpanded({
+	captions,
+	onClick,
+	value,
+	onChange,
+	requestInteract,
+}: CaptionsSideProps) {
+    return (
+		<SideContainer>
+			<MobileAddCaptionPanel
+				onClick={onClick}
+				value={value}
+				onChange={onChange}
+			/>
+			<MobileCaptionGroupsExpanded
+				captions={captions}
+				requestInteract={requestInteract}
+			/>
+		</SideContainer>
+	);
+};
+
+function MobileImageCaptionsCardExtended( ) {
+    return (
+		<MobileTwoSidedCard
+			top={
+				<MobileImageSide
+					name="STANKURN"
+					time={dayjs().subtract(1, "day").format()}
+					points={30}
+					imageUrl="https://drive.google.com/uc?export=view&id=1WyP8f_tBhlYKUp-iFMOrV9dJIy1AVbEG"
+					requestChangeInteraction={() => {}}
+					interaction={null}
+				/>
+			}
+			bottom={
+				<MobileCaptionsSideExpanded
+					captions={[
+						{
+							id: "f7bed58d-f594-4acc-8766-6fbc048335a0",
+							text: "caption14",
+							user: "f3d36de3-8c36-45b8-b90a-28c0c19c37a5",
+							username: "user4",
+							image: "d72f345e-27d5-4143-b76b-ba080bf62ba7",
+							created_at: "2022-10-10T21:07:42.658Z",
+							updated_at: "2022-10-10T21:07:42.658Z",
+							likes: 3,
+							dislikes: 0,
+							points: 3,
+							rank: 1,
+						},
+						{
+							id: "926b0e63-cd4e-4523-a2e2-b8155037ad41",
+							text: "caption11",
+							user: "3f131c59-cdbf-4ada-a549-8605e274b210",
+							username: "user3",
+							image: "d72f345e-27d5-4143-b76b-ba080bf62ba7",
+							created_at: "2022-10-10T21:05:16.545Z",
+							updated_at: "2022-10-10T21:05:16.545Z",
+							likes: 3,
+							dislikes: 0,
+							points: 3,
+							rank: 2,
+						},
+						{
+							id: "d1e463e6-94b6-428b-9c03-e29408cca093",
+							text: "caption12",
+							user: "6ef2cc57-4dbc-448c-bda9-02c8192d4aa5",
+							username: "user2",
+							image: "d72f345e-27d5-4143-b76b-ba080bf62ba7",
+							created_at: "2022-10-10T21:06:01.126Z",
+							updated_at: "2022-10-10T21:06:01.126Z",
+							likes: 2,
+							dislikes: 0,
+							points: 2,
+							rank: 3,
+						},
+					]}
+					requestInteract={()=>()=>{}}
+					onClick={()=>{}}
+					value={""}
+					onChange={() =>{}}
+				/>
+			}
+		/>
+	);
+
+}
+
+
 
 
 export { ImageCaptionsCard, AddImagePreview, LoadingImageCaptionsCard };
 export type { ImageCaptionsCardProps };
-export { MobileImageCaptionsCard };
+export { MobileImageCaptionsCard, MobileImageCaptionsCardExtended };

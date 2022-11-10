@@ -1,10 +1,11 @@
-import React, { ReactElement, useState } from "react";
+import React, { Children, ReactElement, ReactNode, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { EventEmitter } from "../Utils";
 import {
 	desktopConstants,
 	mobileConstants,
 } from "../constants/ComponentConstants";
+import { Device } from "../types/types";
 
 const Page = styled.div`
 	width: 100vw;
@@ -23,6 +24,7 @@ const OuterContainer = styled.div`
 	display: inline-flex;
 	flex-direction: row;
 	width: ${desktopConstants.mainContentWidth};
+    overflow: hidden;
 `;
 
 interface SideContainerProps {
@@ -182,6 +184,7 @@ function LoaderDiv() {
 const Description = styled.div`
 	display: inline-block;
 	padding-bottom: ${desktopConstants.bigGap};
+	padding-top: ${desktopConstants.bigGap};
 	text-align: left;
 	font-size: ${desktopConstants.regularFontSize};
 	width: ${desktopConstants.mainContentWidth};
@@ -262,8 +265,61 @@ const MobileLogoContainer = styled(LogoContainer)`
 	font-size: ${mobileConstants.largeFontSize};
 	padding-top: ${mobileConstants.bigGap};
 	padding-bottom: 0;
+	box-sizing: border-box;
 `;
 
+const MobileDescription = styled(Description)`
+	padding-bottom: ${mobileConstants.mediumSmallGap};
+	padding-top: ${mobileConstants.mediumSmallGap};
+	font-size: ${mobileConstants.regularSmallerFontSize};
+	width: ${mobileConstants.mainContentWidth};
+`;
+
+//////////////////////////////////////////////////////////// RESPONSIVE COMPONENTS ////////////////////////////////////////////////////////////
+
+interface ResponsiveDescriptionProps {
+	device: Device;
+	children?: ReactNode;
+}
+function ResponsiveDescription({
+	device,
+	children,
+}: ResponsiveDescriptionProps) {
+	if (device === "mobile") {
+		return <MobileDescription>{children}</MobileDescription>;
+	}
+
+	return <Description>{children}</Description>;
+}
+
+interface ResponsiveButtonProps extends ButtonProps {
+	device: Device;
+}
+
+function ResponsiveWhiteButton({
+	device,
+	text,
+	onClick,
+}: ResponsiveButtonProps) {
+	if (device === "mobile") {
+		return <MobileWhiteButton text={text} onClick={onClick} />;
+	}
+
+	return <WhiteButton text={text} onClick={onClick} />;
+}
+
+function ResponsiveBackgroundColorButton({
+	device,
+	text,
+	onClick,
+}: ResponsiveButtonProps) {
+    	if (device === "mobile") {
+			return <MobileBackgroundColorButton text={text} onClick={onClick} />;
+		}
+
+		return <BackgroundColorButton text={text} onClick={onClick} />;
+
+};
 
 
 
@@ -275,7 +331,6 @@ export {
 	BackgroundColorButton,
 	LogoContainer,
 	LoaderDiv,
-	Description,
 };
 
 export {
@@ -284,4 +339,10 @@ export {
 	MobileBackgroundColorButton,
     MobileWhiteButton,
     MobileLogoContainer
+};
+
+export {
+	ResponsiveDescription,
+	ResponsiveWhiteButton,
+	ResponsiveBackgroundColorButton,
 };

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import styled
  from "styled-components";
-import { TwoSidedCard, BackgroundColorButton } from "./Utils";
-import {desktopConstants} from "../constants/ComponentConstants";
+import { TwoSidedCard, BackgroundColorButton, MobileBackgroundColorButton, MobileTwoSidedCard } from "./Utils";
+import {desktopConstants, mobileConstants} from "../constants/ComponentConstants";
+import { Device } from "../types/types";
 
 const QuoteOuterContainer = styled.div`
 	height: 100%;
@@ -241,5 +242,210 @@ function AuthenticationCard({
 	);
 }
 
+//////////////////////////////////////////////////////////// MOBILE COMPONENTS ////////////////////////////////////////////////////////////
 
-export default AuthenticationCard;
+const MobileQuoteOuterContainer = styled.div`
+	padding: ${mobileConstants.mediumLargeGap};
+    box-sizing: border-box;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+`;
+
+const MobileQuoteInnerContainer = styled(QuoteInnerContainer)`
+	font-size: ${mobileConstants.mediumFontSize};
+	text-align: center;
+`;
+
+function MobileQuote() {
+	return (<MobileQuoteOuterContainer>
+		<MobileQuoteInnerContainer>
+			LOVE IS TEMPORARY, SHREK IS ETERNAL
+		</MobileQuoteInnerContainer>
+	</MobileQuoteOuterContainer>);
+}
+
+const MobileLabeledInputContainer = styled(LabeledInputContainer)`
+    gap: ${mobileConstants.smallerGap};
+`
+
+const MobileBackgroundColorInput = styled(BackgroundColorInput)`
+	border-radius: ${mobileConstants.innerRadius};
+`;
+
+function MobileLabeledInput({
+	name,
+	value,
+	description = undefined,
+	type = "text",
+	onChange,
+}: LabeledInputProps) {
+	return (
+		<MobileLabeledInputContainer>
+			<span
+				style={{
+					fontSize: desktopConstants.regularFontSize,
+					fontWeight: "bold",
+				}}
+			>
+				{name}
+			</span>
+			{!!description && (
+				<span
+					style={{
+						fontSize: desktopConstants.regularFontSize,
+					}}
+				>
+					{description}
+				</span>
+			)}
+			<MobileBackgroundColorInput
+				type={type}
+				value={value}
+				onChange={onChange}
+			/>
+		</MobileLabeledInputContainer>
+	);
+}
+
+const MobileInputsOuterContainer = styled.div`
+	display: flex;
+	align-items: center;
+	width: 100%;
+`;
+
+const MobileInputsInnerContainer = styled(InputsInnerContainer)`
+	gap: ${mobileConstants.mediumGap};
+`;
+
+function MobileInputs({
+	username,
+	password,
+	usernameDescription = undefined,
+	passwordDescription = undefined,
+	changeUsername,
+	changePassword,
+}: InputsProps) {
+	return (
+		<MobileInputsOuterContainer>
+			<MobileInputsInnerContainer>
+				<MobileLabeledInput
+					name="USERNAME"
+					value={username}
+					description={usernameDescription}
+					onChange={(e) => {
+						return changeUsername(e.currentTarget.value);
+					}}
+				/>
+				<MobileLabeledInput
+					name="PASSWORD"
+					type="password"
+					value={password}
+					description={passwordDescription}
+					onChange={(e) => {
+						return changePassword(e.currentTarget.value);
+					}}
+				/>
+			</MobileInputsInnerContainer>
+		</MobileInputsOuterContainer>
+	);
+}
+
+const MobileInputsGroupOuterContainer = styled(InputsGroupOuterContainer)`
+	padding: ${mobileConstants.mediumGap};
+	gap: ${mobileConstants.mediumLargeGap};
+`;
+
+function MobileInputsGroup({
+	onClick,
+	buttonText,
+	username,
+	password,
+	usernameDescription = undefined,
+	passwordDescription = undefined,
+	changeUsername,
+	changePassword,
+}: InputsGroupProps) {
+	return (
+		<MobileInputsGroupOuterContainer>
+			<MobileInputs
+				username={username}
+				usernameDescription={usernameDescription}
+				passwordDescription={passwordDescription}
+				password={password}
+				changeUsername={changeUsername}
+				changePassword={changePassword}
+			/>
+			<span style={{ alignSelf: "flex-end" }}>
+				<MobileBackgroundColorButton
+					onClick={onClick}
+					text={buttonText}
+				/>
+			</span>
+		</MobileInputsGroupOuterContainer>
+	);
+}
+
+function MobileAuthenticationCard({
+	submitUsernamePassword,
+	buttonText,
+	passwordDescription = undefined,
+	usernameDescription = undefined,
+}: AuthenticationCardProps) {
+	const [username, password, changeUsername, changePassword] =
+		useUsernamePassword();
+
+	return (
+		<MobileTwoSidedCard
+			top={<MobileQuote />}
+			bottom={
+				<MobileInputsGroup
+					onClick={() => submitUsernamePassword(username, password)}
+					buttonText={buttonText}
+					username={username}
+					passwordDescription={passwordDescription}
+					usernameDescription={usernameDescription}
+					password={password}
+					changePassword={changePassword}
+					changeUsername={changeUsername}
+				/>
+			}
+		/>
+	);
+}
+
+//////////////////////////////////////////////////////////// RESPONSIVE COMPONENTS ////////////////////////////////////////////////////////////
+
+interface ResponsiveAuthenticationCardProps extends AuthenticationCardProps {
+	device: Device;
+}
+
+function ResponsiveAuthenticationCard({
+	device,
+	submitUsernamePassword,
+	buttonText,
+	passwordDescription = undefined,
+	usernameDescription = undefined,
+}: ResponsiveAuthenticationCardProps) {
+	if (device === "mobile") {
+		return (
+			<MobileAuthenticationCard
+				submitUsernamePassword={submitUsernamePassword}
+				buttonText={buttonText}
+				passwordDescription={passwordDescription}
+				usernameDescription={usernameDescription}
+			/>
+		);
+	}
+
+	return (
+		<AuthenticationCard
+			submitUsernamePassword={submitUsernamePassword}
+			buttonText={buttonText}
+			passwordDescription={passwordDescription}
+			usernameDescription={usernameDescription}
+		/>
+	);
+}
+
+export { ResponsiveAuthenticationCard };

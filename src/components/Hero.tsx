@@ -7,6 +7,7 @@ import {
 } from "../constants/ComponentConstants";
 import { Link } from "react-router-dom";
 import { LogoContainer, MobileLogoContainer } from "./Utils";
+import { Device } from "../types/types";
 
 const SloganContainer = styled.span`
 	display: inline-flex;
@@ -40,6 +41,9 @@ function Logo() {
 				<span style={{ position: "relative" }}>
 					<SloganContainer
 						onClick={() => {
+							console.log(
+								"ig url: " + process.env.REACT_APP_INSTAGRAM_URL
+							);
 							window.open(process.env.REACT_APP_INSTAGRAM_URL);
 						}}
 					>
@@ -240,9 +244,23 @@ const IgContainer = styled.div`
 
 function MobileIg() {
 	return (
-		<IgContainer>
+		<IgContainer
+			onClick={() => {
+				console.log(
+					"insta url: " + process.env.REACT_APP_INSTAGRAM_URL
+				);
+				window.open(process.env.REACT_APP_INSTAGRAM_URL);
+			}}
+		>
 			<IgLogo width="18px" src="./ig.png" />
-			<span style={{fontWeight: 500}}>everything_wall</span>
+			<span
+				style={{
+					fontWeight: 500,
+					fontSize: mobileConstants.regularLargerFontSize,
+				}}
+			>
+				everything_wall
+			</span>
 		</IgContainer>
 	);
 }
@@ -265,6 +283,16 @@ function MobileHeader({ navigation = undefined }: MobileHeaderProps) {
 				<span style={{ flexGrow: 1 }} />
 			)}
 		</MobileHeaderContainer>
+	);
+}
+
+function MobileLogo() {
+	return (
+		<MobileLogoContainer>
+			<Link to="/" style={{ textDecoration: "none", color: "black" }}>
+			WALL
+			</Link>
+            </MobileLogoContainer>
 	);
 }
 
@@ -329,13 +357,15 @@ function MobileCountdown({ hours, minutes, seconds }: CountdownProps) {
 	);
 }
 
+
+
 const MobileHeroContainer = styled.div`
 	width: 100%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: ${mobileConstants.smallGap};
-	padding-bottom: ${mobileConstants.mediumLargeGap};
+	padding-bottom: ${mobileConstants.bigSmallGap};
 `;
 
 interface MobileHeroProps extends MobileHeaderProps {}
@@ -344,7 +374,7 @@ function MobileHero({ navigation = undefined }: MobileHeroProps) {
 	return (
 		<MobileHeroContainer>
 			<MobileHeader navigation={navigation} />
-			<MobileLogoContainer>WALL</MobileLogoContainer>
+			<MobileLogo />
 			<MobileRound number={3} />
 			<MobileCountdown hours={1} minutes={20} seconds={30} />
 		</MobileHeroContainer>
@@ -355,9 +385,22 @@ function MobileLogoHero({ navigation = undefined }: MobileHeroProps) {
 	return (
 		<MobileHeroContainer>
 			<MobileHeader navigation={navigation} />
-			<MobileLogoContainer>WALL</MobileLogoContainer>
+			<MobileLogo />
 		</MobileHeroContainer>
 	);
 }
 
-export { Hero, LogoHero, MobileLogoHero, MobileHero };
+//////////////////////////////////////////////////////////// RESPONSIVE COMPONENTS ////////////////////////////////////////////////////////////
+
+interface ResponsivePlainLogoHeroProps {
+	device: Device;
+}
+function ResponsivePlainLogoHero({ device }: ResponsivePlainLogoHeroProps) {
+	if (device === "mobile") {
+		return <MobileLogoHero />;
+	}
+
+	return <LogoHero />;
+}
+
+export { Hero, MobileHero, ResponsivePlainLogoHero };

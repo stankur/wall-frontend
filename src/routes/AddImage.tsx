@@ -1,19 +1,20 @@
 import dayjs from "dayjs";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import { useInternalUserData } from "../App";
-import { LogoHero } from "../components/Hero";
+import {  ResponsivePlainLogoHero } from "../components/Hero";
 import { AddImagePreview } from "../components/ImageCaptions";
 import {
 	CenteredColumnContainer,
-	Description,
+	ResponsiveDescription,
 	Page,
 } from "../components/Utils";
 import { useAddImage } from "../hooks/imageHooks";
 import ImageConstants from "../constants/ImageConstants";
 import PreviewConstants from "../constants/PreviewConstants";
 import { EventEmitter } from "../Utils";
+import { DeviceContext } from "../hooks/deviceHooks";
 
 const rotate = keyframes`
   from {
@@ -39,6 +40,7 @@ function AddImage() {
 		handleAddImageSuccess
 	);
 	const navigate = useNavigate();
+    const device = useContext(DeviceContext);
 
 	function requestChangeImage(newImage: File | undefined) {
 		(async function () {
@@ -71,7 +73,7 @@ function AddImage() {
 	if (userData === undefined) {
 		return (
 			<Page>
-				<LogoHero />
+				<ResponsivePlainLogoHero device={device} />
 			</Page>
 		);
 	}
@@ -83,7 +85,7 @@ function AddImage() {
 		);
 		return (
 			<Page>
-				<LogoHero />
+				<ResponsivePlainLogoHero device={device} />
 				<div
 					style={{
 						width: "100%",
@@ -104,9 +106,9 @@ function AddImage() {
 
 	return (
 		<Page>
-			<LogoHero />
+			<ResponsivePlainLogoHero device={device} />
 			<div style={{ textAlign: "center", marginBottom: "-4px" }}>
-				<Description>NEW IMAGE PREVIEW</Description>
+				<ResponsiveDescription device={device}>NEW IMAGE PREVIEW</ResponsiveDescription>
 			</div>
 			<CenteredColumnContainer>
 				<AddImagePreview

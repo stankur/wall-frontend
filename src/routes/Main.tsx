@@ -5,7 +5,7 @@ import { MobileNavigation, Navigation } from "../components/Navigation";
 import {
 	ImageCaptionsCard,
 	LoadingImageCaptionsCard,
-    MobileImageCaptionsCard,
+	MobileImageCaptionsCardExtended,
 } from "../components/ImageCaptions";
 import { useInternalUserData } from "../App";
 import useFetchingImage from "../hooks/dataHooks";
@@ -100,7 +100,7 @@ function Main() {
 				</>
 			)}
 			<CenteredColumnContainer>
-				<MobileImageCaptionsCard />
+				<MobileImageCaptionsCardExtended />
 				{!images ? (
 					<LoadingImageCaptionsCard />
 				) : (

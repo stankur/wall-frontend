@@ -4,11 +4,11 @@ import { Device } from "../types/types";
 function getDevice(): Device {
 	let width = window.innerWidth;
 
-	if (width > 770) {
+	if (width > 900) {
 		return "desktop";
 	}
 
-	if (width > 480) {
+	if (width > 620) {
 		return "tablet";
 	}
 

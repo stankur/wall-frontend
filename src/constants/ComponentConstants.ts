@@ -25,7 +25,7 @@ const desktopConstants = {
 	smallGap: "8px",
 	smallerGap: "5px",
 	verySmallGap: "4px",
-	mainContentWidth: "max(55%, 700px)",
+	mainContentWidth: "max(55%, 600px)",
 	loadingBarHeight: "15px",
 	loadingButtonHeight: "21px",
 	NoImageContainerHeight: "max(20vw, 300px)", //align with mainContentWidth
@@ -48,9 +48,10 @@ const mobileConstants = {
 	mediumSmallerGap: "9px",
 	mediumSmallGap: "11px",
 	mediumGap: "15px",
-	mediumLargeGap: "73px",
+	mediumLargeGap: "25px",
+	bigSmallGap: "73px",
 	bigGap: "85px",
-	mainContentWidth: "280px",
+	mainContentWidth: "300px",
 	upvoteColor: [199, 235, 255],
 	downvoteColor: [255, 181, 176],
 };
