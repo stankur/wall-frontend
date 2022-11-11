@@ -246,7 +246,9 @@ function AuthenticationCard({
 
 const MobileQuoteOuterContainer = styled.div`
 	padding: ${mobileConstants.mediumLargeGap};
-    box-sizing: border-box;
+	padding-left: ${mobileConstants.mediumLargerGap};
+	padding-right: ${mobileConstants.mediumLargerGap};
+	box-sizing: border-box;
 	width: 100%;
 	display: flex;
 	justify-content: center;

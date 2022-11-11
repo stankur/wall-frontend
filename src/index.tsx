@@ -8,6 +8,7 @@ import Main from "./routes/Main";
 import SignUp from "./routes/SignUp";
 import SignIn from "./routes/SignIn";
 import AddImage from "./routes/AddImage";
+import ExpandedPost from "./routes/ExpandedPost";
 
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement
@@ -23,6 +24,7 @@ root.render(
 					<Route path="/sign-up" element={<SignUp />} />
 					<Route path="/sign-in" element={<SignIn />} />
 					<Route path="/add-image" element={<AddImage />} />
+					<Route path="/images/:id" element={<ExpandedPost />} />
 				</Route>
 			</Routes>
 		</BrowserRouter>

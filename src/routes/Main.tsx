@@ -5,15 +5,22 @@ import { MobileNavigation, Navigation } from "../components/Navigation";
 import {
 	ImageCaptionsCard,
 	LoadingImageCaptionsCard,
+	MobileImageCaptionsCard,
 	MobileImageCaptionsCardExtended,
+	MobileImageCaptionsCardProps,
 } from "../components/ImageCaptions";
 import { useInternalUserData } from "../App";
-import useFetchingImage from "../hooks/dataHooks";
-import { ImageData } from "../types/types";
+import { useFetchingImages } from "../hooks/dataHooks";
+import { Device, ImageData } from "../types/types";
 import { useAddCaption } from "../hooks/captionHooks";
 import { UserDataState } from "../hooks/authenticationHooks";
-import { RequestInteractFunction, RequestInteractFunctionGivenPostData, useInteract } from "../hooks/interactionHooks";
+import {
+	RequestInteractFunction,
+	RequestInteractFunctionGivenPostData,
+	useInteract,
+} from "../hooks/interactionHooks";
 import { DeviceContext } from "../hooks/deviceHooks";
+import { useNavigate } from "react-router-dom";
 
 interface ControlledImageCaptionsCardProps {
 	data: ImageData;
@@ -48,30 +55,119 @@ function ControlledImageCaptionsCard({
 		return setCaption(e.currentTarget.value);
 	}
 
+	function onClick() {
+		return requestAddCaption(caption);
+	}
+
 	return (
 		<ImageCaptionsCard
 			requestChangeImageInteraction={requestChangeImageInteraction}
 			requestInteractCaption={requestInteractCaption}
 			data={data}
-			onClick={function () {
-				requestAddCaption(caption);
-			}}
+			onClick={onClick}
 			value={caption}
 			onChange={onChange}
 		/>
 	);
 }
 
+interface ControlledMobileImageCaptionsCardProps
+	extends Pick<
+		MobileImageCaptionsCardProps,
+		"data" | "requestChangeImageInteraction" | "requestInteract"
+	> {}
+
+function ControlledMobileImageCaptionsCard({
+	data,
+	requestChangeImageInteraction,
+	requestInteract,
+}: ControlledMobileImageCaptionsCardProps) {
+	const navigate = useNavigate();
+	function onViewMoreClick() {
+		return navigate("/images/" + data.id);
+	}
+
+	function onAddCaptionClick() {
+		return navigate("/images/" + data.id);
+	}
+
+	return (
+		<MobileImageCaptionsCard
+			data={data}
+			requestChangeImageInteraction={requestChangeImageInteraction}
+			onViewMoreClick={onViewMoreClick}
+			onAddCaptionClick={onAddCaptionClick}
+			requestInteract={requestInteract}
+		/>
+	);
+}
+
+interface ResponsiveImageCaptionsCardsProps {
+	device: Device;
+	images: ImageData[];
+	userData: UserDataState;
+	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>;
+	requestFetchImages: () => void;
+	requestInteract: RequestInteractFunction;
+}
+
+function ResponsiveImageCaptionsCards({
+	device,
+	images,
+	userData,
+	setUserData,
+	requestFetchImages,
+	requestInteract,
+}: ResponsiveImageCaptionsCardsProps) {
+	if (device === "mobile") {
+		return (
+			<>
+				{images.map((image) => {
+					return (
+						<ControlledMobileImageCaptionsCard
+							data={image}
+							requestChangeImageInteraction={requestInteract(
+								"image",
+								image.id
+							)}
+							requestInteract={requestInteract}
+						/>
+					);
+				})}
+			</>
+		);
+	}
+	return (
+		<>
+			{images.map((image) => {
+				return (
+					<ControlledImageCaptionsCard
+						requestChangeImageInteraction={requestInteract(
+							"image",
+							image.id
+						)}
+						requestInteractCaption={requestInteract}
+						userData={userData}
+						setUserData={setUserData}
+						data={image}
+						key={image.id}
+						requestFetchImages={requestFetchImages}
+					/>
+				);
+			})}
+		</>
+	);
+}
+
 function Main() {
 	const [userData, setUserData] = useInternalUserData();
-	const [images, fetchingImages, requestFetchImages] = useFetchingImage();
+	const [images, fetchingImages, requestFetchImages] = useFetchingImages();
 	const [addingInteraction, requestInteract] = useInteract(
 		userData,
 		setUserData,
 		handleInteractSuccess
 	);
-    const device = useContext(DeviceContext);
-
+	const device = useContext(DeviceContext);
 
 	function handleInteractSuccess() {
 		return requestFetchImages();
@@ -100,26 +196,17 @@ function Main() {
 				</>
 			)}
 			<CenteredColumnContainer>
-				<MobileImageCaptionsCardExtended />
 				{!images ? (
 					<LoadingImageCaptionsCard />
 				) : (
-					images.map((image) => {
-						return (
-							<ControlledImageCaptionsCard
-								requestChangeImageInteraction={requestInteract(
-									"image",
-									image.id
-								)}
-								requestInteractCaption={requestInteract}
-								userData={userData}
-								setUserData={setUserData}
-								data={image}
-								key={image.id}
-								requestFetchImages={requestFetchImages}
-							/>
-						);
-					})
+					<ResponsiveImageCaptionsCards
+						device={device}
+						images={images}
+						userData={userData}
+						setUserData={setUserData}
+						requestFetchImages={requestFetchImages}
+						requestInteract={requestInteract}
+					/>
 				)}
 			</CenteredColumnContainer>
 		</Page>

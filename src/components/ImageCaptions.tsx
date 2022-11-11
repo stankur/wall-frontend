@@ -1155,15 +1155,20 @@ function MobileOptions({
 }
 
 const MobileCaptionGroupsContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-`
+	display: flex;
+	flex-direction: column;
+`;
 
-// captions must be an ARRAY of the top caption (1 element) or just empty (0 element)
+// captions is assumed to be an ARRAY of the top caption (1 element) or just empty (0 element) [if it is not, will be trimmed]
 function MobileCaptionGroups({
 	captions,
 	requestInteract = () => () => {},
 }: CaptionGroupsProps) {
+	let length = captions.length;
+
+	if (length > 0 && length > 1) {
+		captions = [captions[0]];
+	}
 	return (
 		<MobileCaptionGroupsContainer>
 			{captions.map(function (caption) {
@@ -1172,7 +1177,6 @@ function MobileCaptionGroups({
 						requestInteract,
 						caption.id
 					);
-
 				return (
 					<MobileCaptionGroup
 						requestChangeInteraction={requestChangeInteraction}
@@ -1216,25 +1220,39 @@ function MobileCaptionsSide({
 	);
 }
 
+interface MobileImageCaptionsCardProps
+	extends Omit<MobileCaptionsSideProps, "captions"> {
+	data: ImageData | ImageDataWithInteractions;
+    requestChangeImageInteraction: RequestInteractFunctionGivenPostData
+}
 
-function MobileImageCaptionsCard() {
+function MobileImageCaptionsCard({
+	onViewMoreClick,
+	onAddCaptionClick,
+	requestChangeImageInteraction,
+	requestInteract,
+	data,
+}: MobileImageCaptionsCardProps) {
 	return (
 		<MobileTwoSidedCard
 			top={
 				<MobileImageSide
-					name="STANKURN"
-					time={dayjs().subtract(1, "day").format()}
-					points={30}
-					imageUrl="https://drive.google.com/uc?export=view&id=1WyP8f_tBhlYKUp-iFMOrV9dJIy1AVbEG"
-					requestChangeInteraction={() => {}}
-					interaction={null}
+					name={data.username}
+					time={data.created_at}
+					points={data.points}
+					imageUrl={data.imageUrl}
+					requestChangeInteraction={requestChangeImageInteraction}
+					interaction={
+						"interaction" in data ? data["interaction"] : null
+					}
 				/>
 			}
 			bottom={
 				<MobileCaptionsSide
-					captions={[]}
-					onViewMoreClick={() => {}}
-					onAddCaptionClick={() => {}}
+					captions={data.captions}
+					onViewMoreClick={onViewMoreClick}
+					onAddCaptionClick={onAddCaptionClick}
+					requestInteract={requestInteract}
 				/>
 			}
 		/>
@@ -1403,71 +1421,41 @@ function MobileCaptionsSideExpanded({
 	);
 };
 
-function MobileImageCaptionsCardExtended( ) {
-    return (
+interface MobileImageCaptionsCardExtendedProps extends ImageCaptionsCardProps {}
+
+function MobileImageCaptionsCardExtended({
+	data,
+	onClick,
+	value,
+	onChange,
+	requestInteractCaption,
+	requestChangeImageInteraction,
+}: MobileImageCaptionsCardExtendedProps) {
+	return (
 		<MobileTwoSidedCard
 			top={
 				<MobileImageSide
-					name="STANKURN"
-					time={dayjs().subtract(1, "day").format()}
-					points={30}
-					imageUrl="https://drive.google.com/uc?export=view&id=1WyP8f_tBhlYKUp-iFMOrV9dJIy1AVbEG"
-					requestChangeInteraction={() => {}}
-					interaction={null}
+					name={data.username}
+					time={data.created_at}
+					points={data.points}
+					imageUrl={data.imageUrl}
+					requestChangeInteraction={requestChangeImageInteraction}
+					interaction={
+						"interaction" in data ? data["interaction"] : null
+					}
 				/>
 			}
 			bottom={
 				<MobileCaptionsSideExpanded
-					captions={[
-						{
-							id: "f7bed58d-f594-4acc-8766-6fbc048335a0",
-							text: "caption14",
-							user: "f3d36de3-8c36-45b8-b90a-28c0c19c37a5",
-							username: "user4",
-							image: "d72f345e-27d5-4143-b76b-ba080bf62ba7",
-							created_at: "2022-10-10T21:07:42.658Z",
-							updated_at: "2022-10-10T21:07:42.658Z",
-							likes: 3,
-							dislikes: 0,
-							points: 3,
-							rank: 1,
-						},
-						{
-							id: "926b0e63-cd4e-4523-a2e2-b8155037ad41",
-							text: "caption11",
-							user: "3f131c59-cdbf-4ada-a549-8605e274b210",
-							username: "user3",
-							image: "d72f345e-27d5-4143-b76b-ba080bf62ba7",
-							created_at: "2022-10-10T21:05:16.545Z",
-							updated_at: "2022-10-10T21:05:16.545Z",
-							likes: 3,
-							dislikes: 0,
-							points: 3,
-							rank: 2,
-						},
-						{
-							id: "d1e463e6-94b6-428b-9c03-e29408cca093",
-							text: "caption12",
-							user: "6ef2cc57-4dbc-448c-bda9-02c8192d4aa5",
-							username: "user2",
-							image: "d72f345e-27d5-4143-b76b-ba080bf62ba7",
-							created_at: "2022-10-10T21:06:01.126Z",
-							updated_at: "2022-10-10T21:06:01.126Z",
-							likes: 2,
-							dislikes: 0,
-							points: 2,
-							rank: 3,
-						},
-					]}
-					requestInteract={()=>()=>{}}
-					onClick={()=>{}}
-					value={""}
-					onChange={() =>{}}
+					captions={data.captions}
+					requestInteract={requestInteractCaption}
+					onClick={onClick}
+					value={value}
+					onChange={onChange}
 				/>
 			}
 		/>
 	);
-
 }
 
 
@@ -1476,3 +1464,4 @@ function MobileImageCaptionsCardExtended( ) {
 export { ImageCaptionsCard, AddImagePreview, LoadingImageCaptionsCard };
 export type { ImageCaptionsCardProps };
 export { MobileImageCaptionsCard, MobileImageCaptionsCardExtended };
+export type { MobileImageCaptionsCardProps, MobileImageCaptionsCardExtendedProps };

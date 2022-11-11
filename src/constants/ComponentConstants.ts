@@ -49,6 +49,7 @@ const mobileConstants = {
 	mediumSmallGap: "11px",
 	mediumGap: "15px",
 	mediumLargeGap: "25px",
+	mediumLargerGap: "40px",
 	bigSmallGap: "73px",
 	bigGap: "85px",
 	mainContentWidth: "300px",

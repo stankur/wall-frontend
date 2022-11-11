@@ -1,5 +1,12 @@
 export type Device = "desktop" | "tablet" | "mobile";
 
+type ExpandedPostParams = {
+	id: string;
+}
+
+export type { ExpandedPostParams };
+// interfaces resulted from fetching backend (must align with backend):
+
 interface PostData {
 	id: string;
 	user: string;
@@ -25,8 +32,6 @@ export interface ImageData extends PostData {
 	captions: RankedCaptionData[];
 	round?: number;
 }
-
-// interfaces resulted from fetching backend (must align with backend):
 
 export interface UserData {
 	username: string;

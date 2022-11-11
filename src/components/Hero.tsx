@@ -47,7 +47,7 @@ function Logo() {
 							window.open(process.env.REACT_APP_INSTAGRAM_URL);
 						}}
 					>
-						<IgLogo width="15px" src="./ig.png" />
+						<IgLogo width="15px" src="/ig.png" />
 						<span>everything_wall</span>
 					</SloganContainer>
 				</span>
@@ -252,7 +252,7 @@ function MobileIg() {
 				window.open(process.env.REACT_APP_INSTAGRAM_URL);
 			}}
 		>
-			<IgLogo width="18px" src="./ig.png" />
+			<IgLogo width="18px" src="/ig.png" />
 			<span
 				style={{
 					fontWeight: 500,
