@@ -55,5 +55,6 @@ const mobileConstants = {
 	mainContentWidth: "300px",
 	upvoteColor: [199, 235, 255],
 	downvoteColor: [255, 181, 176],
+	loadingBarHeight: "14px",
 };
 export { desktopConstants, mobileConstants };

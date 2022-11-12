@@ -4,10 +4,9 @@ import { Hero, MobileHero } from "../components/Hero";
 import { MobileNavigation, Navigation } from "../components/Navigation";
 import {
 	ImageCaptionsCard,
-	LoadingImageCaptionsCard,
 	MobileImageCaptionsCard,
-	MobileImageCaptionsCardExtended,
 	MobileImageCaptionsCardProps,
+	ResponsiveLoadingImageCaptionsCard,
 } from "../components/ImageCaptions";
 import { useInternalUserData } from "../App";
 import { useFetchingImages } from "../hooks/dataHooks";
@@ -197,7 +196,7 @@ function Main() {
 			)}
 			<CenteredColumnContainer>
 				{!images ? (
-					<LoadingImageCaptionsCard />
+					<ResponsiveLoadingImageCaptionsCard device={device} />
 				) : (
 					<ResponsiveImageCaptionsCards
 						device={device}

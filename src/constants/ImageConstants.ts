@@ -19,7 +19,6 @@ const maxAccAspectRatio = 1.91;
 const constants = {
 	minAccAspectRatio,
 	maxAccAspectRatio,
-
 	isDimensionValid: async function (dataURL: string) {
 		let dimensions = await getDimensions(dataURL);
 		let aspectRatio = dimensions.width / dimensions.height;
@@ -27,6 +26,7 @@ const constants = {
 			aspectRatio >= minAccAspectRatio && aspectRatio <= maxAccAspectRatio
 		);
 	},
+	accImageInputTypes: "image/jpeg, image/jpg",
 };
 
 export default constants;

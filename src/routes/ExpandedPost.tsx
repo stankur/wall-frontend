@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import {
 	MobileImageCaptionsCardExtended,
 	MobileImageCaptionsCardExtendedProps,
+    ResponsiveLoadingImageCaptionsCard,
 } from "../components/ImageCaptions";
 
 import { ExpandedPostParams } from "../types/types";
@@ -91,14 +92,15 @@ function ExpandedPost() {
 					if (device !== "mobile") {
 						return (
 							<span>
-								Currently only available in mobile phones
+								This page is currently only available in mobile phones.
 							</span>
 						);
 					}
 
 					if (!image) {
-						// should be change a loading component for mobile
-						return;
+						return (
+							<ResponsiveLoadingImageCaptionsCard device="mobile" />
+						);
 					}
 
 					return (

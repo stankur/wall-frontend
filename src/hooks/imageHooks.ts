@@ -1,16 +1,16 @@
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AddImageResponse } from "../types/types";
 import { authHandlingFetch, EventEmitter } from "../Utils";
 import { UserDataState } from "./authenticationHooks";
 import AuthenticationConstants from "../constants/AuthenticationConstants";
-import ImageConstants from "../constants/ImageConstants"
+import ImageConstants from "../constants/ImageConstants";
 
 function useAddImage(
 	userData: UserDataState,
 	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>,
 	successHandler?: (addImageRespose: AddImageResponse) => void,
 	failHandler?: (err: Error) => void
-): [boolean, (newImage: File | undefined) => void] {
+): [boolean, (newImage: File | undefined) => void, string] {
 	const [addingImage, setAddingImage] = useState(false);
 	const [formData, setFormData] = useState<FormData | undefined>(undefined);
 
@@ -40,48 +40,43 @@ function useAddImage(
 		})();
 	});
 
-	
-		async function requestAddImage(newImage: File | undefined) {
-			if (userData === false) {
-				return EventEmitter.emit(
-					"error",
-					"YOU MUST BE SIGNED IN TO ADD AN IMAGE"
-				);
-			}
-
-			if (userData === undefined) {
-				return EventEmitter.emit(
-					"error",
-					"PLEASE TRY AGAIN IN A LITTLE WHILE"
-				);
-			}
-			if (!newImage) {
-				return EventEmitter.emit(
-					"error",
-					"YOU MUST CHOOSE AN IMAGE FIRST"
-				);
-			}
-
-			let imageValid = await ImageConstants.isDimensionValid(
-				URL.createObjectURL(newImage)
+	async function requestAddImage(newImage: File | undefined) {
+		if (userData === false) {
+			return EventEmitter.emit(
+				"error",
+				"YOU MUST BE SIGNED IN TO ADD AN IMAGE"
 			);
-
-			if (!imageValid) {
-				return EventEmitter.emit(
-					"error",
-					`IMAGE ASPECT RATIO MUST BE BETWEEN ${ImageConstants.minAccAspectRatio} AND ${ImageConstants.maxAccAspectRatio}`
-				);
-			}
-
-			let formData: FormData = new FormData();
-			formData.append("image", newImage);
-
-			setFormData(formData);
-			setAddingImage(true);
 		}
 
-	return [addingImage, requestAddImage];
-}
+		if (userData === undefined) {
+			return EventEmitter.emit(
+				"error",
+				"PLEASE TRY AGAIN IN A LITTLE WHILE"
+			);
+		}
+		if (!newImage) {
+			return EventEmitter.emit("error", "YOU MUST CHOOSE AN IMAGE FIRST");
+		}
 
+		let imageValid = await ImageConstants.isDimensionValid(
+			URL.createObjectURL(newImage)
+		);
+
+		if (!imageValid) {
+			return EventEmitter.emit(
+				"error",
+				`IMAGE ASPECT RATIO MUST BE BETWEEN ${ImageConstants.minAccAspectRatio} AND ${ImageConstants.maxAccAspectRatio}`
+			);
+		}
+
+		let formData: FormData = new FormData();
+		formData.append("image", newImage);
+
+		setFormData(formData);
+		setAddingImage(true);
+	}
+
+	return [addingImage, requestAddImage, ImageConstants.accImageInputTypes];
+}
 
 export { useAddImage };

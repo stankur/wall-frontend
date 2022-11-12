@@ -1,10 +1,9 @@
-import dayjs from "dayjs";
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import { useInternalUserData } from "../App";
 import {  ResponsivePlainLogoHero } from "../components/Hero";
-import { AddImagePreview } from "../components/ImageCaptions";
+import { ResponsiveAddImagePreview } from "../components/ImageCaptions";
 import {
 	CenteredColumnContainer,
 	ResponsiveDescription,
@@ -34,7 +33,7 @@ const RotatingImage = styled.img`
 function AddImage() {
 	const [userData, setUserData] = useInternalUserData();
 	const [image, setImage] = useState<File | undefined>(undefined);
-	const [addingImage, requestAddImage] = useAddImage(
+	const [addingImage, requestAddImage, accImageInputTypes] = useAddImage(
 		userData,
 		setUserData,
 		handleAddImageSuccess
@@ -108,10 +107,13 @@ function AddImage() {
 		<Page>
 			<ResponsivePlainLogoHero device={device} />
 			<div style={{ textAlign: "center", marginBottom: "-4px" }}>
-				<ResponsiveDescription device={device}>NEW IMAGE PREVIEW</ResponsiveDescription>
+				<ResponsiveDescription device={device}>
+					NEW IMAGE PREVIEW
+				</ResponsiveDescription>
 			</div>
 			<CenteredColumnContainer>
-				<AddImagePreview
+				<ResponsiveAddImagePreview
+					device={device}
 					userData={userData}
 					image={image}
 					time={PreviewConstants.previewData.time}
@@ -121,6 +123,7 @@ function AddImage() {
 					captions={PreviewConstants.previewCaptions}
 					requestAddImage={internalRequestAddImage}
 					requestChangeImage={requestChangeImage}
+					accImageInputTypes={accImageInputTypes}
 				/>
 			</CenteredColumnContainer>
 		</Page>

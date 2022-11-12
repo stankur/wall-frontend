@@ -16,6 +16,7 @@ const Page = styled.div`
 		${desktopConstants.background[1]},
 		${desktopConstants.background[2]}
 	);
+    padding-bottom: ${desktopConstants.EnormousGap};
 `;
 const OuterContainer = styled.div`
 	background-color: white;

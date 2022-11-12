@@ -3,9 +3,10 @@ import styled, { keyframes } from "styled-components";
 import {
 	desktopConstants,
 	mobileConstants,
-} from "../constants/ComponentConstants";
+} from "../constants/ComponentConstants"; 
 import { WhiteButton, TwoSidedCard, LoaderDiv, MobileLoaderDiv, MobileTwoSidedCard, MobileBackgroundColorButton, MobileWhiteButton } from "./Utils";
 import {
+    Device,
 	ImageData,
 	ImageDataWithInteractions,
 	Interaction,
@@ -20,7 +21,6 @@ import {
 	RequestInteractFunction,
 	RequestInteractFunctionGivenPostData,
 } from "../hooks/interactionHooks";
-import dayjs from "dayjs";
 
 const PostInfoBarOuterContainer = styled.div`
 	padding: ${desktopConstants.smallGap};
@@ -550,6 +550,36 @@ function ImageCaptionsCard({
 	);
 }
 // here and below up to the next comment breakpoint are the components specifically for add-image route
+const NoImageContentOuterContainer = styled.div`
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+`;
+
+const NoImageInnerContainer = styled.div`
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: ${desktopConstants.smallGap};
+`;
+
+const ClickableWatermark = styled.span`
+	font-size: ${desktopConstants.regularFontSize};
+	color: rgb(
+		${desktopConstants.watermark[0]},
+		${desktopConstants.watermark[1]},
+		${desktopConstants.watermark[2]}
+	);
+	cursor: default;
+`;
+
+const BoldClickableWatermark = styled(ClickableWatermark)`
+    font-weight: bold;
+`;
+
 interface ImagePreviewProps
 	extends Omit<
 		ImageSideProps,
@@ -557,17 +587,16 @@ interface ImagePreviewProps
 	> {
 	imageUrl: string | false;
 	requestChangeImage: (newImage: File | undefined) => void;
+	accImageInputTypes: string;
 }
 
-function ImagePreview({
-	imageUrl,
-	requestChangeImage,
-	name,
-	time,
-	points,
-	dislikes,
-	likes,
-}: ImagePreviewProps) {
+function useImageInput(
+	requestChangeImage: ImagePreviewProps["requestChangeImage"]
+): [
+	React.RefObject<HTMLInputElement>,
+	(event: React.ChangeEvent<HTMLInputElement>) => void,
+	() => void
+] {
 	const fileInput = useRef<HTMLInputElement>(null);
 	const [waitingForInput, setWaitingForInput] = useState(false);
 
@@ -601,6 +630,21 @@ function ImagePreview({
 		return requestChangeImage(event.target.files[0]);
 	}
 
+	return [fileInput, handleSelectedFileChange, popUpFileSelection];
+}
+
+function ImagePreview({
+	imageUrl,
+	requestChangeImage,
+    accImageInputTypes,
+	name,
+	time,
+	points,
+	dislikes,
+	likes,
+}: ImagePreviewProps) {
+	const [fileInput, handleSelectedFileChange, popUpFileSelection] =
+		useImageInput(requestChangeImage);
 	return (
 		<SideContainer>
 			<NameTime name={name} time={time} />
@@ -608,7 +652,7 @@ function ImagePreview({
 				type={"file"}
 				ref={fileInput}
 				style={{ display: "none" }}
-				accept="image/jpeg, image/jpg"
+				accept={accImageInputTypes}
 				onChange={handleSelectedFileChange}
 			/>
 			{!!imageUrl ? (
@@ -618,46 +662,16 @@ function ImagePreview({
 				/>
 			) : (
 				<NoImageContainer onClick={popUpFileSelection}>
-					<div
-						style={{
-							width: "100%",
-							height: "100%",
-							display: "flex",
-							flexDirection: "column",
-							justifyContent: "center",
-						}}
-					>
-						<div
-							style={{
-								textAlign: "center",
-								display: "flex",
-								flexDirection: "column",
-								justifyContent: "center",
-								gap: desktopConstants.smallGap,
-							}}
-						>
-							<span
-								style={{
-									fontSize:
-										desktopConstants.regularLargerSize,
-									fontWeight: "bold",
-									color: `rgb(${desktopConstants.watermark[0]},${desktopConstants.watermark[1]},${desktopConstants.watermark[2]})`,
-									cursor: "default",
-								}}
-							>
+					<NoImageContentOuterContainer>
+						<NoImageInnerContainer>
+							<BoldClickableWatermark>
 								CLICK TO CHOOSE IMAGE
-							</span>
-							<span
-								style={{
-									fontSize: desktopConstants.regularFontSize,
-									color: `rgb(${desktopConstants.watermark[0]},${desktopConstants.watermark[1]},${desktopConstants.watermark[2]})`,
-									cursor: "default",
-								}}
-							>
+							</BoldClickableWatermark>
+							<ClickableWatermark>
 								(MUST BE JPG/JPEG)
-							</span>
-						</div>
-					</div>
+							</ClickableWatermark>
+						</NoImageInnerContainer>
+					</NoImageContentOuterContainer>
 				</NoImageContainer>
 			)}
 			<Stats
@@ -723,6 +737,7 @@ interface AddImagePreviewProps
 function AddImagePreview({
 	userData,
 	requestChangeImage,
+    accImageInputTypes,
 	image,
 	time,
 	points,
@@ -735,6 +750,7 @@ function AddImagePreview({
 		<TwoSidedCard
 			left={
 				<ImagePreview
+					accImageInputTypes={accImageInputTypes}
 					imageUrl={!!image ? URL.createObjectURL(image) : false}
 					requestChangeImage={requestChangeImage}
 					name={userData.username}
@@ -790,6 +806,7 @@ const LoadingBar = styled.span<loadingBarProps>`
 	width: ${(props) => (props.width ? props.width : "100%")};
 	display: ${(props) => (props.display ? props.display : "inline")};
 `;
+
 
 function LoadingNameTime() {
 	return (
@@ -1458,10 +1475,318 @@ function MobileImageCaptionsCardExtended({
 	);
 }
 
+// here and below up to the next comment breakpoint are the components specifically for mobile add-image route
+const MobileNoImageInnerContainer = styled(NoImageInnerContainer)`
+    gap: ${mobileConstants.smallGap};
+`;
+
+const MobileClickableWatermark = styled(ClickableWatermark)`
+    font-size: ${mobileConstants.regularFontSize};
+`;
+
+const MobileBoldClickableWatermark = styled(MobileClickableWatermark)`
+    font-weight: bold;
+`;
+
+interface MobileImagePreviewProps
+	extends Omit<
+		MobileImageSideProps,
+		"imageUrl" | "interaction" | "requestChangeInteraction"
+	> {
+	imageUrl: string | false;
+	requestChangeImage: (newImage: File | undefined) => void;
+	accImageInputTypes: string;
+} 
+
+function MobileImagePreview({
+	imageUrl,
+	requestChangeImage,
+	accImageInputTypes,
+	name,
+	time,
+	points,
+}: MobileImagePreviewProps) {
+	const [fileInput, handleSelectedFileChange, popUpFileSelection] =
+		useImageInput(requestChangeImage);
+
+	return (
+		<SideContainer>
+			<MobileNameTime name={name} time={time} />
+			<input
+				type={"file"}
+				ref={fileInput}
+				style={{ display: "none" }}
+				accept={accImageInputTypes}
+				onChange={handleSelectedFileChange}
+			/>
+			{!!imageUrl ? (
+				<LoadableImage
+					onClick={popUpFileSelection}
+					imageUrl={imageUrl}
+				/>
+			) : (
+				<MobileNoImageContainer onClick={popUpFileSelection}>
+					<NoImageContentOuterContainer>
+						<MobileNoImageInnerContainer>
+							<MobileBoldClickableWatermark>
+								CLICK TO CHOOSE IMAGE
+							</MobileBoldClickableWatermark>
+							<MobileClickableWatermark>
+								(MUST BE JPG/JPEG)
+							</MobileClickableWatermark>
+						</MobileNoImageInnerContainer>
+					</NoImageContentOuterContainer>
+				</MobileNoImageContainer>
+			)}
+			<MobileStats
+				requestChangeInteraction={() => {}}
+				points={points}
+				interaction={null}
+			/>
+		</SideContainer>
+	);
+};
+
+function MobileAddImagePanel({ requestAddImage }: AddImagePanelProps) {
+    return (
+        <MobileOptionsContainer>
+            <div style={{flexGrow: 1}} />
+            <MobileBackgroundColorButton text="ADD IMAGE" onClick={requestAddImage}/>
+        </MobileOptionsContainer>
+    )
+};
+
+function MobileAddImagePreviewCaptionSide({
+	captions,
+	requestAddImage,
+}: AddImagePreviewCaptionSideProps) {
+	return (
+		<SideContainer>
+			<MobileCaptionGroups captions={captions} />
+            <MobileAddImagePanel requestAddImage={requestAddImage}/>
+		</SideContainer>
+	);
+};
+
+interface MobileAddImagePreviewProps
+	extends Omit<MobileImagePreviewProps, "name" | "imageUrl">,
+		AddImagePreviewCaptionSideProps {
+	image: File | undefined;
+	userData: UserData;
+}
+
+function MobileAddImagePreview({
+	userData,
+	requestChangeImage,
+	accImageInputTypes,
+	image,
+	time,
+	points,
+	captions,
+	requestAddImage,
+}: MobileAddImagePreviewProps) {
+    return (
+		<MobileTwoSidedCard
+			top={
+				<MobileImagePreview
+					accImageInputTypes={accImageInputTypes}
+					imageUrl={!!image ? URL.createObjectURL(image) : false}
+					requestChangeImage={requestChangeImage}
+					name={userData.username}
+					time={time}
+					points={points}
+				/>
+			}
+			bottom={
+				<MobileAddImagePreviewCaptionSide
+					captions={captions}
+					requestAddImage={requestAddImage}
+				/>
+			}
+		/>
+	);
+}
 
 
+// here and below up to the next comment breakpoint are the components specifically for MobileLoadingImageCaption
 
-export { ImageCaptionsCard, AddImagePreview, LoadingImageCaptionsCard };
+const MobileLoadingBar = styled(LoadingBar)`
+	background-color: rgb(
+		${mobileConstants.background[0]},
+		${mobileConstants.background[1]},
+		${mobileConstants.background[2]}
+	);
+	height: ${mobileConstants.loadingBarHeight};
+`;
+
+function MobileLoadingNameTime() {
+	return (
+		<MobilePostInfoOuterContainer>
+			<MobileLoadingBar width="20%" />
+			<MobileLoadingBar width="30%" />
+		</MobilePostInfoOuterContainer>
+	);
+}
+
+function MobileLoadingName() {
+	return (
+		<MobilePostInfoOuterContainer>
+			<MobileLoadingBar width="20%" />
+		</MobilePostInfoOuterContainer>
+	);
+}
+
+function MobileLoadingStats() {
+	return (
+		<MobilePostInfoOuterContainer>
+			<MobileLoadingBar width="20%" />
+			<MobileLoadingBar width="30%" />
+		</MobilePostInfoOuterContainer>
+	);
+}
+
+function MobileLoadingCaption() {
+	return (
+		<MobileCaptionContainer>
+			<MobileLoadingBar width="80%" display="inline-block" />
+		</MobileCaptionContainer>
+	);
+}
+
+function MobileLoadingOptions() {
+	return (
+		<MobilePostInfoOuterContainer>
+			<MobileLoadingBar width="20%" />
+			<MobileLoadingBar width="30%" />
+		</MobilePostInfoOuterContainer>
+	);
+}
+
+function MobileLoadingCaptionGroup() {
+	return (
+		<CaptionGroupContainer>
+			<MobileLoadingName />
+			<MobileLoadingCaption />
+			<MobileLoadingStats />
+		</CaptionGroupContainer>
+	);
+}
+
+function MobileLoadingCaptionGroups() {
+	let decoyArr = [1];
+	return (
+		<MobileCaptionGroupsContainer>
+			{decoyArr.map(() => (
+				<MobileLoadingCaptionGroup key={uuid()} />
+			))}
+		</MobileCaptionGroupsContainer>
+	);
+}
+
+function MobileLoadingCaptionSide() {
+	return (
+		<SideContainer>
+			<MobileLoadingCaptionGroups />
+			<MobileLoadingOptions />
+		</SideContainer>
+	);
+}
+ 
+function MobileLoadingImageSide() {
+	return (
+		<SideContainer>
+			<MobileLoadingNameTime />
+			<MobileLoadingImage />
+			<MobileLoadingStats />
+		</SideContainer>
+	);
+}
+
+function MobileLoadingImageCaptionsCard() {
+	return (
+		<MobileTwoSidedCard
+			top={<MobileLoadingImageSide />}
+			bottom={<MobileLoadingCaptionSide />}
+		/>
+	);
+}
+
+//////////////////////////////////////////////////////////// RESPONSIVE COMPONENTS ////////////////////////////////////////////////////////////
+
+interface ResponsiveLoadingImageCaptionsCardProps {
+	device: Device;
+}
+function ResponsiveLoadingImageCaptionsCard({
+	device,
+}: ResponsiveLoadingImageCaptionsCardProps) {
+	if (device === "mobile") {
+		return <MobileLoadingImageCaptionsCard />;
+	}
+
+	return <LoadingImageCaptionsCard />;
+}
+
+// AddImagePreviewProps must be a superset of MobileAddImagePreviewProps (so the props are enough both for mobile and not mobile versions)
+interface ResponsiveAddImagePreviewProps extends AddImagePreviewProps {
+    device:Device
+}
+
+function ResponsiveAddImagePreview({
+	userData,
+	requestChangeImage,
+	accImageInputTypes,
+	image,
+	time,
+	points,
+	dislikes,
+	likes,
+	captions,
+	requestAddImage,
+    device
+}: ResponsiveAddImagePreviewProps) {
+    if (device === "mobile") {
+        return (
+			<MobileAddImagePreview
+				userData={userData}
+				requestChangeImage={requestChangeImage}
+				accImageInputTypes={accImageInputTypes}
+				image={image}
+				time={time}
+				points={points}
+				captions={captions}
+				requestAddImage={requestAddImage}
+			/>
+		);
+    }
+
+    return (
+		<AddImagePreview
+			userData={userData}
+			requestChangeImage={requestChangeImage}
+			accImageInputTypes={accImageInputTypes}
+			image={image}
+			time={time}
+			points={points}
+            likes={likes}
+            dislikes={dislikes}
+			captions={captions}
+			requestAddImage={requestAddImage}
+		/>
+	);
+
+}
+
+
+export { ImageCaptionsCard };
 export type { ImageCaptionsCardProps };
-export { MobileImageCaptionsCard, MobileImageCaptionsCardExtended };
-export type { MobileImageCaptionsCardProps, MobileImageCaptionsCardExtendedProps };
+export {
+	MobileImageCaptionsCard,
+	MobileImageCaptionsCardExtended,
+};
+export type {
+	MobileImageCaptionsCardProps,
+	MobileImageCaptionsCardExtendedProps,
+};
+
+
+export { ResponsiveLoadingImageCaptionsCard, ResponsiveAddImagePreview };
