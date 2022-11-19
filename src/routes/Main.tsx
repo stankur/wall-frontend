@@ -9,8 +9,8 @@ import {
 	ResponsiveLoadingImageCaptionsCard,
 } from "../components/ImageCaptions";
 import { useInternalUserData } from "../App";
-import { useFetchingImages } from "../hooks/dataHooks";
-import { Device, ImageData } from "../types/types";
+import { useFetchingImages, useFetchingRoundData } from "../hooks/dataHooks";
+import { AppState, Device, ImageData } from "../types/types";
 import { useAddCaption } from "../hooks/captionHooks";
 import { UserDataState } from "../hooks/authenticationHooks";
 import {
@@ -20,6 +20,7 @@ import {
 } from "../hooks/interactionHooks";
 import { DeviceContext } from "../hooks/deviceHooks";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 
 interface ControlledImageCaptionsCardProps {
 	data: ImageData;
@@ -158,24 +159,36 @@ function ResponsiveImageCaptionsCards({
 	);
 }
 
-function Main() {
-	const [userData, setUserData] = useInternalUserData();
-	const [images, fetchingImages, requestFetchImages] = useFetchingImages();
-	const [addingInteraction, requestInteract] = useInteract(
-		userData,
-		setUserData,
-		handleInteractSuccess
-	);
-	const device = useContext(DeviceContext);
+interface ResponsiveHeroProps{
+    userData: UserDataState,
+    setUserData: React.Dispatch<React.SetStateAction<UserDataState>>,
+    requestFetchImages: () =>void,
+    roundData:AppState | undefined
+    device: Device
+}
 
-	function handleInteractSuccess() {
-		return requestFetchImages();
-	}
+function ResposiveHero({
+	userData,
+	setUserData,
+	requestFetchImages,
+    roundData,
+	device,
+}: ResponsiveHeroProps) {
+    function getNotUndefinedRoundData(roundData: AppState | undefined): AppState {
+        if (roundData === undefined) {
+            return {
+                currentRound: 0,
+                currentRoundFinish: dayjs().format()
+            };
+        }
 
+        return roundData;
+    }
 	return (
-		<Page>
+		<>
 			{device === "mobile" ? (
 				<MobileHero
+					roundData={getNotUndefinedRoundData(roundData)}
 					navigation={
 						<MobileNavigation
 							userData={userData}
@@ -186,7 +199,7 @@ function Main() {
 				/>
 			) : (
 				<>
-					<Hero />
+					<Hero roundData={getNotUndefinedRoundData(roundData)} />
 					<Navigation
 						userData={userData}
 						setUserData={setUserData}
@@ -194,6 +207,34 @@ function Main() {
 					/>
 				</>
 			)}
+		</>
+	);
+};
+
+function Main() {
+	const [userData, setUserData] = useInternalUserData();
+	const [images, fetchingImages, requestFetchImages] = useFetchingImages();
+	const [addingInteraction, requestInteract] = useInteract(
+		userData,
+		setUserData,
+		handleInteractSuccess
+	);
+    const [roundData, requestFetchRoundData] = useFetchingRoundData(); 
+	const device = useContext(DeviceContext);
+
+	function handleInteractSuccess() {
+		return requestFetchImages();
+	}
+
+	return (
+		<Page>
+			<ResposiveHero
+				userData={userData}
+				setUserData={setUserData}
+				requestFetchImages={requestFetchImages}
+				roundData={roundData}
+				device={device}
+			/>
 			<CenteredColumnContainer>
 				{!images ? (
 					<ResponsiveLoadingImageCaptionsCard device={device} />

@@ -7,7 +7,10 @@ import {
 } from "../constants/ComponentConstants";
 import { Link } from "react-router-dom";
 import { LogoContainer, MobileLogoContainer } from "./Utils";
-import { Device } from "../types/types";
+import { AppState, Device } from "../types/types";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+dayjs.extend(duration);
 
 const SloganContainer = styled.span`
 	display: inline-flex;
@@ -126,13 +129,13 @@ const CountdownContainer = styled.div`
 	background-color: white;
 `;
 
-interface CountdownProps {
+interface CountdownTime {
 	hours: number;
 	minutes: number;
 	seconds: number;
 }
 
-function useCountdown({ hours, minutes, seconds }: CountdownProps) {
+function useCountdown({ hours, minutes, seconds }: CountdownTime) {
 	const [internalHours, setInternalHours] = useState(hours);
 	const [internalMinutes, setInternalMinutes] = useState(minutes);
 	const [internalSeconds, setInternalSeconds] = useState(seconds);
@@ -178,12 +181,42 @@ function useCountdown({ hours, minutes, seconds }: CountdownProps) {
 	return [internalHours, internalMinutes, internalSeconds];
 }
 
-function Countdown({ hours, minutes, seconds }: CountdownProps) {
-	const [internalHours, internalMinutes, internalSeconds] = useCountdown({
-		hours,
-		minutes,
-		seconds,
-	});
+interface CountdownProps {
+    finishTime: string
+}
+
+function getCountdownTime(finishTime: string): CountdownTime {
+	let now = dayjs().valueOf();
+	let milisecondsFromNow = dayjs(finishTime).diff(now);
+    let duration = dayjs.duration(milisecondsFromNow);
+
+	if (milisecondsFromNow <= 0) {
+		return {
+			hours: 0,
+			minutes: 0,
+			seconds: 0,
+		};
+	}
+
+	let hoursPortionOfTimeFromNow = duration.hours();
+	let minsPortionOfTimeFromNow = duration.minutes();
+	let secsPortionOfTimeFromNow = duration.seconds();
+
+	return {
+		hours: hoursPortionOfTimeFromNow,
+		minutes: minsPortionOfTimeFromNow,
+		seconds: secsPortionOfTimeFromNow,
+	};
+}
+
+function useCountdownTime({ finishTime }: CountdownProps):CountdownTime {
+return getCountdownTime(finishTime);
+}
+
+function Countdown({ finishTime }: CountdownProps) {
+	const countdownTime = useCountdownTime({ finishTime });
+	const [internalHours, internalMinutes, internalSeconds] =
+		useCountdown(countdownTime);
 
 	return (
 		<CountdownContainer>
@@ -205,12 +238,15 @@ const HeroContainer = styled.div`
 	gap: ${desktopConstants.smallGap};
 `;
 
-function Hero() {
+interface HeroProps {
+    roundData: AppState
+}
+function Hero({roundData}: HeroProps) {
 	return (
 		<HeroContainer>
 			<Logo />
-			<Round number={3} />
-			<Countdown hours={1} minutes={20} seconds={30} />
+			<Round number={roundData.currentRound} />
+			<Countdown finishTime={roundData.currentRoundFinish} />
 		</HeroContainer>
 	);
 }
@@ -342,12 +378,11 @@ const MobileCountdownContainer = styled(CountdownContainer)`
 	gap: ${mobileConstants.mediumGap};
 `;
 
-function MobileCountdown({ hours, minutes, seconds }: CountdownProps) {
-	const [internalHours, internalMinutes, internalSeconds] = useCountdown({
-		hours,
-		minutes,
-		seconds,
-	});
+function MobileCountdown({ finishTime }: CountdownProps) {
+	const countdownTime = useCountdownTime({ finishTime });
+	const [internalHours, internalMinutes, internalSeconds] =
+		useCountdown(countdownTime);
+
 	return (
 		<MobileCountdownContainer>
 			<MobileTimeTimeUnit time={internalHours} unit="H" />
@@ -368,20 +403,21 @@ const MobileHeroContainer = styled.div`
 	padding-bottom: ${mobileConstants.bigSmallGap};
 `;
 
-interface MobileHeroProps extends MobileHeaderProps {}
+interface MobileLogoHeroProps extends MobileHeaderProps {}
+interface MobileHeroProps extends MobileHeaderProps,HeroProps {}
 
-function MobileHero({ navigation = undefined }: MobileHeroProps) {
+function MobileHero({ navigation = undefined, roundData }: MobileHeroProps) {
 	return (
 		<MobileHeroContainer>
 			<MobileHeader navigation={navigation} />
 			<MobileLogo />
-			<MobileRound number={3} />
-			<MobileCountdown hours={1} minutes={20} seconds={30} />
+			<MobileRound number={roundData.currentRound} />
+			<MobileCountdown finishTime={roundData.currentRoundFinish} />
 		</MobileHeroContainer>
 	);
 }
 
-function MobileLogoHero({ navigation = undefined }: MobileHeroProps) {
+function MobileLogoHero({ navigation = undefined }: MobileLogoHeroProps) {
 	return (
 		<MobileHeroContainer>
 			<MobileHeader navigation={navigation} />
@@ -397,7 +433,7 @@ interface ResponsivePlainLogoHeroProps {
 }
 function ResponsivePlainLogoHero({ device }: ResponsivePlainLogoHeroProps) {
 	if (device === "mobile") {
-		return <MobileLogoHero />;
+		return <MobileLogoHero/>; 
 	}
 
 	return <LogoHero />;

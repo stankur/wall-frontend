@@ -7,6 +7,11 @@ type ExpandedPostParams = {
 export type { ExpandedPostParams };
 // interfaces resulted from fetching backend (must align with backend):
 
+export interface AppState {
+	currentRound: number;
+	currentRoundFinish: string;
+}
+
 interface PostData {
 	id: string;
 	user: string;

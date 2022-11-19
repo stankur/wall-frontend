@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { errorHandlingFetch, EventEmitter } from "../Utils";
 import AuthenticationConstants from "../constants/AuthenticationConstants";
-import { ImageData, ImageDataWithInteractions } from "../types/types";
+import { AppState, ImageData, ImageDataWithInteractions } from "../types/types";
 
 function useFetchingImages(): [undefined | ImageData[] |ImageDataWithInteractions[], boolean, () => void] {
 	const [images, setImages] = useState<
@@ -89,5 +89,45 @@ function useFetchingImage(
 
 	return [image, fetchingImage, requestFetchImage];
 }
+function useFetchingRoundData(): [AppState | undefined, () => void] {
+	const [roundData, setRoundData] = useState<AppState | undefined>(undefined);
+	const [fetchingRoundData, setFetchingRoundData] = useState(true);
 
-export { useFetchingImages, useFetchingImage};
+	useEffect(function () {
+		(async function () {
+			if (fetchingRoundData) {
+				let response = await errorHandlingFetch(
+					(process.env.REACT_APP_BACKEND_URL as string) +
+						"/api/state/current-round",
+					{
+						...AuthenticationConstants.requiredConfig,
+					},
+					handleFetchRoundDataError
+				);
+
+				if (response && !response.error) {
+					setRoundData(response);
+				}
+			}
+
+			return setFetchingRoundData(false);
+		})();
+	});
+
+	function handleFetchRoundDataError() {
+		EventEmitter.emit(
+			"error",
+			"WE HAVE NETWORK ISSUE WHILE TRYING TO GET CURRENT ROUND'S DATA. PLEASE TRY AGAIN IN A WHILE"
+		);
+	}
+
+	function requestFetchRoundData() {
+		if (!fetchingRoundData) {
+			return setFetchingRoundData(true);
+		}
+	}
+
+	return [roundData, requestFetchRoundData];
+}
+
+export { useFetchingImages, useFetchingImage, useFetchingRoundData };
