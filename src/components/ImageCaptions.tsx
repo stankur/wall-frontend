@@ -1,12 +1,26 @@
-import React, { useState, ReactEventHandler, useRef, ReactElement } from "react";
+import React, {
+	useState,
+	ReactEventHandler,
+	useRef,
+	ReactElement,
+} from "react";
 import styled, { keyframes } from "styled-components";
 import {
 	desktopConstants,
 	mobileConstants,
-} from "../constants/ComponentConstants"; 
-import { WhiteButton, TwoSidedCard, LoaderDiv, MobileLoaderDiv, MobileTwoSidedCard, MobileBackgroundColorButton, MobileWhiteButton } from "./Utils";
+} from "../constants/ComponentConstants";
 import {
-    Device,
+	WhiteButton,
+	TwoSidedCard,
+	LoaderDiv,
+	MobileLoaderDiv,
+	MobileTwoSidedCard,
+	MobileBackgroundColorButton,
+	MobileWhiteButton,
+	CircleButton,
+} from "./Utils";
+import {
+	Device,
 	ImageData,
 	ImageDataWithInteractions,
 	Interaction,
@@ -164,7 +178,7 @@ function useChangeInteraction(
 	}
 
 	return [onLikeClick, onDislikeClick];
-};
+}
 
 interface StatsProps {
 	points: number;
@@ -203,8 +217,6 @@ function Stats({
 	);
 }
 
-
-
 function useImageLoaded() {
 	const [loaded, setLoaded] = useState(false);
 
@@ -240,7 +252,7 @@ function LoadingImage({
 interface LoadableImageProps {
 	imageUrl: string;
 	onClick?: React.MouseEventHandler;
-    loadingImage?: ReactElement;
+	loadingImage?: ReactElement;
 }
 
 function LoadableImage({
@@ -439,7 +451,7 @@ function createRequestChangeCaptionInteraction(
 			newInteractionType
 		);
 	};
-};
+}
 
 interface CaptionGroupsProps {
 	captions: RankedCaptionData[] | RankedCaptionDataWithInteractions[];
@@ -577,7 +589,7 @@ const ClickableWatermark = styled.span`
 `;
 
 const BoldClickableWatermark = styled(ClickableWatermark)`
-    font-weight: bold;
+	font-weight: bold;
 `;
 
 interface ImagePreviewProps
@@ -636,7 +648,7 @@ function useImageInput(
 function ImagePreview({
 	imageUrl,
 	requestChangeImage,
-    accImageInputTypes,
+	accImageInputTypes,
 	name,
 	time,
 	points,
@@ -737,7 +749,7 @@ interface AddImagePreviewProps
 function AddImagePreview({
 	userData,
 	requestChangeImage,
-    accImageInputTypes,
+	accImageInputTypes,
 	image,
 	time,
 	points,
@@ -806,7 +818,6 @@ const LoadingBar = styled.span<loadingBarProps>`
 	width: ${(props) => (props.width ? props.width : "100%")};
 	display: ${(props) => (props.display ? props.display : "inline")};
 `;
-
 
 function LoadingNameTime() {
 	return (
@@ -914,22 +925,6 @@ function LoadingImageCaptionsCard() {
 
 //////////////////////////////////////////////////////////// MOBILE COMPONENTS ////////////////////////////////////////////////////////////
 
-interface CircleButtonProps {
-	baseColor: [number, number, number];
-	colored: boolean;
-}
-const CircleButton = styled.div<CircleButtonProps>`
-	width: ${mobileConstants.buttonSize};
-	height: ${mobileConstants.buttonSize};
-	background-color: ${(props) =>
-		props.colored
-			? `rgb(${props.baseColor[0]}, ${props.baseColor[1]}, ${props.baseColor[2]})`
-			: "white"};
-	border-radius: 50%;
-	border: 1px solid black;
-`;
-
-
 const UpvoteButton = styled(CircleButton).attrs(() => {
 	return { baseColor: mobileConstants.upvoteColor };
 })``;
@@ -941,7 +936,6 @@ const DownvoteButton = styled(CircleButton).attrs(() => {
 const MobilePostInfoOuterContainer = styled(PostInfoBarOuterContainer)`
 	padding: ${mobileConstants.smallGap};
 `;
-
 
 interface MobileNameTimeProps {
 	name: string;
@@ -1005,10 +999,9 @@ function MobileStatsPair({ keyName, value }: StatsPairProps) {
 }
 
 const MobileButtonsContainer = styled.div`
-    display: inline-flex;
-    gap: ${mobileConstants.smallGap};
-`
-
+	display: inline-flex;
+	gap: ${mobileConstants.smallGap};
+`;
 
 interface MobileStatsProps {
 	points: number;
@@ -1021,10 +1014,10 @@ function MobileStats({
 	requestChangeInteraction,
 	interaction,
 }: MobileStatsProps) {
-    	const [onLikeClick, onDislikeClick] = useChangeInteraction(
-			requestChangeInteraction,
-			interaction
-		);
+	const [onLikeClick, onDislikeClick] = useChangeInteraction(
+		requestChangeInteraction,
+		interaction
+	);
 
 	return (
 		<MobilePostInfoOuterContainer style={{ alignItems: "center" }}>
@@ -1041,11 +1034,11 @@ function MobileStats({
 			<MobileStatsPair keyName="POINTS" value={points.toString()} />
 		</MobilePostInfoOuterContainer>
 	);
-};
+}
 
 const MobileNoImageContainer = styled(NoImageContainer)`
-    height: ${mobileConstants.mainContentWidth};
-`
+	height: ${mobileConstants.mainContentWidth};
+`;
 
 function MobileLoadingImage({
 	onClick = () => {
@@ -1057,7 +1050,7 @@ function MobileLoadingImage({
 			<MobileLoaderDiv />
 		</MobileNoImageContainer>
 	);
-};
+}
 
 interface MobileImageSideProps
 	extends MobileStatsProps,
@@ -1094,11 +1087,12 @@ const MobileCaptionContainer = styled(CaptionContainer)`
 
 function MobileCaption({ text }: CaptionProps) {
 	return <MobileCaptionContainer>{text}</MobileCaptionContainer>;
-} 
-
-
-interface MobileCaptionGroupProps extends MobileNameTimeProps, CaptionProps, MobileStatsProps{
 }
+
+interface MobileCaptionGroupProps
+	extends MobileNameTimeProps,
+		CaptionProps,
+		MobileStatsProps {}
 
 function MobileCaptionGroupContent({
 	name,
@@ -1119,7 +1113,7 @@ function MobileCaptionGroupContent({
 			/>
 		</>
 	);
-};
+}
 
 function MobileCaptionGroup({
 	name,
@@ -1141,11 +1135,10 @@ function MobileCaptionGroup({
 	);
 }
 
-
 const MobileOptionsContainer = styled.div`
 	padding: ${mobileConstants.smallGap};
-    display: flex;
-    justify-content: space-between;
+	display: flex;
+	justify-content: space-between;
 `;
 
 interface MobileOptionsProps {
@@ -1212,7 +1205,7 @@ function MobileCaptionGroups({
 			})}
 		</MobileCaptionGroupsContainer>
 	);
-};
+}
 
 interface MobileCaptionsSideProps
 	extends MobileOptionsProps,
@@ -1240,7 +1233,7 @@ function MobileCaptionsSide({
 interface MobileImageCaptionsCardProps
 	extends Omit<MobileCaptionsSideProps, "captions"> {
 	data: ImageData | ImageDataWithInteractions;
-    requestChangeImageInteraction: RequestInteractFunctionGivenPostData
+	requestChangeImageInteraction: RequestInteractFunctionGivenPostData;
 }
 
 function MobileImageCaptionsCard({
@@ -1276,7 +1269,6 @@ function MobileImageCaptionsCard({
 	);
 }
 
-
 // here and below up to the next comment breakpoint are the components specifically for Mobile Image Captions Card in Extended View
 
 const MobileAddCaptionContainer = styled(AddCaptionContainer)`
@@ -1308,10 +1300,10 @@ function MobileAddCaptionPanel({
 			<MobileWhiteButton text="ADD CAPTION" onClick={onClick} />
 		</MobileAddCaptionContainer>
 	);
-};
+}
 
 interface MobileCaptionGroupExpandedProps extends MobileCaptionGroupProps {
-    time: string;
+	time: string;
 }
 
 function MobileCaptionGroupExpanded({
@@ -1322,11 +1314,11 @@ function MobileCaptionGroupExpanded({
 	interaction,
 	requestChangeInteraction,
 }: MobileCaptionGroupExpandedProps) {
-    return (
+	return (
 		<CaptionGroupContainer>
 			<MobileCaptionGroupContent
 				name={name}
-                time={time}
+				time={time}
 				text={text}
 				requestChangeInteraction={requestChangeInteraction}
 				points={points}
@@ -1334,8 +1326,7 @@ function MobileCaptionGroupExpanded({
 			/>
 		</CaptionGroupContainer>
 	);
-};
-
+}
 
 const UnborderedCaptionGroupContainer = styled(CaptionGroupContainer)`
 	border-width: 0px;
@@ -1414,7 +1405,7 @@ function MobileCaptionGroupsExpanded({
 			})}
 		</MobileCaptionGroupsContainer>
 	);
-};
+}
 
 function MobileCaptionsSideExpanded({
 	captions,
@@ -1423,7 +1414,7 @@ function MobileCaptionsSideExpanded({
 	onChange,
 	requestInteract,
 }: CaptionsSideProps) {
-    return (
+	return (
 		<SideContainer>
 			<MobileAddCaptionPanel
 				onClick={onClick}
@@ -1436,7 +1427,7 @@ function MobileCaptionsSideExpanded({
 			/>
 		</SideContainer>
 	);
-};
+}
 
 interface MobileImageCaptionsCardExtendedProps extends ImageCaptionsCardProps {}
 
@@ -1477,15 +1468,15 @@ function MobileImageCaptionsCardExtended({
 
 // here and below up to the next comment breakpoint are the components specifically for mobile add-image route
 const MobileNoImageInnerContainer = styled(NoImageInnerContainer)`
-    gap: ${mobileConstants.smallGap};
+	gap: ${mobileConstants.smallGap};
 `;
 
 const MobileClickableWatermark = styled(ClickableWatermark)`
-    font-size: ${mobileConstants.regularFontSize};
+	font-size: ${mobileConstants.regularFontSize};
 `;
 
 const MobileBoldClickableWatermark = styled(MobileClickableWatermark)`
-    font-weight: bold;
+	font-weight: bold;
 `;
 
 interface MobileImagePreviewProps
@@ -1496,7 +1487,7 @@ interface MobileImagePreviewProps
 	imageUrl: string | false;
 	requestChangeImage: (newImage: File | undefined) => void;
 	accImageInputTypes: string;
-} 
+}
 
 function MobileImagePreview({
 	imageUrl,
@@ -1545,16 +1536,19 @@ function MobileImagePreview({
 			/>
 		</SideContainer>
 	);
-};
+}
 
 function MobileAddImagePanel({ requestAddImage }: AddImagePanelProps) {
-    return (
-        <MobileOptionsContainer>
-            <div style={{flexGrow: 1}} />
-            <MobileBackgroundColorButton text="ADD IMAGE" onClick={requestAddImage}/>
-        </MobileOptionsContainer>
-    )
-};
+	return (
+		<MobileOptionsContainer>
+			<div style={{ flexGrow: 1 }} />
+			<MobileBackgroundColorButton
+				text="ADD IMAGE"
+				onClick={requestAddImage}
+			/>
+		</MobileOptionsContainer>
+	);
+}
 
 function MobileAddImagePreviewCaptionSide({
 	captions,
@@ -1563,10 +1557,10 @@ function MobileAddImagePreviewCaptionSide({
 	return (
 		<SideContainer>
 			<MobileCaptionGroups captions={captions} />
-            <MobileAddImagePanel requestAddImage={requestAddImage}/>
+			<MobileAddImagePanel requestAddImage={requestAddImage} />
 		</SideContainer>
 	);
-};
+}
 
 interface MobileAddImagePreviewProps
 	extends Omit<MobileImagePreviewProps, "name" | "imageUrl">,
@@ -1585,7 +1579,7 @@ function MobileAddImagePreview({
 	captions,
 	requestAddImage,
 }: MobileAddImagePreviewProps) {
-    return (
+	return (
 		<MobileTwoSidedCard
 			top={
 				<MobileImagePreview
@@ -1606,7 +1600,6 @@ function MobileAddImagePreview({
 		/>
 	);
 }
-
 
 // here and below up to the next comment breakpoint are the components specifically for MobileLoadingImageCaption
 
@@ -1691,7 +1684,7 @@ function MobileLoadingCaptionSide() {
 		</SideContainer>
 	);
 }
- 
+
 function MobileLoadingImageSide() {
 	return (
 		<SideContainer>
@@ -1728,7 +1721,7 @@ function ResponsiveLoadingImageCaptionsCard({
 
 // AddImagePreviewProps must be a superset of MobileAddImagePreviewProps (so the props are enough both for mobile and not mobile versions)
 interface ResponsiveAddImagePreviewProps extends AddImagePreviewProps {
-    device:Device
+	device: Device;
 }
 
 function ResponsiveAddImagePreview({
@@ -1742,10 +1735,10 @@ function ResponsiveAddImagePreview({
 	likes,
 	captions,
 	requestAddImage,
-    device
+	device,
 }: ResponsiveAddImagePreviewProps) {
-    if (device === "mobile") {
-        return (
+	if (device === "mobile") {
+		return (
 			<MobileAddImagePreview
 				userData={userData}
 				requestChangeImage={requestChangeImage}
@@ -1757,9 +1750,9 @@ function ResponsiveAddImagePreview({
 				requestAddImage={requestAddImage}
 			/>
 		);
-    }
+	}
 
-    return (
+	return (
 		<AddImagePreview
 			userData={userData}
 			requestChangeImage={requestChangeImage}
@@ -1767,26 +1760,20 @@ function ResponsiveAddImagePreview({
 			image={image}
 			time={time}
 			points={points}
-            likes={likes}
-            dislikes={dislikes}
+			likes={likes}
+			dislikes={dislikes}
 			captions={captions}
 			requestAddImage={requestAddImage}
 		/>
 	);
-
 }
-
 
 export { ImageCaptionsCard };
 export type { ImageCaptionsCardProps };
-export {
-	MobileImageCaptionsCard,
-	MobileImageCaptionsCardExtended,
-};
+export { MobileImageCaptionsCard, MobileImageCaptionsCardExtended };
 export type {
 	MobileImageCaptionsCardProps,
 	MobileImageCaptionsCardExtendedProps,
 };
-
 
 export { ResponsiveLoadingImageCaptionsCard, ResponsiveAddImagePreview };
