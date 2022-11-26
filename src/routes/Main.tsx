@@ -21,6 +21,7 @@ import {
 import { DeviceContext } from "../hooks/deviceHooks";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import MessageForm from "../components/MessageForm";
 
 interface ControlledImageCaptionsCardProps {
 	data: ImageData;

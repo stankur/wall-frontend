@@ -22,7 +22,6 @@ function useFetchingImages(): [undefined | ImageData[] |ImageDataWithInteraction
 				);
 
 				if (response && !response.error) {
-					console.log(JSON.stringify(response.images));
 					setImages(response.images);
 				}
 
@@ -67,7 +66,6 @@ function useFetchingImage(
 				);
 
 				if (response && !response.error) {
-					console.log(JSON.stringify(response.image));
 					setImage(response.image);
 				}
 
