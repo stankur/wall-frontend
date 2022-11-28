@@ -2,7 +2,7 @@ export type Device = "desktop" | "tablet" | "mobile";
 
 type ExpandedPostParams = {
 	id: string;
-}
+};
 
 export type { ExpandedPostParams };
 // interfaces resulted from fetching backend (must align with backend):
@@ -58,7 +58,6 @@ type AuthenticationError = {
 function isAuthenticationError(
 	err: BackendGeneratedError
 ): err is AuthenticationError {
-	console.log(err.error.message);
 	return err.error.message === "YOU ARE NOT SIGNED IN";
 }
 

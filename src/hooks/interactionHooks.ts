@@ -84,10 +84,6 @@ function useInteract(
 				return;
 			}
 
-			console.log("post type: " + postType);
-			console.log("new interaction type: " + newInteractionType);
-			console.log("post id: " + postId);
-
 			setPostType(postType);
 			setInteractionType(newInteractionType);
 			setPostId(postId);

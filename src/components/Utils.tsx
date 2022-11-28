@@ -199,7 +199,6 @@ const Description = styled.div`
 	width: ${desktopConstants.mainContentWidth};
 `;
 
-
 //////////////////////////////////////////////////////////// MOBILE COMPONENTS ////////////////////////////////////////////////////////////
 
 const MobileOuterContainer = styled(OuterContainer)`
@@ -357,6 +356,7 @@ export {
 	BackgroundColorButton,
 	LogoContainer,
 	LoaderDiv,
+	Description,
 };
 
 export {
@@ -365,6 +365,7 @@ export {
 	MobileBackgroundColorButton,
     MobileWhiteButton,
     MobileLogoContainer,
+    MobileDescription,
     CircleButton
 };
 
@@ -373,3 +374,5 @@ export {
 	ResponsiveWhiteButton,
 	ResponsiveBackgroundColorButton,
 };
+
+export type { ResponsiveDescriptionProps };

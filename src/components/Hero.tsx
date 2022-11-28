@@ -44,9 +44,6 @@ function Logo() {
 				<span style={{ position: "relative" }}>
 					<SloganContainer
 						onClick={() => {
-							console.log(
-								"ig url: " + process.env.REACT_APP_INSTAGRAM_URL
-							);
 							window.open(process.env.REACT_APP_INSTAGRAM_URL);
 						}}
 					>
@@ -282,9 +279,6 @@ function MobileIg() {
 	return (
 		<IgContainer
 			onClick={() => {
-				console.log(
-					"insta url: " + process.env.REACT_APP_INSTAGRAM_URL
-				);
 				window.open(process.env.REACT_APP_INSTAGRAM_URL);
 			}}
 		>

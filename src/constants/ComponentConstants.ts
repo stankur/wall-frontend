@@ -30,6 +30,7 @@ const desktopConstants = {
 	loadingBarHeight: "15px",
 	loadingButtonHeight: "21px",
 	messageFormButtonSize: "50px",
+	CropperContainerSize: "max(25vw, 300px)", //align with mainContentWidth
 	NoImageContainerHeight: "max(20vw, 300px)", //align with mainContentWidth
 };
 
@@ -40,12 +41,13 @@ const mobileConstants = {
 	regularLargerFontSize: "16px",
 	regularFontSize: "14px",
 	regularSmallerFontSize: "12px",
-    smallFontSize: "11.5px",
+	smallFontSize: "11.5px",
 	mediumFontSize: "30px",
 	mediumSmallFontSize: "25px",
 	mediumSmallerFontSize: "20px",
 	largeFontSize: "90px",
 	buttonSize: "24px",
+	CropperContainerSize: "300px", //align with mainContentWidth
 	messageFormButtonSize: "42px",
 	smallGap: "7px",
 	smallerGap: "4px",

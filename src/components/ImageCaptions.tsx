@@ -598,7 +598,7 @@ interface ImagePreviewProps
 		"imageUrl" | "interaction" | "requestChangeInteraction"
 	> {
 	imageUrl: string | false;
-	requestChangeImage: (newImage: File | undefined) => void;
+	requestChangeImage: (newImage: File| Blob | undefined) => void;
 	accImageInputTypes: string;
 }
 
@@ -613,7 +613,6 @@ function useImageInput(
 	const [waitingForInput, setWaitingForInput] = useState(false);
 
 	function popUpFileSelection() {
-		console.log("pop up file selection waiting: " + waitingForInput);
 		if (!waitingForInput) {
 			if (fileInput.current) {
 				setWaitingForInput(true);
@@ -633,7 +632,6 @@ function useImageInput(
 	) {
 		setWaitingForInput(false);
 
-		console.log("handle selected file change waiting: " + waitingForInput);
 
 		if (!event.target.files) {
 			return requestChangeImage(undefined);
@@ -742,7 +740,7 @@ function AddImagePreviewCaptionSide({
 interface AddImagePreviewProps
 	extends Omit<ImagePreviewProps, "name" | "imageUrl">,
 		AddImagePreviewCaptionSideProps {
-	image: File | undefined;
+	image: File | Blob | undefined;
 	userData: UserData;
 }
 
@@ -1485,7 +1483,7 @@ interface MobileImagePreviewProps
 		"imageUrl" | "interaction" | "requestChangeInteraction"
 	> {
 	imageUrl: string | false;
-	requestChangeImage: (newImage: File | undefined) => void;
+	requestChangeImage: (newImage: File | Blob | undefined) => void;
 	accImageInputTypes: string;
 }
 
@@ -1565,7 +1563,7 @@ function MobileAddImagePreviewCaptionSide({
 interface MobileAddImagePreviewProps
 	extends Omit<MobileImagePreviewProps, "name" | "imageUrl">,
 		AddImagePreviewCaptionSideProps {
-	image: File | undefined;
+	image: File | Blob | undefined;
 	userData: UserData;
 }
 
