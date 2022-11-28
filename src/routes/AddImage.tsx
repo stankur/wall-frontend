@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import { useInternalUserData } from "../App";
-import {  ResponsivePlainLogoHero } from "../components/Hero";
+import { ResponsivePlainLogoHero } from "../components/Hero";
 import { ResponsiveAddImagePreview } from "../components/ImageCaptions";
 import {
 	CenteredColumnContainer,
@@ -31,29 +31,44 @@ const RotatingImage = styled.img`
 
 // assumes that user data is not undefined or false
 function AddImage() {
+	const location = useLocation();
 	const [userData, setUserData] = useInternalUserData();
-	const [image, setImage] = useState<File | undefined>(undefined);
+	const [image, setImage] = useState<File | Blob | undefined>(
+		getStartingImage()
+	);
 	const [addingImage, requestAddImage, accImageInputTypes] = useAddImage(
 		userData,
 		setUserData,
 		handleAddImageSuccess
 	);
 	const navigate = useNavigate();
-    const device = useContext(DeviceContext);
+	const device = useContext(DeviceContext);
 
-	function requestChangeImage(newImage: File | undefined) {
+	function getStartingImage(): Blob | undefined {
+		if (!location.state) {
+			return undefined;
+		}
+
+		if (!location.state.croppedImage) {
+			return undefined;
+		}
+		return location.state.croppedImage;
+	}
+
+	function requestChangeImage(newImage: File | Blob | undefined) {
 		(async function () {
 			if (newImage) {
+				let newImageURL = URL.createObjectURL(newImage);
 				let validDimensions = await ImageConstants.isDimensionValid(
-					URL.createObjectURL(newImage)
+					newImageURL
 				);
 
 				if (!validDimensions) {
-					setImage(undefined);
-					return EventEmitter.emit(
-						"error",
-						`IMAGE ASPECT RATIO MUST BE BETWEEN ${ImageConstants.minAccAspectRatio} AND ${ImageConstants.maxAccAspectRatio}`
-					);
+					return navigate("/crop-image", {
+						state: {
+							imageUrl: newImageURL,
+						},
+					});
 				}
 			}
 			return setImage(newImage);

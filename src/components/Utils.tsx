@@ -91,6 +91,7 @@ interface ColorButtonProps extends React.ComponentPropsWithoutRef<"button"> {
 	r: number;
 	g: number;
 	b: number;
+    fontSize?: string;
 }
 
 const BackgroundColorButtonContainer = styled.button<ColorButtonProps>`
@@ -105,34 +106,41 @@ const BackgroundColorButtonContainer = styled.button<ColorButtonProps>`
 	);
 	font-weight: 500 !important;
 	font-family: roboto;
-	font-size: ${desktopConstants.regularFontSize};
-    white-space: nowrap;
+	font-size: ${function (props) {
+		if (props.fontSize) {
+			return props.fontSize;
+		}
+		return desktopConstants.regularFontSize;
+	}};
+	white-space: nowrap;
 `;
 
-interface ButtonProps {
+interface ButtonProps extends Pick<ColorButtonProps, "fontSize">{
 	text: string;
 	onClick?: React.MouseEventHandler;
 }
-function BackgroundColorButton({ text, onClick }: ButtonProps) {
+function BackgroundColorButton({ text, onClick, fontSize }: ButtonProps) {
 	return (
 		<BackgroundColorButtonContainer
 			r={desktopConstants.background[0]}
 			g={desktopConstants.background[1]}
 			b={desktopConstants.background[2]}
 			onClick={onClick}
+			fontSize={fontSize}
 		>
 			{text}
 		</BackgroundColorButtonContainer>
 	);
 }
 
-function WhiteButton({ text, onClick }: ButtonProps) {
+function WhiteButton({ text, onClick, fontSize }: ButtonProps) {
 	return (
 		<BackgroundColorButtonContainer
 			r={255}
 			g={255}
 			b={255}
 			onClick={onClick}
+			fontSize={fontSize}
 		>
 			{text}
 		</BackgroundColorButtonContainer>
@@ -191,7 +199,6 @@ const Description = styled.div`
 	width: ${desktopConstants.mainContentWidth};
 `;
 
-
 //////////////////////////////////////////////////////////// MOBILE COMPONENTS ////////////////////////////////////////////////////////////
 
 const MobileOuterContainer = styled(OuterContainer)`
@@ -236,26 +243,28 @@ const MobileBackgroundColorButtonContainer = styled(BackgroundColorButtonContain
 	font-size: ${mobileConstants.regularFontSize};
 `;
 
-function MobileBackgroundColorButton({ text, onClick }: ButtonProps) {
+function MobileBackgroundColorButton({ text, onClick, fontSize }: ButtonProps) {
 	return (
 		<MobileBackgroundColorButtonContainer
 			r={mobileConstants.background[0]}
 			g={mobileConstants.background[1]}
 			b={mobileConstants.background[2]}
 			onClick={onClick}
+			fontSize={fontSize}
 		>
 			{text}
 		</MobileBackgroundColorButtonContainer>
 	);
 }
 
-function MobileWhiteButton({ text, onClick }: ButtonProps) {
+function MobileWhiteButton({ text, onClick, fontSize }: ButtonProps) {
 	return (
 		<MobileBackgroundColorButtonContainer
 			r={255}
 			g={255}
 			b={255}
 			onClick={onClick}
+			fontSize={fontSize}
 		>
 			{text}
 		</MobileBackgroundColorButtonContainer>
@@ -274,6 +283,21 @@ const MobileDescription = styled(Description)`
 	padding-top: ${mobileConstants.mediumSmallGap};
 	font-size: ${mobileConstants.regularSmallerFontSize};
 	width: ${mobileConstants.mainContentWidth};
+`;
+
+interface CircleButtonProps {
+	baseColor: [number, number, number];
+	colored: boolean;
+}
+const CircleButton = styled.div<CircleButtonProps>`
+	width: ${mobileConstants.buttonSize};
+	height: ${mobileConstants.buttonSize};
+	background-color: ${(props) =>
+		props.colored
+			? `rgb(${props.baseColor[0]}, ${props.baseColor[1]}, ${props.baseColor[2]})`
+			: "white"};
+	border-radius: 50%;
+	border: 1px solid black;
 `;
 
 //////////////////////////////////////////////////////////// RESPONSIVE COMPONENTS ////////////////////////////////////////////////////////////
@@ -332,6 +356,7 @@ export {
 	BackgroundColorButton,
 	LogoContainer,
 	LoaderDiv,
+	Description,
 };
 
 export {
@@ -339,7 +364,9 @@ export {
 	MobileLoaderDiv,
 	MobileBackgroundColorButton,
     MobileWhiteButton,
-    MobileLogoContainer
+    MobileLogoContainer,
+    MobileDescription,
+    CircleButton
 };
 
 export {
@@ -347,3 +374,5 @@ export {
 	ResponsiveWhiteButton,
 	ResponsiveBackgroundColorButton,
 };
+
+export type { ResponsiveDescriptionProps };
