@@ -6,23 +6,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserDataState, useSignOut } from "../hooks/authenticationHooks";
 import { EventEmitter } from "../Utils";
 
-interface ImagesNumberProps {
-	shown: number;
-	total: number;
-}
-function ImagesNumber({ shown, total }: ImagesNumberProps) {
-	return (
-		<div
-			style={{
-				display: "inline-block",
-				fontSize: desktopConstants.regularFontSize,
-			}}
-		>
-			SHOWING <span style={{ fontWeight: "bold" }}>{shown}</span> IMAGES
-			OUT OF <span style={{ fontWeight: "bold" }}>{total}</span>
-		</div>
-	);
-}
 
 const NavigationButtonsContainer = styled.span`
 	display: inline-flex;
@@ -151,7 +134,7 @@ function Navigation({
 	return (
 		<NavigationOuterContainer>
 			<NavigationInnerContainer>
-				<ImagesNumber shown={3} total={10} />
+                <span/>
 				<NavigationButtons
 					userData={userData}
 					setUserData={setUserData}

@@ -3,7 +3,11 @@ import { errorHandlingFetch, EventEmitter } from "../Utils";
 import AuthenticationConstants from "../constants/AuthenticationConstants";
 import { AppState, ImageData, ImageDataWithInteractions } from "../types/types";
 
-function useFetchingImages(): [undefined | ImageData[] |ImageDataWithInteractions[], boolean, () => void] {
+function useFetchingImages(): [
+	undefined | ImageData[] | ImageDataWithInteractions[],
+	boolean,
+	() => void
+] {
 	const [images, setImages] = useState<
 		undefined | ImageData[] | ImageDataWithInteractions[]
 	>(undefined);
@@ -22,7 +26,6 @@ function useFetchingImages(): [undefined | ImageData[] |ImageDataWithInteraction
 				);
 
 				if (response && !response.error) {
-					console.log(JSON.stringify(response.images));
 					setImages(response.images);
 				}
 
@@ -47,7 +50,7 @@ function useFetchingImages(): [undefined | ImageData[] |ImageDataWithInteraction
 
 function useFetchingImage(
 	id: string
-): [ImageData | ImageDataWithInteractions| undefined, boolean, () => void] {
+): [ImageData | ImageDataWithInteractions | undefined, boolean, () => void] {
 	const [image, setImage] = useState<
 		undefined | ImageData | ImageDataWithInteractions
 	>(undefined);
@@ -67,7 +70,6 @@ function useFetchingImage(
 				);
 
 				if (response && !response.error) {
-					console.log(JSON.stringify(response.image));
 					setImage(response.image);
 				}
 

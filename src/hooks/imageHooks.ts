@@ -10,7 +10,7 @@ function useAddImage(
 	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>,
 	successHandler?: (addImageRespose: AddImageResponse) => void,
 	failHandler?: (err: Error) => void
-): [boolean, (newImage: File | undefined) => void, string] {
+): [boolean, (newImage: File | Blob | undefined) => void, string] {
 	const [addingImage, setAddingImage] = useState(false);
 	const [formData, setFormData] = useState<FormData | undefined>(undefined);
 
@@ -40,7 +40,7 @@ function useAddImage(
 		})();
 	});
 
-	async function requestAddImage(newImage: File | undefined) {
+	async function requestAddImage(newImage: File | Blob | undefined) {
 		if (userData === false) {
 			return EventEmitter.emit(
 				"error",
