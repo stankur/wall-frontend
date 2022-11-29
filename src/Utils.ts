@@ -24,9 +24,11 @@ async function errorHandlingFetch(
 		}
 		body = await response.json();
 	} catch (err) {
+		console.log(err);
+		console.log((err as Error).message);
 		EventEmitter.emit(
 			"error",
-			"SORRY, PROBLEM ON OUR SIDE, NETWORK ISSUE. PLEASE TRY AGAIN SHORTLY"
+			`SORRY, PROBLEM ON OUR SIDE, NETWORK ISSUE. PLEASE TRY AGAIN SHORTLY ${(err as Error).message} <- message`
 		);
 	}
 
