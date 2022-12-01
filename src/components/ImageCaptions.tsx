@@ -71,11 +71,11 @@ function NameTime({ name, time }: NameTimeProps) {
 		</PostInfoBarOuterContainer>
 	);
 }
-interface PlusButtonContainerProps {
+interface ButtonContainerProps {
 	chosen: boolean;
 }
 
-const PlusButtonContainer = styled.div<PlusButtonContainerProps>`
+const ButtonContainer = styled.div<ButtonContainerProps>`
 	width: 14px;
 	height: 14px;
 	border-radius: 50%;
@@ -86,31 +86,38 @@ const PlusButtonContainer = styled.div<PlusButtonContainerProps>`
 		props.chosen
 			? `rgb(${desktopConstants.background[0]}, ${desktopConstants.background[1]}, ${desktopConstants.background[2]})`
 			: "white"};
+    cursor: pointer;
 `;
 
-const PlusSignContainer = styled.span`
+const ButtonSymbol = styled.img`
 	position: absolute;
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
 	z-index: 1;
-	font-weight: bold;
-	font-size: large;
-	cursor: pointer;
 `;
 
-interface PlusButtonProps {
+interface ButtonProps {
 	onClick: () => void;
 	chosen: boolean;
 }
 
-function PlusButton({ onClick, chosen }: PlusButtonProps) {
+function UpvoteButton({ onClick, chosen }: ButtonProps) {
 	return (
-		<PlusButtonContainer chosen={chosen} onClick={onClick}>
-			{!chosen && <PlusSignContainer>+</PlusSignContainer>}
-		</PlusButtonContainer>
+		<ButtonContainer chosen={chosen} onClick={onClick}>
+			{!chosen && <ButtonSymbol src="./tri.png" width="12px" />}
+		</ButtonContainer>
 	);
 }
+
+function DownvoteButton({ onClick, chosen }: ButtonProps) {
+	return (
+		<ButtonContainer chosen={chosen} onClick={onClick}>
+			{!chosen && <ButtonSymbol src="./downtri.png" width="12px" />}
+		</ButtonContainer>
+	);
+}
+
 
 const SmallerGappedContainer = styled.div`
 	display: inline-flex;
@@ -139,21 +146,27 @@ function StatsPair({ keyName, value }: StatsPairProps) {
 	);
 }
 
-interface StatsPairAndPlusButtonProps extends StatsPairProps {
-	onPlusButtonClick?: () => void;
+interface StatsPairAndButtonProps extends StatsPairProps {
+	onButtonClick?: () => void;
 	chosen: boolean;
+	type: "like" | "dislike";
 }
 
-function StatsPairAndPlusButton({
+function StatsPairAndButton({
 	keyName,
 	value,
 	chosen,
-	onPlusButtonClick = () => {},
-}: StatsPairAndPlusButtonProps) {
+	type,
+	onButtonClick = () => {},
+}: StatsPairAndButtonProps) {
 	return (
 		<SmallerGappedContainer>
 			<span style={{ position: "relative", top: "1px" }}>
-				<PlusButton onClick={onPlusButtonClick} chosen={chosen} />
+				{type === "like" ? (
+					<UpvoteButton onClick={onButtonClick} chosen={chosen} />
+				) : (
+					<DownvoteButton onClick={onButtonClick} chosen={chosen} />
+				)}
 			</span>
 			<StatsPair keyName={keyName} value={value} />
 		</SmallerGappedContainer>
@@ -201,17 +214,19 @@ function Stats({
 	return (
 		<PostInfoBarOuterContainer>
 			<StatsPair keyName="POINTS" value={points.toString()} />
-			<StatsPairAndPlusButton
+			<StatsPairAndButton
 				keyName="LIKES"
 				value={likes.toString()}
-				onPlusButtonClick={onLikeClick}
+				onButtonClick={onLikeClick}
 				chosen={interaction === "like"}
+                type="like"
 			/>
-			<StatsPairAndPlusButton
+			<StatsPairAndButton
 				keyName="DISLIKES"
 				value={dislikes.toString()}
-				onPlusButtonClick={onDislikeClick}
+				onButtonClick={onDislikeClick}
 				chosen={interaction === "dislike"}
+                type="dislike"
 			/>
 		</PostInfoBarOuterContainer>
 	);
@@ -923,11 +938,11 @@ function LoadingImageCaptionsCard() {
 
 //////////////////////////////////////////////////////////// MOBILE COMPONENTS ////////////////////////////////////////////////////////////
 
-const UpvoteButton = styled(CircleButton).attrs(() => {
+const MobileUpvoteButton = styled(CircleButton).attrs(() => {
 	return { baseColor: mobileConstants.upvoteColor };
 })``;
 
-const DownvoteButton = styled(CircleButton).attrs(() => {
+const MobileDownvoteButton = styled(CircleButton).attrs(() => {
 	return { baseColor: mobileConstants.downvoteColor };
 })``;
 
@@ -1020,11 +1035,11 @@ function MobileStats({
 	return (
 		<MobilePostInfoOuterContainer style={{ alignItems: "center" }}>
 			<MobileButtonsContainer>
-				<UpvoteButton
+				<MobileUpvoteButton
 					colored={interaction !== "dislike"}
 					onClick={onLikeClick}
 				/>
-				<DownvoteButton
+				<MobileDownvoteButton
 					colored={interaction !== "like"}
 					onClick={onDislikeClick}
 				/>
