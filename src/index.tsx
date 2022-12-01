@@ -10,28 +10,54 @@ import SignIn from "./routes/SignIn";
 import AddImage from "./routes/AddImage";
 import ExpandedPost from "./routes/ExpandedPost";
 import CropImage from "./routes/CropImage";
+import { useAnalytics, useWrapper } from "./hooks/analyticsHooks";
 
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement
 );
 
-
 root.render(
 	<React.StrictMode>
+		<Router />
+	</React.StrictMode>
+);
+
+interface WrapperProps {
+	initialized: boolean;
+	children: React.PropsWithChildren<any>;
+}
+
+function Wrapper({ initialized, children }: WrapperProps) {
+	useWrapper(initialized);
+
+	return <>{children}</>;
+}
+
+function Router() {
+	const [initialized] = useAnalytics();
+
+	return (
 		<BrowserRouter>
 			<Routes>
-				<Route path="/" element={<App />}>
+				<Route
+					path="/"
+					element={
+						<Wrapper initialized={initialized}>
+							<App />
+						</Wrapper>
+					}
+				>
 					<Route index element={<Main />} />
 					<Route path="/sign-up" element={<SignUp />} />
 					<Route path="/sign-in" element={<SignIn />} />
 					<Route path="/add-image" element={<AddImage />} />
 					<Route path="/images/:id" element={<ExpandedPost />} />
-                    <Route path="/crop-image" element={<CropImage/>} />
+					<Route path="/crop-image" element={<CropImage />} />
 				</Route>
 			</Routes>
 		</BrowserRouter>
-	</React.StrictMode>
-);
+	);
+}
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
