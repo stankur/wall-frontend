@@ -98,9 +98,7 @@ function MessageFormDescription() {
 		<MessageFormDescriptionContainer>
 			<Title>SHOOT WALL A MESSAGE!</Title>
 			<ContentText>
-				Your message is treated with urgency and will not only be
-				skimmed through. Wall fully believes in letting the people take
-				control.
+				It is very hard to understate how important your words will be to Wall :D
 			</ContentText>
 		</MessageFormDescriptionContainer>
 	);
