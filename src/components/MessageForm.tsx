@@ -34,6 +34,8 @@ const ExpandMessageFormButtonContainer = styled.div`
 	border-radius: 50%;
 
 	box-shadow: 0px 0px 9px 0 rgba(0, 0, 0, 0.25);
+
+    cursor: pointer;
 `;
 
 const CenteredImg = styled.img`

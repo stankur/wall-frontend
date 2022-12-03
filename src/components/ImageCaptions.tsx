@@ -35,6 +35,7 @@ import {
 	RequestInteractFunction,
 	RequestInteractFunctionGivenPostData,
 } from "../hooks/interactionHooks";
+import { EmptyCaption, MobileEmptyCaption } from "./EmptyCards";
 
 const PostInfoBarOuterContainer = styled.div`
 	padding: ${desktopConstants.smallGap};
@@ -476,6 +477,10 @@ function CaptionGroups({
 	captions,
 	requestInteract = () => () => {},
 }: CaptionGroupsProps) {
+	if (!captions.length) {
+		return <EmptyCaption />;
+	}
+
 	return (
 		<CaptionGroupsContainer>
 			{immutableSortRank<
@@ -583,6 +588,8 @@ const NoImageContentOuterContainer = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+
+	cursor: pointer;
 `;
 
 const NoImageInnerContainer = styled.div`
@@ -600,7 +607,7 @@ const ClickableWatermark = styled.span`
 		${desktopConstants.watermark[1]},
 		${desktopConstants.watermark[2]}
 	);
-	cursor: default;
+	cursor: pointer;
 `;
 
 const BoldClickableWatermark = styled(ClickableWatermark)`
@@ -1189,9 +1196,14 @@ function MobileCaptionGroups({
 }: CaptionGroupsProps) {
 	let length = captions.length;
 
-	if (length > 0 && length > 1) {
+    if (length === 0) {
+		return <MobileEmptyCaption />;
+	}
+
+	if (length > 1) {
 		captions = [captions[0]];
 	}
+    
 	return (
 		<MobileCaptionGroupsContainer>
 			{captions.map(function (caption) {
