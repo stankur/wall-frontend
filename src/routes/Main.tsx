@@ -21,6 +21,7 @@ import {
 import { DeviceContext } from "../hooks/deviceHooks";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import { ResponsiveEmptyRoundCard } from "../components/EmptyCards";
 
 interface ControlledImageCaptionsCardProps {
 	data: ImageData;
@@ -238,7 +239,7 @@ function Main() {
 			<CenteredColumnContainer>
 				{!images ? (
 					<ResponsiveLoadingImageCaptionsCard device={device} />
-				) : (
+				) : images.length ? (
 					<ResponsiveImageCaptionsCards
 						device={device}
 						images={images}
@@ -247,6 +248,8 @@ function Main() {
 						requestFetchImages={requestFetchImages}
 						requestInteract={requestInteract}
 					/>
+				) : (
+					<ResponsiveEmptyRoundCard device={device} />
 				)}
 			</CenteredColumnContainer>
 		</Page>
