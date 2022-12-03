@@ -32,6 +32,7 @@ const desktopConstants = {
 	messageFormButtonSize: "50px",
 	CropperContainerSize: "max(25vw, 300px)", //align with mainContentWidth
 	NoImageContainerHeight: "max(20vw, 300px)", //align with mainContentWidth
+	EmptyRoundCardHeight: "340px",
 };
 
 const mobileConstants = {
@@ -64,5 +65,7 @@ const mobileConstants = {
 	downvoteColor: [255, 181, 176],
 	red: [255, 181, 176],
 	loadingBarHeight: "14px",
+	emptyRoundCardHeight: "380px",
+	emptyCaptionHeight: "110px",
 };
 export { desktopConstants, mobileConstants };

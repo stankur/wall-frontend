@@ -113,6 +113,7 @@ const BackgroundColorButtonContainer = styled.button<ColorButtonProps>`
 		return desktopConstants.regularFontSize;
 	}};
 	white-space: nowrap;
+    cursor: pointer;
 `;
 
 interface ButtonProps extends Pick<ColorButtonProps, "fontSize">{
