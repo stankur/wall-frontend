@@ -7,7 +7,6 @@ import {
 	Description,
 	MobileDescription,
 	Page,
-	ResponsiveDescription,
 	ResponsiveDescriptionProps,
 	ResponsiveWhiteButton,
 } from "../components/Utils";

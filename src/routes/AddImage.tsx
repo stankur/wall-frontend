@@ -95,7 +95,7 @@ function AddImage() {
 	if (userData === false) {
 		EventEmitter.emit(
 			"error",
-			"YOU MUST BE SIGNED IN TO ADD A NEW IMAGE. PLEASE SIGN IN AND TRY AGAIN"
+			"YOU MUST BE SIGNED IN TO ADD A NEW IMAGE, JOIN WALL TO ENJOY MUCH MORE"
 		);
 		return (
 			<Page>
