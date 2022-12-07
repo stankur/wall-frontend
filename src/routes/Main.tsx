@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Page, CenteredColumnContainer } from "../components/Utils";
-import { Hero, MobileHero } from "../components/Hero";
-import { MobileNavigation, Navigation } from "../components/Navigation";
+import { ResponsiveHero } from "../components/Hero";
+import { ResponsiveNavigation } from "../components/Navigation";
 import {
 	ImageCaptionsCard,
 	MobileImageCaptionsCard,
@@ -172,42 +172,33 @@ function ResposiveHero({
 	userData,
 	setUserData,
 	requestFetchImages,
-    roundData,
+	roundData,
 	device,
 }: ResponsiveHeroProps) {
-    function getNotUndefinedRoundData(roundData: AppState | undefined): AppState {
-        if (roundData === undefined) {
-            return {
-                currentRound: 0,
-                currentRoundFinish: dayjs().format()
-            };
-        }
+	function getNotUndefinedRoundData(
+		roundData: AppState | undefined
+	): AppState {
+		if (roundData === undefined) {
+			return {
+				currentRound: 0,
+				currentRoundFinish: dayjs().format(),
+			};
+		}
 
-        return roundData;
-    }
+		return roundData;
+	}
 	return (
 		<>
-			{device === "mobile" ? (
-				<MobileHero
-					roundData={getNotUndefinedRoundData(roundData)}
-					navigation={
-						<MobileNavigation
-							userData={userData}
-							setUserData={setUserData}
-							requestFetchImages={requestFetchImages}
-						/>
-					}
-				/>
-			) : (
-				<>
-					<Hero roundData={getNotUndefinedRoundData(roundData)} />
-					<Navigation
-						userData={userData}
-						setUserData={setUserData}
-						requestFetchImages={requestFetchImages}
-					/>
-				</>
-			)}
+			<ResponsiveHero
+				roundData={getNotUndefinedRoundData(roundData)}
+				device={device}
+			/>
+			<ResponsiveNavigation
+				userData={userData}
+				setUserData={setUserData}
+				requestFetchImages={requestFetchImages}
+				device={device}
+			/>
 		</>
 	);
 };

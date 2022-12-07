@@ -87,7 +87,7 @@ function SignIn() {
 			<div style={{ textAlign: "center" }}>
 				<ResponsiveDescription device={device}>
 					<ResponsiveRedirectSuggestionContainer device={device}>
-						<span> DON'T HAVE AN ACCOUNT?</span>
+						<span>DON'T HAVE AN ACCOUNT?</span>
 						<Link to={"/sign-up"}>
 							<ResponsiveWhiteButton
 								device={device}

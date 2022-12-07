@@ -1,4 +1,3 @@
-import React, { ReactElement, useEffect, useState } from "react";
 import styled from "styled-components";
 import { makeNumDigits } from "./helper";
 import {
@@ -6,55 +5,19 @@ import {
 	mobileConstants,
 } from "../constants/ComponentConstants";
 import { Link } from "react-router-dom";
-import { LogoContainer, MobileLogoContainer } from "./Utils";
+
+import { GradientContainer, LogoContainer, MobileLogoContainer } from "./Utils";
+import { Countdown, MobileCountdown } from "./Countdown";
+
 import { AppState, Device } from "../types/types";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
+import { ReactNode } from "react";
 dayjs.extend(duration);
-
-const SloganContainer = styled.span`
-	display: inline-flex;
-	align-items: center;
-	gap: 5px;
-	font-size: ${desktopConstants.regularLargerSize};
-	font-weight: 500;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -200%);
-	z-index: 1;
-`;
 
 const IgLogo = styled.img`
 	display: inline;
 `;
-
-function Logo() {
-	return (
-		<Link to="/" style={{ textDecoration: "none", color: "black" }}>
-			<div
-				style={{
-					display: "flex",
-					flexDirection: "column",
-					alignItems: "center",
-					gap: desktopConstants.smallGap,
-				}}
-			>
-				<LogoContainer>WALL</LogoContainer>
-				<span style={{ position: "relative" }}>
-					<SloganContainer
-						onClick={() => {
-							window.open(process.env.REACT_APP_INSTAGRAM_URL);
-						}}
-					>
-						<IgLogo width="15px" src="/ig.png" />
-						<span>everything_wall</span>
-					</SloganContainer>
-				</span>
-			</div>
-		</Link>
-	);
-}
 
 const RoundContainer = styled.div`
 	display: flex;
@@ -83,248 +46,224 @@ function Round({ number }: RoundProps) {
 	);
 }
 
-const TimeTimeUnitContainer = styled.div`
-	display: inline-flex;
-	gap: ${desktopConstants.smallerGap};
-	align-items: baseline;
-`;
-
-interface TimeTimeUnitProps {
-	time: number;
-	unit: string;
-}
-
-function TimeTimeUnit({ time, unit }: TimeTimeUnitProps) {
-	return (
-		<TimeTimeUnitContainer>
-			<span
-				style={{
-					fontSize: desktopConstants.mediumSmallFontSize,
-					fontWeight: "bold",
-				}}
-			>
-				{makeNumDigits(2, time)}
-			</span>
-			<span
-				style={{
-					fontSize: desktopConstants.mediumSmallerFontSize,
-					fontWeight: 500,
-				}}
-			>
-				{unit}
-			</span>
-		</TimeTimeUnitContainer>
-	);
-}
-
-const CountdownContainer = styled.div`
-	padding: ${desktopConstants.smallGap};
-	border: 1px solid black;
-	border-radius: ${desktopConstants.radius};
-	display: inline-flex;
-	gap: ${desktopConstants.EnormousGap};
-	background-color: white;
-`;
-
-interface CountdownTime {
-	hours: number;
-	minutes: number;
-	seconds: number;
-}
-
-function useCountdown({ hours, minutes, seconds }: CountdownTime) {
-	const [internalHours, setInternalHours] = useState(hours);
-	const [internalMinutes, setInternalMinutes] = useState(minutes);
-	const [internalSeconds, setInternalSeconds] = useState(seconds);
-
-	const maxMinutes: number = 59;
-	const maxSeconds: number = 59;
-
-	function decrementHour() {
-		if (internalHours === 0) {
-			setInternalHours(hours);
-			setInternalMinutes(minutes);
-			setInternalSeconds(seconds);
-			return;
-		}
-
-		setInternalHours(internalHours - 1);
-	}
-
-	function decrementMinute() {
-		if (internalMinutes === 0) {
-			setInternalMinutes(maxMinutes);
-			decrementHour();
-			return;
-		}
-
-		setInternalMinutes(internalMinutes - 1);
-	}
-
-	function decrementSecond() {
-		if (internalSeconds === 0) {
-			setInternalSeconds(maxSeconds);
-			decrementMinute();
-			return;
-		}
-
-		setInternalSeconds(internalSeconds - 1);
-	}
-
-	useEffect(function () {
-		setTimeout(() => decrementSecond(), 1000);
-	});
-
-	return [internalHours, internalMinutes, internalSeconds];
-}
-
-interface CountdownProps {
-    finishTime: string
-}
-
-function getCountdownTime(finishTime: string): CountdownTime {
-	let now = dayjs().valueOf();
-	let milisecondsFromNow = dayjs(finishTime).diff(now);
-    let duration = dayjs.duration(milisecondsFromNow);
-
-	if (milisecondsFromNow <= 0) {
-		return {
-			hours: 0,
-			minutes: 0,
-			seconds: 0,
-		};
-	}
-
-	let hoursPortionOfTimeFromNow = duration.hours();
-	let minsPortionOfTimeFromNow = duration.minutes();
-	let secsPortionOfTimeFromNow = duration.seconds();
-
-	return {
-		hours: hoursPortionOfTimeFromNow,
-		minutes: minsPortionOfTimeFromNow,
-		seconds: secsPortionOfTimeFromNow,
-	};
-}
-
-function useCountdownTime({ finishTime }: CountdownProps):CountdownTime {
-return getCountdownTime(finishTime);
-}
-
-function Countdown({ finishTime }: CountdownProps) {
-	const countdownTime = useCountdownTime({ finishTime });
-	const [internalHours, internalMinutes, internalSeconds] =
-		useCountdown(countdownTime);
-
-	return (
-		<CountdownContainer>
-			<TimeTimeUnit time={internalHours} unit="H" />
-			<TimeTimeUnit time={internalMinutes} unit="M" />
-			<TimeTimeUnit time={internalSeconds} unit="S" />
-		</CountdownContainer>
-	);
-}
-
-const HeroContainer = styled.div`
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding-top: 100px;
-	padding-bottom: 50px;
-	box-sizing: border-box;
-	gap: ${desktopConstants.smallGap};
-`;
 
 interface HeroProps {
-    roundData: AppState
+	roundData: AppState;
+    children?: ReactNode;
 }
-function Hero({roundData}: HeroProps) {
+
+const SloganContainer = styled.span`
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: ${desktopConstants.regularLargerSize};
+	cursor: pointer;
+`;
+
+const HeroContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: ${desktopConstants.EnormousGap};
+	align-items: center;
+
+	padding-top: ${desktopConstants.humongousGap};
+	padding-bottom: ${desktopConstants.bigGap};
+
+	box-sizing: border-box;
+`;
+
+const HeroCardContainer = styled.div`
+	width: ${desktopConstants.mainContentWidth};
+	border-radius: ${desktopConstants.radius};
+	border: 1px solid black;
+
+    display: flex;
+
+	background-color: rgb(
+		${desktopConstants.backgroundLite[0]},
+		${desktopConstants.backgroundLite[1]},
+		${desktopConstants.backgroundLite[2]}
+	);
+
+	padding: ${desktopConstants.EnormousGap};
+    gap: ${desktopConstants.EnormousGap};
+
+    box-sizing: border-box;
+`;
+
+const DescriptionCardContainer = styled.div`
+	flex-grow: 1;
+	flex-basis: 0;
+
+	border-radius: ${desktopConstants.radius};
+	border: 1px solid black;
+
+	display: flex;
+	flex-direction: column;
+
+	box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.25);
+`;
+
+const DescriptionCardTextSectionContainer = styled.div`
+	padding: ${desktopConstants.biggerGap};
+	padding-top: ${desktopConstants.EnormousGap};
+
+	box-sizing: border-box;
+
+	border-top-left-radius: ${desktopConstants.radius};
+	border-top-right-radius: ${desktopConstants.radius};
+
+	background-color: white;
+	line-height: ${desktopConstants.descriptionCardGap};
+	text-align: center;
+	font-size: ${desktopConstants.regularLargerSize};
+`;
+
+const DescriptionCardIgSectionContainer = styled(GradientContainer)`
+	padding: ${desktopConstants.mediumGap};
+	box-sizing: border-box;
+
+	border-bottom-left-radius: ${desktopConstants.radius};
+    border-bottom-right-radius: ${desktopConstants.radius};
+
+	width: 100%;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+    gap: 5px;
+
+	border-top: 1px solid black;
+`;
+
+const HeroCardLeftContainer = styled.div`
+    flex-basis: 0;
+    flex-grow: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+    gap: ${desktopConstants.mediumGap};
+`
+
+function Hero({ roundData, children }: HeroProps) {
 	return (
 		<HeroContainer>
-			<Logo />
-			<Round number={roundData.currentRound} />
-			<Countdown finishTime={roundData.currentRoundFinish} />
+			<HeroCardContainer>
+				<HeroCardLeftContainer>
+					<Link
+						to="/"
+						style={{ textDecoration: "none", color: "black" }}
+					>
+						<LogoContainer>WALL</LogoContainer>
+					</Link>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							gap: desktopConstants.smallGap,
+						}}
+					>
+						<Round number={roundData.currentRound} />
+						<Countdown finishTime={roundData.currentRoundFinish} />
+					</div>
+				</HeroCardLeftContainer>
+				<DescriptionCardContainer>
+					<DescriptionCardTextSectionContainer>
+						AT THE END OF EACH ROUND, THE IMAGE WITH MOST POINTS AND
+						ITS TOP CAPTION GETS POSTED TO THE INSTAGRAM PAGE OF THE
+						PEOPLE:
+					</DescriptionCardTextSectionContainer>
+					<DescriptionCardIgSectionContainer>
+						<SloganContainer
+							onClick={() => {
+								window.open(
+									process.env.REACT_APP_INSTAGRAM_URL
+								);
+							}}
+						>
+							<IgLogo width="21px" src="/ig.png" />
+							<span>@everything_wall</span>
+						</SloganContainer>
+					</DescriptionCardIgSectionContainer>
+				</DescriptionCardContainer>
+			</HeroCardContainer>
+			{children}
 		</HeroContainer>
+	);
+}
+
+const LogoHeroContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	width: 100vw;
+
+	padding-bottom: ${desktopConstants.humongousGap};
+	box-sizing: border-box;
+`;
+
+const LogoHeroIgSectionContainer = styled(GradientContainer)`
+	width: 100vw;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+	display: flex;
+	justify-content: center;
+	padding: ${desktopConstants.mediumGap};
+    box-sizing: border-box;
+`;
+
+
+function LogoHeroIgSection() {
+	return (
+		<LogoHeroIgSectionContainer>
+			<SloganContainer
+				onClick={() => {
+					window.open(process.env.REACT_APP_INSTAGRAM_URL);
+				}}
+			>
+				<IgLogo width="21px" src="/ig.png" />
+				<span>@everything_wall</span>
+			</SloganContainer>
+		</LogoHeroIgSectionContainer>
+	);
+}
+const LogoHeroLogoSectionContainer = styled.div`
+	display: flex;
+	justify-content: center;
+
+	width: 100vw;
+	padding: ${desktopConstants.bigGap};
+	box-sizing: border-box;
+
+	background-color: rgb(
+		${desktopConstants.backgroundLite[0]},
+		${desktopConstants.backgroundLite[1]},
+		${desktopConstants.backgroundLite[2]}
+	);
+`;
+
+function LogoHeroLogoSection() {
+	return (
+		<LogoHeroLogoSectionContainer>
+			<Link to="/" style={{ textDecoration: "none", color: "black" }}>
+				<LogoContainer>WALL</LogoContainer>
+			</Link>
+		</LogoHeroLogoSectionContainer>
 	);
 }
 
 function LogoHero() {
 	return (
-		<HeroContainer style={{ paddingBottom: "70px" }}>
-			<Logo />
-		</HeroContainer>
+		<LogoHeroContainer>
+            <LogoHeroLogoSection/>
+			<LogoHeroIgSection />
+		</LogoHeroContainer>
 	);
 }
 
 //////////////////////////////////////////////////////////// MOBILE COMPONENTS ////////////////////////////////////////////////////////////
-
-const MobileHeaderContainer = styled.div`
-	width: 100%;
-	display: flex;
-	align-items: flex-start;
-	padding: ${mobileConstants.mediumSmallerGap};
-	box-sizing: border-box;
-	justify-content: space-between;
-`;
-
-const IgContainer = styled.div`
-	display: inline-flex;
-	gap: ${mobileConstants.smallGap};
-	align-items: center;
-	font-size: ${mobileConstants.regularFontSize};
-	font-weight: 500;
-`;
-
-function MobileIg() {
-	return (
-		<IgContainer
-			onClick={() => {
-				window.open(process.env.REACT_APP_INSTAGRAM_URL);
-			}}
-		>
-			<IgLogo width="18px" src="/ig.png" />
-			<span
-				style={{
-					fontWeight: 500,
-					fontSize: mobileConstants.regularLargerFontSize,
-				}}
-			>
-				everything_wall
-			</span>
-		</IgContainer>
-	);
-}
-
-interface MobileHeaderProps {
-	navigation?: ReactElement | undefined;
-}
-
-function MobileHeader({ navigation = undefined }: MobileHeaderProps) {
-	return (
-		<MobileHeaderContainer>
-			<MobileIg />
-			{!!navigation ? (
-				<div style={{ display: "inline-block", position: "relative" }}>
-					<div style={{ position: "absolute", right: 0, top: 0 }}>
-						{navigation}
-					</div>
-				</div>
-			) : (
-				<span style={{ flexGrow: 1 }} />
-			)}
-		</MobileHeaderContainer>
-	);
-}
-
-function MobileLogo() {
-	return (
-		<MobileLogoContainer>
-			<Link to="/" style={{ textDecoration: "none", color: "black" }}>
-			WALL
-			</Link>
-            </MobileLogoContainer>
-	);
-}
 
 const MobileRoundContainer = styled(RoundContainer)`
 	gap: ${mobileConstants.mediumGap};
@@ -339,84 +278,159 @@ function MobileRound({ number }: RoundProps) {
 	);
 }
 
-const MobileTimeTimeUnitContainer = styled(TimeTimeUnitContainer)`
+
+const MobileHeroContainer = styled(HeroContainer)`
+	gap: ${mobileConstants.mediumGap};
+
+	padding-top: ${mobileConstants.mediumLargeGap};
+	padding-bottom: ${mobileConstants.smallGap};
+`;
+
+const MobileHeroCardContainer = styled(HeroCardContainer)`
+	flex-direction: column;
+	flex-grow: 0;
+	flex-basis: auto;
+	align-items: center;
+
+	width: ${mobileConstants.mainContentWidth};
+	border-radius: ${mobileConstants.outerRadius};
+
+	padding: ${mobileConstants.mediumLargeGap};
+	gap: ${mobileConstants.mediumLargerGap};
+`;
+
+const MobileDescriptionCardContainer = styled(DescriptionCardContainer)`
+	flex-grow: 0;
+	flex-basis: auto;
+
+	border-radius: ${mobileConstants.outerRadius};
+`;
+
+const MobileDescriptionCardTextSectionContainer = styled(
+	DescriptionCardTextSectionContainer
+)`
+	padding: ${mobileConstants.mediumGap};
+
+	border-top-left-radius: ${mobileConstants.outerRadius};
+	border-top-right-radius: ${mobileConstants.outerRadius};
+
+	line-height: ${mobileConstants.descriptionCardGap};
+
+	font-size: ${mobileConstants.regularFontSize};
+`;
+
+const MobileDescriptionCardIgSectionContainer = styled(
+	DescriptionCardIgSectionContainer
+)`
+	padding: ${mobileConstants.mediumGap};
+	border-bottom-left-radius: ${mobileConstants.outerRadius};
+	border-bottom-right-radius: ${mobileConstants.outerRadius};
+`;
+
+const MobileHeroCardLogoSectionContainer = styled(HeroCardLeftContainer)`
+	flex-basis: auto;
+	flex-grow: 0;
+
+    width: 100%;
+
 	gap: ${mobileConstants.smallerGap};
 `;
 
-function MobileTimeTimeUnit({ time, unit }: TimeTimeUnitProps) {
-	return (
-		<MobileTimeTimeUnitContainer>
-			<span
-				style={{
-					fontSize: mobileConstants.mediumSmallFontSize,
-					fontWeight: "bold",
-				}}
-			>
-				{makeNumDigits(2, time)}
-			</span>
-			<span
-				style={{
-					fontSize: mobileConstants.mediumSmallerFontSize,
-					fontWeight: 500,
-				}}
-			>
-				{unit}
-			</span>
-		</MobileTimeTimeUnitContainer>
-	);
-}
-
-const MobileCountdownContainer = styled(CountdownContainer)`
-	padding: ${mobileConstants.smallGap};
-	border-radius: ${mobileConstants.outerRadius};
-	gap: ${mobileConstants.mediumGap};
-`;
-
-function MobileCountdown({ finishTime }: CountdownProps) {
-	const countdownTime = useCountdownTime({ finishTime });
-	const [internalHours, internalMinutes, internalSeconds] =
-		useCountdown(countdownTime);
-
-	return (
-		<MobileCountdownContainer>
-			<MobileTimeTimeUnit time={internalHours} unit="H" />
-			<MobileTimeTimeUnit time={internalMinutes} unit="M" />
-			<MobileTimeTimeUnit time={internalSeconds} unit="S" />
-		</MobileCountdownContainer>
-	);
-}
-
-
-
-const MobileHeroContainer = styled.div`
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: ${mobileConstants.smallGap};
-	padding-bottom: ${mobileConstants.bigSmallGap};
-`;
-
-interface MobileLogoHeroProps extends MobileHeaderProps {}
-interface MobileHeroProps extends MobileHeaderProps,HeroProps {}
-
-function MobileHero({ navigation = undefined, roundData }: MobileHeroProps) {
+function MobileHero({ roundData, children }: HeroProps) {
 	return (
 		<MobileHeroContainer>
-			<MobileHeader navigation={navigation} />
-			<MobileLogo />
-			<MobileRound number={roundData.currentRound} />
-			<MobileCountdown finishTime={roundData.currentRoundFinish} />
+			<MobileHeroCardContainer>
+				<MobileHeroCardLogoSectionContainer>
+					<Link
+						to="/"
+						style={{ textDecoration: "none", color: "black" }}
+					>
+						<MobileLogoContainer>WALL</MobileLogoContainer>
+					</Link>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							gap: mobileConstants.mediumSmallerGap,
+						}}
+					>
+						<MobileRound number={roundData.currentRound} />
+						<MobileCountdown
+							finishTime={roundData.currentRoundFinish}
+						/>
+					</div>
+				</MobileHeroCardLogoSectionContainer>
+				<MobileDescriptionCardContainer>
+					<MobileDescriptionCardTextSectionContainer>
+						AT THE END OF EACH ROUND, THE IMAGE WITH MOST POINTS AND
+						ITS TOP CAPTION GETS POSTED TO THE INSTAGRAM PAGE OF THE
+						PEOPLE:
+					</MobileDescriptionCardTextSectionContainer>
+					<MobileDescriptionCardIgSectionContainer>
+						<MobileSloganContainer
+							onClick={() => {
+								window.open(
+									process.env.REACT_APP_INSTAGRAM_URL
+								);
+							}}
+						>
+							<IgLogo width="16px" src="/ig.png" />
+							<span>@everything_wall</span>
+						</MobileSloganContainer>
+					</MobileDescriptionCardIgSectionContainer>
+				</MobileDescriptionCardContainer>
+			</MobileHeroCardContainer>
+			{children}
 		</MobileHeroContainer>
 	);
 }
+const MobileLogoHeroContainer = styled(LogoHeroContainer)`
+	padding-bottom: ${mobileConstants.bigGap};
+`;
 
-function MobileLogoHero({ navigation = undefined }: MobileLogoHeroProps) {
+const MobileSloganContainer = styled(SloganContainer)`
+	font-size: ${mobileConstants.regularLargerFontSize};
+`;
+
+const MobileLogoHeroIgSectionContainer = styled(LogoHeroIgSectionContainer)`
+	padding: ${mobileConstants.mediumGap};
+`;
+
+function MobileLogoHeroIgSection() {
+    return (
+		<MobileLogoHeroIgSectionContainer>
+			<MobileSloganContainer
+				onClick={() => {
+					window.open(process.env.REACT_APP_INSTAGRAM_URL);
+				}}
+			>
+				<IgLogo width="16px" src="/ig.png" />
+				<span>@everything_wall</span>
+			</MobileSloganContainer>
+		</MobileLogoHeroIgSectionContainer>
+	);
+}
+
+const MobileLogoHeroLogoSectionContainer = styled(LogoHeroLogoSectionContainer)`
+	padding: ${mobileConstants.mediumGap};
+`; 
+
+function MobileLogoHeroLogoSection() {
 	return (
-		<MobileHeroContainer>
-			<MobileHeader navigation={navigation} />
-			<MobileLogo />
-		</MobileHeroContainer>
+		<MobileLogoHeroLogoSectionContainer>
+			<Link to="/" style={{ textDecoration: "none", color: "black" }}>
+				<MobileLogoContainer>WALL</MobileLogoContainer>
+			</Link>
+		</MobileLogoHeroLogoSectionContainer>
+	);
+}
+
+function MobileLogoHero() {
+	return (
+		<MobileLogoHeroContainer>
+			<MobileLogoHeroLogoSection />
+			<MobileLogoHeroIgSection />
+		</MobileLogoHeroContainer>
 	);
 }
 
@@ -427,10 +441,22 @@ interface ResponsivePlainLogoHeroProps {
 }
 function ResponsivePlainLogoHero({ device }: ResponsivePlainLogoHeroProps) {
 	if (device === "mobile") {
-		return <MobileLogoHero/>; 
+		return <MobileLogoHero />;
 	}
 
 	return <LogoHero />;
 }
 
-export { Hero, MobileHero, ResponsivePlainLogoHero };
+interface ResponsiveHeroProps extends HeroProps {
+	device: Device;
+}
+
+function ResponsiveHero({ device, roundData, children }: ResponsiveHeroProps) {
+	if (device === "mobile") {
+		return <MobileHero roundData={roundData}>{children}</MobileHero>;
+	}
+
+	return <Hero roundData={roundData}>{children}</Hero>;
+};
+
+export { ResponsiveHero, ResponsivePlainLogoHero };

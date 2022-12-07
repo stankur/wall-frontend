@@ -12,7 +12,7 @@ const NotificationOuterContainer = styled.div`
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
-    z-index: 2;
+    z-index: 3;
 `;
 
 interface NotificationContainerProps {

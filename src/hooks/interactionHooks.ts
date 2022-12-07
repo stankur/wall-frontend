@@ -69,7 +69,7 @@ function useInteract(
 			if (userData === false) {
 				return EventEmitter.emit(
 					"error",
-					"YOU MUST BE SIGNED IN TO INTERACT WITH POSTS"
+					"YOU MUST BE SIGNED IN TO INTERACT WITH POSTS, JOIN WALL TO ENJOY MUCH MORE"
 				);
 			}
 
