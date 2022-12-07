@@ -11,12 +11,116 @@ const Page = styled.div`
 	width: 100vw;
 	min-height: 100vh;
 	box-sizing: border-box;
-	background-color: rgb(
-		${desktopConstants.background[0]},
-		${desktopConstants.background[1]},
-		${desktopConstants.background[2]}
-	);
-    padding-bottom: ${desktopConstants.EnormousGap};
+	background-image: linear-gradient(
+			to right,
+			rgba(
+				${desktopConstants.igPinkLite[0]},
+				${desktopConstants.igPinkLite[1]},
+				${desktopConstants.igPinkLite[2]},
+				0.7
+			),
+			rgba(
+				${desktopConstants.BackgroundNeutralTransparent[0]},
+				${desktopConstants.BackgroundNeutralTransparent[1]},
+				${desktopConstants.BackgroundNeutralTransparent[2]},
+				0
+			),
+			rgba(
+				${desktopConstants.BackgroundNeutralTransparent[0]},
+				${desktopConstants.BackgroundNeutralTransparent[1]},
+				${desktopConstants.BackgroundNeutralTransparent[2]},
+				0
+			),
+			rgba(
+				${desktopConstants.BackgroundNeutralTransparent[0]},
+				${desktopConstants.BackgroundNeutralTransparent[1]},
+				${desktopConstants.BackgroundNeutralTransparent[2]},
+				0
+			)
+		),
+		linear-gradient(
+			to left,
+			rgba(
+				${desktopConstants.igYellowLite[0]},
+				${desktopConstants.igYellowLite[1]},
+				${desktopConstants.igYellowLite[2]},
+				0.7
+			),
+			rgba(
+				${desktopConstants.BackgroundNeutralTransparent[0]},
+				${desktopConstants.BackgroundNeutralTransparent[1]},
+				${desktopConstants.BackgroundNeutralTransparent[2]},
+				0
+			),
+			rgba(
+				${desktopConstants.BackgroundNeutralTransparent[0]},
+				${desktopConstants.BackgroundNeutralTransparent[1]},
+				${desktopConstants.BackgroundNeutralTransparent[2]},
+				0
+			),
+			rgba(
+				${desktopConstants.BackgroundNeutralTransparent[0]},
+				${desktopConstants.BackgroundNeutralTransparent[1]},
+				${desktopConstants.BackgroundNeutralTransparent[2]},
+				0
+			)
+		),
+		linear-gradient(
+			to left,
+			rgb(
+				${desktopConstants.backgroundDarker[0]},
+				${desktopConstants.backgroundDarker[1]},
+				${desktopConstants.backgroundDarker[2]}
+			),
+			rgba(
+					${desktopConstants.BackgroundNeutralTransparent[0]},
+					${desktopConstants.BackgroundNeutralTransparent[1]},
+					${desktopConstants.BackgroundNeutralTransparent[2]},
+					0
+				)
+				45%,
+			rgba(
+				${desktopConstants.BackgroundNeutralTransparent[0]},
+				${desktopConstants.BackgroundNeutralTransparent[1]},
+				${desktopConstants.BackgroundNeutralTransparent[2]},
+				0
+			)
+		),
+		linear-gradient(
+			to right,
+			rgb(
+				${desktopConstants.backgroundDarker[0]},
+				${desktopConstants.backgroundDarker[1]},
+				${desktopConstants.backgroundDarker[2]}
+			),
+			rgba(
+					${desktopConstants.BackgroundNeutralTransparent[0]},
+					${desktopConstants.BackgroundNeutralTransparent[1]},
+					${desktopConstants.BackgroundNeutralTransparent[2]},
+					0
+				)
+				45%,
+			rgba(
+				${desktopConstants.BackgroundNeutralTransparent[0]},
+				${desktopConstants.BackgroundNeutralTransparent[1]},
+				${desktopConstants.BackgroundNeutralTransparent[2]},
+				0
+			)
+		),
+		linear-gradient(
+			to right,
+			rgb(
+				${desktopConstants.background[0]},
+				${desktopConstants.background[1]},
+				${desktopConstants.background[2]}
+			),
+			rgb(
+				${desktopConstants.background[0]},
+				${desktopConstants.background[1]},
+				${desktopConstants.background[2]}
+			)
+		);
+	padding-bottom: ${desktopConstants.EnormousGap};
 `;
 const OuterContainer = styled.div`
 	background-color: white;
@@ -25,7 +129,7 @@ const OuterContainer = styled.div`
 	display: inline-flex;
 	flex-direction: row;
 	width: ${desktopConstants.mainContentWidth};
-    overflow: hidden;
+	overflow: hidden;
 `;
 
 interface SideContainerProps {
@@ -91,7 +195,7 @@ interface ColorButtonProps extends React.ComponentPropsWithoutRef<"button"> {
 	r: number;
 	g: number;
 	b: number;
-    fontSize?: string;
+	fontSize?: string;
 }
 
 const BackgroundColorButtonContainer = styled.button<ColorButtonProps>`
@@ -113,10 +217,10 @@ const BackgroundColorButtonContainer = styled.button<ColorButtonProps>`
 		return desktopConstants.regularFontSize;
 	}};
 	white-space: nowrap;
-    cursor: pointer;
+	cursor: pointer;
 `;
 
-interface ButtonProps extends Pick<ColorButtonProps, "fontSize">{
+interface ButtonProps extends Pick<ColorButtonProps, "fontSize"> {
 	text: string;
 	onClick?: React.MouseEventHandler;
 }
@@ -254,7 +358,9 @@ function MobileLoaderDiv() {
 	);
 }
 
-const MobileBackgroundColorButtonContainer = styled(BackgroundColorButtonContainer)`
+const MobileBackgroundColorButtonContainer = styled(
+	BackgroundColorButtonContainer
+)`
 	padding: ${mobileConstants.smallerGap};
 	border-radius: ${mobileConstants.innerRadius};
 	font-size: ${mobileConstants.regularFontSize};
@@ -355,15 +461,12 @@ function ResponsiveBackgroundColorButton({
 	text,
 	onClick,
 }: ResponsiveButtonProps) {
-    	if (device === "mobile") {
-			return <MobileBackgroundColorButton text={text} onClick={onClick} />;
-		}
+	if (device === "mobile") {
+		return <MobileBackgroundColorButton text={text} onClick={onClick} />;
+	}
 
-		return <BackgroundColorButton text={text} onClick={onClick} />;
-
-};
-
-
+	return <BackgroundColorButton text={text} onClick={onClick} />;
+}
 
 export {
 	Page,
@@ -380,10 +483,10 @@ export {
 	MobileTwoSidedCard,
 	MobileLoaderDiv,
 	MobileBackgroundColorButton,
-    MobileWhiteButton,
-    MobileLogoContainer,
-    MobileDescription,
-    CircleButton
+	MobileWhiteButton,
+	MobileLogoContainer,
+	MobileDescription,
+	CircleButton,
 };
 
 export {
