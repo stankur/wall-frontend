@@ -98,7 +98,7 @@ function MessageFormDescription() {
 		<MessageFormDescriptionContainer>
 			<Title>SHOOT WALL A MESSAGE!</Title>
 			<ContentText>
-				It is very hard to understate how important your words will be to Wall :D
+				Please be harsh and spicy. Wall absolutely needs to hear from you to get better!
 			</ContentText>
 		</MessageFormDescriptionContainer>
 	);
