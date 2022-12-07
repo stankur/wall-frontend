@@ -135,18 +135,10 @@ const NavigationOuterContainer = styled.div`
 		border-bottom: 1px solid black;
 		box-shadow: 2px 0px 9px rgba(0, 0, 0, 0.55);
 
-		background-image: linear-gradient(
-			to right,
-			rgb(
-				${desktopConstants.igPink[0]},
-				${desktopConstants.igPink[1]},
-				${desktopConstants.igPink[2]}
-			),
-			rgb(
-				${desktopConstants.igYellow[0]},
-				${desktopConstants.igYellow[1]},
-				${desktopConstants.igYellow[2]}
-			)
+		background-color: rgb(
+			${desktopConstants.backgroundLite[0]},
+			${desktopConstants.backgroundLite[1]},
+			${desktopConstants.backgroundLite[2]}
 		);
 	}
 `;
