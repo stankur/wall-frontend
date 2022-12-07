@@ -44,7 +44,7 @@ function useAddImage(
 		if (userData === false) {
 			return EventEmitter.emit(
 				"error",
-				"YOU MUST BE SIGNED IN TO ADD AN IMAGE"
+				"YOU MUST BE SIGNED IN TO ADD AN IMAGE, JOIN WALL TO ENJOY MUCH MORE"
 			);
 		}
 

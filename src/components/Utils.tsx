@@ -156,10 +156,26 @@ const CenteredColumnContainer = styled.div`
 `;
 
 const LogoContainer = styled.span`
-	font-weight: bold;
+	font-weight: 800;
 	font-size: ${desktopConstants.largeFontSize};
 	text-shadow: 2px 2px 9px rgba(0, 0, 0, 0.25);
 	padding-bottom: ${desktopConstants.bigGap};
+`;
+
+const GradientContainer = styled.div`
+	background-image: linear-gradient(
+		to right,
+		rgb(
+			${desktopConstants.igPink[0]},
+			${desktopConstants.igPink[1]},
+			${desktopConstants.igPink[2]}
+		),
+		rgb(
+			${desktopConstants.igYellow[0]},
+			${desktopConstants.igYellow[1]},
+			${desktopConstants.igYellow[2]}
+		)
+	);
 `;
 
 const LoaderOpacityAnimation = keyframes`
@@ -374,6 +390,7 @@ export {
 	ResponsiveDescription,
 	ResponsiveWhiteButton,
 	ResponsiveBackgroundColorButton,
+	GradientContainer,
 };
 
 export type { ResponsiveDescriptionProps };
