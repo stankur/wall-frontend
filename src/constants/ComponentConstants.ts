@@ -6,10 +6,7 @@ const crossPlatformConstants = {
 	watermark: [180, 180, 180],
 	success: [173, 206, 255],
 	igPink: [232, 72, 108],
-	igPinkLite: [255, 195, 195],
 	igYellow: [255, 214, 84],
-	igYellowLite: [250, 230, 175],
-	BackgroundNeutralTransparent: [217, 217, 217],
 };
 
 const desktopConstants = {
