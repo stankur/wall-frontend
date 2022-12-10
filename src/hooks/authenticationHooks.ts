@@ -3,6 +3,9 @@ import { isAuthenticationError, UserData } from "../types/types";
 import { authHandlingFetch, errorHandlingFetch, EventEmitter } from "../Utils";
 import AuthenticationConstants from "../constants/AuthenticationConstants";
 
+import * as yup from "yup";
+import emailjs from "@emailjs/browser";
+
 type UserDataState =  UserData | false | undefined;
 
 function useUserData(): [
@@ -34,8 +37,7 @@ function useUserData(): [
 		})();
 	});
 
-
-    function handleError(err: Error) {
+	function handleError(err: Error) {
 		if (!isAuthenticationError({ error: err })) {
 			EventEmitter.emit("error", err.message);
 		}
@@ -43,14 +45,66 @@ function useUserData(): [
 	return [userData, setUserData];
 }
 
+function validateUserData(userData: UserDataState) {
+	if (userData) {
+		throw new Error("YOU ARE ALREADY SIGNED IN");
+	}
+
+	if (userData === undefined) {
+		throw new Error("PLEASE TRY AGAIN IN A LITTLE WHILE");
+	}
+}
+
+function validateUsername(username: string) {
+	if (!AuthenticationConstants.acceptableUsername.test(username)) {
+		throw new Error("USERNAME FORMAT IS INVALID");
+	}
+}
+
+function validatePassword(password: string) {
+	if (!AuthenticationConstants.acceptablePassword.test(password)) {
+		throw new Error("PASSWORD LENGTH IS INVALID");
+	}
+}
+
+function validateEmail(email: string) {
+	yup.string()
+		.email("EMAIL PROVIDED IS OF AN INVALID FORMAT")
+		.validateSync(email);
+}
+
+function validatePreEmailVerificationInputs(
+	userData: UserDataState,
+	username: string,
+	email: string
+) {
+	validateUserData(userData);
+	validateUsername(username);
+	validateEmail(email);
+};
+
+
+function validateSignUpInputs(
+	userData: UserDataState,
+	username: string,
+	email: string,
+	password: string
+) {
+	validateUserData(userData);
+	validateUsername(username);
+	validatePassword(password);
+	validateEmail(email);
+}
+
 function useSignUp(
 	userData: UserDataState,
 	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>,
 	signUpSuccessHandler?: (userData: UserData) => void,
 	signUpFailHandler?: (error: Error) => void
-): [boolean, (username: string, password: string) => void] {
+): [boolean, (username: string, email: string, password: string) => void] {
 	const [signingUp, setSigningUp] = useState(false);
 	const [username, setUsername] = useState("");
+	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
 	useEffect(function () {
@@ -60,7 +114,7 @@ function useSignUp(
 					(process.env.REACT_APP_BACKEND_URL as string) +
 						"/api/authentication/sign-up",
 					{
-						body: JSON.stringify({ username, password }),
+						body: JSON.stringify({ username, email, password }),
 						method: "POST",
 						...AuthenticationConstants.requiredConfig,
 						headers: {
@@ -84,19 +138,21 @@ function useSignUp(
 		})();
 	});
 
-	const requestSignUp = function (username: string, password: string) {
-		if (userData) {
-			return EventEmitter.emit("error", "YOU ARE ALREADY SIGNED IN");
+	const requestSignUp = function (
+		username: string,
+		email: string,
+		password: string
+	) {
+		try {
+			validateSignUpInputs(userData, username, email, password);
+		} catch (err) {
+			return EventEmitter.emit("error", (err as Error).message);
 		}
 
-		if (userData === undefined) {
-			return EventEmitter.emit(
-				"error",
-				"PLEASE TRY AGAIN IN A LITTLE WHILE"
-			);
-		}
 		setUsername(username);
+		setEmail(email);
 		setPassword(password);
+
 		return setSigningUp(true);
 	};
 
@@ -170,7 +226,7 @@ function useSignOut(
 	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>,
 	signOutSuccessHandler?: () => void,
 	signOutFailHandler?: (error: Error) => void
-):[boolean, () => void] {
+): [boolean, () => void] {
 	const [signingOut, setSigningOut] = useState(false);
 
 	function fetchSignOutErrorHandler(err: Error) {
@@ -179,7 +235,6 @@ function useSignOut(
 				return signOutSuccessHandler();
 			}
 		}
-
 
 		if (signOutFailHandler) {
 			return signOutFailHandler(err);
@@ -240,6 +295,95 @@ function useSignOut(
 	return [signingOut, requestSignOut];
 }
 
-export { useUserData, useSignUp, useSignIn, useSignOut };
+function useUsername(): [string, (newUsername: string) => void] {
+	const [username, setUsername] = useState<string>("");
+
+	function requestChangeUsername(newUsername: string) {
+		if (AuthenticationConstants.almostAcceptableUsername.test(newUsername)) {
+			return setUsername(newUsername.toUpperCase());
+		}
+	}
+
+	return [username, requestChangeUsername];
+}
+
+function useVerifyEmail(
+	onSendEmailSuccess: (verificationCode: string) => void,
+	onSendEmailFail: (err: Error) => void
+): [boolean, (email: string) => void] {
+	const [sendingEmail, setSendingEmail] = useState(false);
+	const [email, setEmail] = useState("");
+	const [verificationCode, setVerificationCode] = useState<
+		string | undefined
+	>(undefined);
+
+	function getEmaiJsMessageObject() {
+		return {
+			user_email: email,
+			verification_code: verificationCode,
+		};
+	}
+
+	function internalOnSendEmailSuccess() {
+		return onSendEmailSuccess(verificationCode as string);
+	}
+
+	useEffect(function () {
+		(async function () {
+			if (sendingEmail) {
+				try {
+					emailjs
+						.send(
+							process.env
+								.REACT_APP_VERIFICATION_EMAILJS_SERVICE as string,
+							process.env
+								.REACT_APP_VERIFICATION_EMAILJS_TEMPLATE as string,
+							getEmaiJsMessageObject(),
+							process.env
+								.REACT_APP_VERIFICATION_EMAILJS_PUBLIC_KEY as string
+						)
+						.then(internalOnSendEmailSuccess, onSendEmailFail);
+				} catch (err) {
+
+					onSendEmailFail(
+						new Error(
+							"FAILED TO SEND VERIFICATION CODE. PLEASE CONTACT US ABOUT THIS"
+						)
+					);
+				}
+				return setSendingEmail(false);
+			}
+		})();
+	});
+
+	function requestSendVerification(email: string) {
+		try {
+			yup.string().email().validate(email);
+		} catch (err) {
+			return EventEmitter.emit("error", "EMAIL ADDRESS IS INVALID");
+		}
+
+		if (!sendingEmail) {
+			let verificationCode: string = Math.random().toString().slice(2, 8);
+
+			setVerificationCode(verificationCode);
+			setEmail(email);
+			return setSendingEmail(true);
+		}
+	}
+
+	return [sendingEmail, requestSendVerification];
+}
+
+export {
+	useUserData,
+	useSignUp,
+	useSignIn,
+	useSignOut,
+	useUsername,
+	useVerifyEmail,
+};
+
+export {  validatePreEmailVerificationInputs };
 
 export { type UserDataState };

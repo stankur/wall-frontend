@@ -195,12 +195,22 @@ function Hero({ roundData, children }: HeroProps) {
 	);
 }
 
+const LogoHeroOuterContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	width: 100vw;
+
+    gap: ${desktopConstants.smallGap};
+
+	padding-bottom: ${desktopConstants.humongousGap};
+	box-sizing: border-box;
+`;
+
 const LogoHeroContainer = styled.div`
 	display: flex;
 	flex-direction: column;
 	width: 100vw;
 
-	padding-bottom: ${desktopConstants.humongousGap};
 	box-sizing: border-box;
 `;
 
@@ -254,12 +264,19 @@ function LogoHeroLogoSection() {
 	);
 }
 
-function LogoHero() {
+interface LogoHeroProps {
+    children?: ReactNode
+}
+
+function LogoHero({children}: LogoHeroProps) {
 	return (
-		<LogoHeroContainer>
-            <LogoHeroLogoSection/>
-			<LogoHeroIgSection />
-		</LogoHeroContainer>
+		<LogoHeroOuterContainer>
+			<LogoHeroContainer>
+				<LogoHeroLogoSection />
+				<LogoHeroIgSection />
+			</LogoHeroContainer>
+			{children}
+		</LogoHeroOuterContainer>
 	);
 }
 
@@ -384,8 +401,13 @@ function MobileHero({ roundData, children }: HeroProps) {
 		</MobileHeroContainer>
 	);
 }
-const MobileLogoHeroContainer = styled(LogoHeroContainer)`
+
+const MobileLogoHeroOuterContainer = styled(LogoHeroOuterContainer)`
+	gap: 0px;
 	padding-bottom: ${mobileConstants.bigGap};
+`;
+
+const MobileLogoHeroContainer = styled(LogoHeroContainer)`
 `;
 
 const MobileSloganContainer = styled(SloganContainer)`
@@ -425,26 +447,29 @@ function MobileLogoHeroLogoSection() {
 	);
 }
 
-function MobileLogoHero() {
+function MobileLogoHero({ children }: LogoHeroProps) {
 	return (
-		<MobileLogoHeroContainer>
-			<MobileLogoHeroLogoSection />
-			<MobileLogoHeroIgSection />
-		</MobileLogoHeroContainer>
+		<MobileLogoHeroOuterContainer>
+			<MobileLogoHeroContainer>
+				<MobileLogoHeroLogoSection />
+				<MobileLogoHeroIgSection />
+			</MobileLogoHeroContainer>
+			{children}
+		</MobileLogoHeroOuterContainer>
 	);
 }
 
 //////////////////////////////////////////////////////////// RESPONSIVE COMPONENTS ////////////////////////////////////////////////////////////
 
-interface ResponsivePlainLogoHeroProps {
+interface ResponsivePlainLogoHeroProps extends LogoHeroProps {
 	device: Device;
 }
-function ResponsivePlainLogoHero({ device }: ResponsivePlainLogoHeroProps) {
+function ResponsivePlainLogoHero({ device, children }: ResponsivePlainLogoHeroProps) {
 	if (device === "mobile") {
-		return <MobileLogoHero />;
+		return <MobileLogoHero>{children}</MobileLogoHero>;
 	}
 
-	return <LogoHero />;
+	return <LogoHero>{children}</LogoHero>;
 }
 
 interface ResponsiveHeroProps extends HeroProps {

@@ -18,14 +18,15 @@ const NavigationButtonsContainer = styled.span`
 interface NavigationButtonsProps {
 	userData: UserDataState;
 	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>;
-	requestFetchImages: () => void;
-    SignUpButton?: ReactElement &React.ComponentPropsWithoutRef<typeof WhiteButton>
+	onSignOutSuccess: () => void;
+	SignUpButton?: ReactElement &
+		React.ComponentPropsWithoutRef<typeof WhiteButton>;
 }
 
 function useInternalNavigation({
 	userData,
 	setUserData,
-	requestFetchImages,
+	onSignOutSuccess,
 }: NavigationButtonsProps): [boolean, () => void, () => void] {
 	const [signingOut, requestSignOut] = useSignOut(
 		userData,
@@ -35,7 +36,7 @@ function useInternalNavigation({
 	const navigate = useNavigate();
 
 	function handleSignOutSuccess() {
-		requestFetchImages();
+		onSignOutSuccess();
 		return EventEmitter.emit("success", "SUCCESSFULLY SIGNED OUT!");
 	}
 
@@ -63,10 +64,10 @@ function useInternalNavigation({
 function NavigationButtons({
 	userData,
 	setUserData,
-	requestFetchImages,
+	onSignOutSuccess,
 }: NavigationButtonsProps) {
 	const [signingOut, requestSignOut, requestAddImage] = useInternalNavigation(
-		{ userData, setUserData, requestFetchImages }
+		{ userData, setUserData, onSignOutSuccess }
 	);
 	return (
 		<NavigationButtonsContainer>
@@ -162,7 +163,7 @@ interface NavigationProps extends NavigationButtonsProps {
 function Navigation({
 	userData,
 	setUserData,
-	requestFetchImages,
+	onSignOutSuccess,
 }: NavigationProps) {
 	const [ref, isSticky] = useIsSticky();
 	return (
@@ -177,7 +178,7 @@ function Navigation({
 				<NavigationButtons
 					userData={userData}
 					setUserData={setUserData}
-					requestFetchImages={requestFetchImages}
+					onSignOutSuccess={onSignOutSuccess}
 				/>
 			</NavigationInnerContainer>
 		</NavigationOuterContainer>
@@ -193,17 +194,17 @@ const MobileNavigationButtonsContainer = styled(NavigationButtonsContainer)`
 function MobileNavigationButtons({
 	userData,
 	setUserData,
-	requestFetchImages,
+	onSignOutSuccess,
 }: NavigationButtonsProps) {
 	const [signingOut, requestSignOut, requestAddImage] = useInternalNavigation(
 		{
 			userData,
 			setUserData,
-			requestFetchImages,
+			onSignOutSuccess,
 		}
 	);
 
-    return (
+	return (
 		<MobileNavigationButtonsContainer>
 			<MobileWhiteButton onClick={requestAddImage} text="ADD IMAGE" />
 
@@ -258,7 +259,7 @@ const MobileNavigationInnerContainer = styled(NavigationInnerContainer)`
 function MobileNavigation({
 	userData,
 	setUserData,
-	requestFetchImages,
+	onSignOutSuccess,
 }: NavigationProps) {
 	const [ref, isSticky] = useIsSticky();
 
@@ -276,7 +277,7 @@ function MobileNavigation({
 				<MobileNavigationButtons
 					userData={userData}
 					setUserData={setUserData}
-					requestFetchImages={requestFetchImages}
+					onSignOutSuccess={onSignOutSuccess}
 				/>
 			</MobileNavigationInnerContainer>
 		</MobileNavigationOuterContainer>
@@ -292,7 +293,7 @@ interface ResponsiveNavigationProps extends NavigationProps {
 function ResponsiveNavigation({
 	userData,
 	setUserData,
-	requestFetchImages,
+	onSignOutSuccess,
 	device,
 }: ResponsiveNavigationProps) {
 	if (device === "mobile") {
@@ -301,9 +302,9 @@ function ResponsiveNavigation({
 				<MobileNavigation
 					userData={userData}
 					setUserData={setUserData}
-					requestFetchImages={requestFetchImages}
+					onSignOutSuccess={onSignOutSuccess}
 				/>
-                <div style={{height: mobileConstants.mediumLargeGap}} />
+				<div style={{ height: mobileConstants.mediumLargeGap }} />
 			</>
 		);
 	}
@@ -313,7 +314,7 @@ function ResponsiveNavigation({
 			<Navigation
 				userData={userData}
 				setUserData={setUserData}
-				requestFetchImages={requestFetchImages}
+				onSignOutSuccess={onSignOutSuccess}
 			/>
 			<div style={{ height: desktopConstants.humongousGap }} />
 		</>
