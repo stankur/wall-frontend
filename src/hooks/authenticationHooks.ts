@@ -311,6 +311,7 @@ function useVerifyEmail(
 	onSendEmailSuccess: (verificationCode: string) => void,
 	onSendEmailFail: (err: Error) => void
 ): [boolean, (email: string) => void] {
+    const [checkingEmailExistence, setCheckingEmailExistence] = useState(false);
 	const [sendingEmail, setSendingEmail] = useState(false);
 	const [email, setEmail] = useState("");
 	const [verificationCode, setVerificationCode] = useState<
@@ -328,6 +329,40 @@ function useVerifyEmail(
 		return onSendEmailSuccess(verificationCode as string);
 	}
 
+    useEffect(function () {
+		(async function () {
+			if (checkingEmailExistence) {
+				let response = await errorHandlingFetch(
+					(process.env.REACT_APP_BACKEND_URL as string) +
+						"/api/authentication/email",
+					{
+						body: JSON.stringify({ email }),
+						method: "POST",
+						...AuthenticationConstants.requiredConfig,
+						headers: {
+							"Content-Type": "application/json",
+						},
+					}
+				);
+
+				if (response && !response.error) {
+					let emailExists: boolean = response.exists;
+
+					if (!emailExists) {
+						setSendingEmail(true);
+					} else {
+						EventEmitter.emit(
+							"error",
+							"THE EMAIL HAS ALREADY BEEN USED."
+						);
+					}
+				}
+
+				return setCheckingEmailExistence(false);
+			}
+		})();
+	});
+
 	useEffect(function () {
 		(async function () {
 			if (sendingEmail) {
@@ -344,13 +379,13 @@ function useVerifyEmail(
 						)
 						.then(internalOnSendEmailSuccess, onSendEmailFail);
 				} catch (err) {
-
 					onSendEmailFail(
 						new Error(
 							"FAILED TO SEND VERIFICATION CODE. PLEASE CONTACT US ABOUT THIS"
 						)
 					);
 				}
+
 				return setSendingEmail(false);
 			}
 		})();
@@ -363,12 +398,12 @@ function useVerifyEmail(
 			return EventEmitter.emit("error", "EMAIL ADDRESS IS INVALID");
 		}
 
-		if (!sendingEmail) {
+		if (!sendingEmail && !checkingEmailExistence) {
 			let verificationCode: string = Math.random().toString().slice(2, 8);
 
 			setVerificationCode(verificationCode);
 			setEmail(email);
-			return setSendingEmail(true);
+			return setCheckingEmailExistence(true);
 		}
 	}
 
