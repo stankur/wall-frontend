@@ -16,6 +16,7 @@ import { CenteredColumnContainer, Page } from "../components/Utils";
 import { ResponsivePlainLogoHero } from "../components/Hero";
 import { UserDataState } from "../hooks/authenticationHooks";
 import { useAddCaption } from "../hooks/captionHooks";
+import { ResponsiveNavigation } from "../components/Navigation";
 
 interface ControlledMobileImageCaptionsCardExtendedProps
 	extends Omit<
@@ -86,13 +87,22 @@ function ExpandedPost() {
 
 	return (
 		<Page>
-			<ResponsivePlainLogoHero device={device} />
+			<ResponsivePlainLogoHero device={device}>
+				<ResponsiveNavigation
+					userData={userData}
+					setUserData={setUserData}
+					onSignOutSuccess={requestFetchImage}
+					device={device}
+				/>
+			</ResponsivePlainLogoHero>
+
 			<CenteredColumnContainer>
 				{(() => {
 					if (device !== "mobile") {
 						return (
 							<span>
-								This page is currently only available in mobile phones.
+								This page is currently only available in mobile
+								phones.
 							</span>
 						);
 					}

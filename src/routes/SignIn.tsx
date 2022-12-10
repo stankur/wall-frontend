@@ -1,22 +1,25 @@
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode, useContext, useState } from "react";
 import {
 	Page,
 	CenteredColumnContainer,
 	ResponsiveDescription,
-    ResponsiveWhiteButton,
+	ResponsiveWhiteButton,
 } from "../components/Utils";
-import {  ResponsivePlainLogoHero } from "../components/Hero";
+import { ResponsivePlainLogoHero } from "../components/Hero";
 import { ResponsiveAuthenticationCard } from "../components/AuthenticationCard";
 
 import styled from "styled-components";
-import {desktopConstants, mobileConstants} from "../constants/ComponentConstants";
+import {
+	desktopConstants,
+	mobileConstants,
+} from "../constants/ComponentConstants";
 import { Link, useNavigate } from "react-router-dom";
 import { useInternalUserData } from "../App";
-import { useSignIn } from "../hooks/authenticationHooks";
+import { useSignIn, useUsername } from "../hooks/authenticationHooks";
 import { EventEmitter } from "../Utils";
 import { Device, UserData } from "../types/types";
 import { DeviceContext } from "../hooks/deviceHooks";
-
+import { ResponsiveNavigation } from "../components/Navigation";
 
 const RedirectSuggestionContainer = styled.div`
 	display: inline-flex;
@@ -52,8 +55,6 @@ function ResponsiveRedirectSuggestionContainer({
 	);
 }
 
-
-
 function SignIn() {
 	const navigate = useNavigate();
 	const [userData, setUserData] = useInternalUserData();
@@ -62,11 +63,19 @@ function SignIn() {
 		setUserData,
 		handleSignInSuccess
 	);
-    const device = useContext(DeviceContext)
+
+	const [username, requestChangeUsername] = useUsername();
+	const [password, setPassword] = useState("");
+
+	const device = useContext(DeviceContext);
 
 	function handleSignInSuccess(userData: UserData) {
 		navigate("/");
 		EventEmitter.emit("success", `WELCOME TO WALL, ${userData.username}!`);
+	}
+
+	function onSubmitClick() {
+		return requestSignIn(username, password);
 	}
 
 	return (
@@ -80,8 +89,25 @@ function SignIn() {
 			<CenteredColumnContainer>
 				<ResponsiveAuthenticationCard
 					device={device}
-					submitUsernamePassword={requestSignIn}
+					onSubmitClick={onSubmitClick}
 					buttonText="SIGN IN"
+					labeledInputData={[
+						{
+							name: "USERNAME",
+							value: username,
+							onChange: (event) =>
+								requestChangeUsername(
+									event.currentTarget.value
+								),
+						},
+						{
+							name: "PASSWORD",
+							value: password,
+							type: "password",
+							onChange: (event) =>
+								setPassword(event.currentTarget.value),
+						},
+					]}
 				/>
 			</CenteredColumnContainer>
 			<div style={{ textAlign: "center" }}>

@@ -1,4 +1,4 @@
-import React, { ReactNode, useContext } from "react";
+import React, { FormEvent, ReactNode, useContext, useState } from "react";
 import {
 	Page,
 	CenteredColumnContainer,
@@ -11,9 +11,10 @@ import  { ResponsiveAuthenticationCard } from "../components/AuthenticationCard"
 import styled from "styled-components";
 import {desktopConstants, mobileConstants} from "../constants/ComponentConstants";
 import { Link, useNavigate } from "react-router-dom";
+import { useUsername, useVerifyEmail, validatePreEmailVerificationInputs } from "../hooks/authenticationHooks";
 import { useInternalUserData } from "../App";
-import { useSignUp } from "../hooks/authenticationHooks";
-import { Device, UserData } from "../types/types";
+
+import { Device } from "../types/types";
 import { EventEmitter } from "../Utils";
 import { DeviceContext } from "../hooks/deviceHooks";
 
@@ -52,18 +53,39 @@ function ResponsiveRedirectSuggestionContainer({
 }
 
 function SignUp() {
-	const [userData, setUserData] = useInternalUserData();
-	const [signingUp, requestSignUp] = useSignUp(
-		userData,
-		setUserData,
-		handleSignUpSuccess
+    const [username, requestChangeUsername] = useUsername();
+	const [email, setEmail] = useState<string>("");
+	const [userData] = useInternalUserData();
+	const [sendingEmail, requestSendVerification] = useVerifyEmail(
+		onSendEmailSuccess,
+		onSendEmailFail
 	);
+
 	const device = useContext(DeviceContext);
 	const navigate = useNavigate();
 
-	function handleSignUpSuccess(userData: UserData) {
-		navigate("/");
-		EventEmitter.emit("success", `WELCOME TO WALL, ${userData.username}!`);
+	function onSendEmailFail(err: Error) {
+		return EventEmitter.emit("error", err.message);
+	}
+
+	function onSendEmailSuccess(verificationCode: string) {
+		return navigate("/verify-email", {
+			state: {
+				username,
+				email,
+				verificationCode,
+			},
+		});
+	}
+
+	function onSubmitClick() {
+		try {
+			validatePreEmailVerificationInputs(userData, username, email);
+		} catch (err) {
+			return EventEmitter.emit("error", (err as Error).message);
+		}
+
+		return requestSendVerification(email);
 	}
 
 	return (
@@ -71,16 +93,30 @@ function SignUp() {
 			<ResponsivePlainLogoHero device={device} />
 			<div style={{ textAlign: "center" }}>
 				<ResponsiveDescription device={device}>
-					SIGN UP TO JOIN WALL
+					CREATE AN ACCOUNT
 				</ResponsiveDescription>
 			</div>
 			<CenteredColumnContainer>
 				<ResponsiveAuthenticationCard
 					device={device}
-					submitUsernamePassword={requestSignUp}
-					buttonText="JOIN WALL"
-					passwordDescription="AT LEAST 10 CHARACTERS"
-					usernameDescription="5 - 30 UPPERCASE ALPHANUMERIC"
+					labeledInputData={[
+						{
+							name: "USERNAME",
+							description: "5 - 30 UPPERCASE ALPHANUMERIC",
+							value: username,
+							onChange: (e: FormEvent<HTMLInputElement>) =>
+								requestChangeUsername(e.currentTarget.value),
+						},
+						{
+							name: "EMAIL",
+                            description: "ONLY FOR VERIFICATION PURPOSE",
+							value: email,
+							onChange: (e: FormEvent<HTMLInputElement>) =>
+								setEmail(e.currentTarget.value),
+						},
+					]}
+					buttonText="VERIFY EMAIL"
+					onSubmitClick={onSubmitClick}
 				/>
 			</CenteredColumnContainer>
 			<div style={{ textAlign: "center" }}>

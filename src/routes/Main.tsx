@@ -21,6 +21,8 @@ import {
 import { DeviceContext } from "../hooks/deviceHooks";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import { v4 as uuid } from "uuid";
+
 import { ResponsiveEmptyRoundCard } from "../components/EmptyCards";
 
 interface ControlledImageCaptionsCardProps {
@@ -127,6 +129,7 @@ function ResponsiveImageCaptionsCards({
 					return (
 						<ControlledMobileImageCaptionsCard
 							data={image}
+                            key={uuid()}
 							requestChangeImageInteraction={requestInteract(
 								"image",
 								image.id
@@ -196,7 +199,7 @@ function ResposiveHero({
 			<ResponsiveNavigation
 				userData={userData}
 				setUserData={setUserData}
-				requestFetchImages={requestFetchImages}
+				onSignOutSuccess={requestFetchImages}
 				device={device}
 			/>
 		</>

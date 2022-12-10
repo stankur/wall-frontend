@@ -242,14 +242,18 @@ function useMessageForm({
 
 	function handleClickSend(event: React.SyntheticEvent) {
 		event.preventDefault();
-		emailjs
-			.send(
-				process.env.REACT_APP_EMAILJS_SERVICE as string,
-				process.env.REACT_APP_EMAILJS_TEMPLATE as string,
-				getEmailJsMessageObject(),
-				process.env.REACT_APP_EMAILJS_PUBLIC_KEY
-			)
-			.then(onSendSuccess, onSendFailure);
+		try {
+			emailjs
+				.send(
+					process.env.REACT_APP_EMAILJS_SERVICE as string,
+					process.env.REACT_APP_EMAILJS_TEMPLATE as string,
+					getEmailJsMessageObject(),
+					process.env.REACT_APP_EMAILJS_PUBLIC_KEY as string
+				)
+				.then(onSendSuccess, onSendFailure);
+		} catch (err) {
+            onSendFailure(new Error("FAILED TO SEND MESSAGE. PLEASE CONTACT US ABOUT THIS"))
+        }
 	}
 
 	function handleChangeMessage(

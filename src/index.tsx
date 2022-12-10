@@ -11,6 +11,7 @@ import AddImage from "./routes/AddImage";
 import ExpandedPost from "./routes/ExpandedPost";
 import CropImage from "./routes/CropImage";
 import { useAnalytics, useWrapper } from "./hooks/analyticsHooks";
+import VerifyEmail from "./routes/VerifyEmail";
 
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement
@@ -53,6 +54,7 @@ function Router() {
 					<Route path="/add-image" element={<AddImage />} />
 					<Route path="/images/:id" element={<ExpandedPost />} />
 					<Route path="/crop-image" element={<CropImage />} />
+					<Route path="/verify-email" element={<VerifyEmail />} />
 				</Route>
 			</Routes>
 		</BrowserRouter>
