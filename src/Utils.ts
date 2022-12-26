@@ -51,15 +51,20 @@ async function authHandlingFetch(
 ) {
 	let body: any = await errorHandlingFetch(api, config, customErrorHandler);
 
-	if (body && body.error && isAuthenticationError({error: body.error})) {
+	if (body && body.error && isAuthenticationError({ error: body.error })) {
 		setUserData(false);
 	}
 
 	return body;
 }
 
+function generateVerificationCode() {
+	return Math.random().toString().slice(2, 8);
+}
+
 export {
 	EventEmitter,
 	errorHandlingFetch,
 	authHandlingFetch,
+	generateVerificationCode,
 };

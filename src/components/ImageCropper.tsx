@@ -1,14 +1,26 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import Cropper from "react-easy-crop";
 import styled from "styled-components";
-import { desktopConstants } from "../constants/ComponentConstants";
+import { desktopConstants, mobileConstants } from "../constants/ComponentConstants";
 import ImageConstants from "../constants/ImageConstants";
 
 import { Point, Area } from "react-easy-crop/types";
+import { Device } from "../types/types";
+import { DeviceContext } from "../hooks/deviceHooks";
 
-const CropperContainer = styled.div`
-	width: ${desktopConstants.CropperContainerSize};
-	height: ${desktopConstants.CropperContainerSize};
+interface CropperContainerProps {
+    device: Device
+}
+
+const CropperContainer = styled.div<CropperContainerProps>`
+	width: ${(props) =>
+		props.device === "mobile"
+			? mobileConstants.CropperContainerSize
+			: desktopConstants.CropperContainerSize};
+	height: ${(props) =>
+		props.device === "mobile"
+			? mobileConstants.CropperContainerSize
+			: desktopConstants.CropperContainerSize};
 	position: relative;
 `;
 
@@ -27,6 +39,8 @@ function ImageCropper({ imageUrl, setCroppedAreaPixels }: ImageCropperProps) {
 	const [objectFit, setObjectFit] = useState<ObjectFitValue | undefined>(
 		undefined
 	);
+
+    const device = useContext(DeviceContext)
 
 	useEffect(function () {
 		(async function () {
@@ -63,7 +77,7 @@ function ImageCropper({ imageUrl, setCroppedAreaPixels }: ImageCropperProps) {
 	}
 
 	return (
-		<CropperContainer>
+		<CropperContainer device={device}>
 			<Cropper
 				image={imageUrl}
 				crop={crop}

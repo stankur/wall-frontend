@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { isAuthenticationError, UserData } from "../types/types";
-import { authHandlingFetch, errorHandlingFetch, EventEmitter } from "../Utils";
+import { authHandlingFetch, errorHandlingFetch, EventEmitter, generateVerificationCode } from "../Utils";
 import AuthenticationConstants from "../constants/AuthenticationConstants";
 
 import * as yup from "yup";
 import emailjs from "@emailjs/browser";
 
-type UserDataState =  UserData | false | undefined;
+type UserDataState = UserData | false | undefined;
 
 function useUserData(): [
 	UserDataState,
@@ -61,6 +61,12 @@ function validateUsername(username: string) {
 	}
 }
 
+function validateInstagramUsername(username: string) {
+    if (!AuthenticationConstants.acceptableInstagramUsername.test(username)) {
+        throw new Error("USERNAME FORMAT IS INVALID");
+    }
+}
+
 function validatePassword(password: string) {
 	if (!AuthenticationConstants.acceptablePassword.test(password)) {
 		throw new Error("PASSWORD LENGTH IS INVALID");
@@ -81,10 +87,19 @@ function validatePreEmailVerificationInputs(
 	validateUserData(userData);
 	validateUsername(username);
 	validateEmail(email);
-};
+}
 
+function validateSignUpWithInstagramInputs(
+	userData: UserDataState,
+	username: string,
+	password: string
+) {
+	validateUserData(userData);
+	validateInstagramUsername(username);
+	validatePassword(password);
+}
 
-function validateSignUpInputs(
+function validateSignUpWithEmailInputs(
 	userData: UserDataState,
 	username: string,
 	email: string,
@@ -96,7 +111,64 @@ function validateSignUpInputs(
 	validateEmail(email);
 }
 
-function useSignUp(
+function useSignUpWithInstagram(
+	userData: UserDataState,
+	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>,
+	signUpSuccessHandler?: (userData: UserData) => void,
+	signUpFailHandler?: (error: Error) => void
+): [boolean, (username: string, password: string) => void] {
+	const [signingUp, setSigningUp] = useState(false);
+	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
+
+	useEffect(function () {
+		(async function () {
+			if (signingUp) {
+				let response = await errorHandlingFetch(
+					(process.env.REACT_APP_BACKEND_URL as string) +
+						"/api/authentication/sign-up",
+					{
+						body: JSON.stringify({ username, password }),
+						method: "POST",
+						...AuthenticationConstants.requiredConfig,
+						headers: {
+							"Content-Type": "application/json",
+						},
+					},
+					signUpFailHandler
+				);
+
+				if (response && !response.error) {
+					let username: string = response.username;
+					let id: string = response.id;
+					setUserData({ username, id });
+					if (signUpSuccessHandler) {
+						signUpSuccessHandler({ username, id } as UserData);
+					}
+				}
+
+				return setSigningUp(false);
+			}
+		})();
+	});
+
+	const requestSignUp = function (username: string, password: string) {
+		try {
+			validateSignUpWithInstagramInputs(userData, username, password);
+		} catch (err) {
+			return EventEmitter.emit("error", (err as Error).message);
+		}
+
+		setUsername(username);
+		setPassword(password);
+
+		return setSigningUp(true);
+	};
+
+	return [signingUp, requestSignUp];
+}
+
+function useSignUpWithEmail(
 	userData: UserDataState,
 	setUserData: React.Dispatch<React.SetStateAction<UserDataState>>,
 	signUpSuccessHandler?: (userData: UserData) => void,
@@ -144,7 +216,7 @@ function useSignUp(
 		password: string
 	) {
 		try {
-			validateSignUpInputs(userData, username, email, password);
+			validateSignUpWithEmailInputs(userData, username, email, password);
 		} catch (err) {
 			return EventEmitter.emit("error", (err as Error).message);
 		}
@@ -158,7 +230,6 @@ function useSignUp(
 
 	return [signingUp, requestSignUp];
 }
-
 
 function useSignIn(
 	userData: UserDataState,
@@ -299,7 +370,9 @@ function useUsername(): [string, (newUsername: string) => void] {
 	const [username, setUsername] = useState<string>("");
 
 	function requestChangeUsername(newUsername: string) {
-		if (AuthenticationConstants.almostAcceptableUsername.test(newUsername)) {
+		if (
+			AuthenticationConstants.almostAcceptableUsername.test(newUsername)
+		) {
 			return setUsername(newUsername.toUpperCase());
 		}
 	}
@@ -307,11 +380,40 @@ function useUsername(): [string, (newUsername: string) => void] {
 	return [username, requestChangeUsername];
 }
 
+function useInstagramUsername(): [string, boolean, (newUsername: string) => void] {
+	const [username, setUsername] = useState<string>("@");
+    const [isAcceptable, setIsAcceptable] = useState(false);
+
+	function requestChangeUsername(newUsername: string) {
+		const lowerCasedNewUsername = newUsername.toLowerCase();
+
+        if (AuthenticationConstants.acceptableInstagramUsername.test(lowerCasedNewUsername)) {
+            setIsAcceptable(true);
+        } else {
+            setIsAcceptable(false);
+        }
+
+		if (
+			AuthenticationConstants.almostAcceptableInstagramUsername.test(
+				lowerCasedNewUsername
+			)
+		) {
+			return setUsername(lowerCasedNewUsername);
+		}
+
+		if (lowerCasedNewUsername === "") {
+			return setUsername("@");
+		}
+	}
+
+	return [username, isAcceptable, requestChangeUsername];
+}
+
 function useVerifyEmail(
 	onSendEmailSuccess: (verificationCode: string) => void,
 	onSendEmailFail: (err: Error) => void
 ): [boolean, (email: string) => void] {
-    const [checkingEmailExistence, setCheckingEmailExistence] = useState(false);
+	const [checkingEmailExistence, setCheckingEmailExistence] = useState(false);
 	const [sendingEmail, setSendingEmail] = useState(false);
 	const [email, setEmail] = useState("");
 	const [verificationCode, setVerificationCode] = useState<
@@ -329,7 +431,7 @@ function useVerifyEmail(
 		return onSendEmailSuccess(verificationCode as string);
 	}
 
-    useEffect(function () {
+	useEffect(function () {
 		(async function () {
 			if (checkingEmailExistence) {
 				let response = await errorHandlingFetch(
@@ -399,7 +501,7 @@ function useVerifyEmail(
 		}
 
 		if (!sendingEmail && !checkingEmailExistence) {
-			let verificationCode: string = Math.random().toString().slice(2, 8);
+			let verificationCode: string = generateVerificationCode();
 
 			setVerificationCode(verificationCode);
 			setEmail(email);
@@ -410,15 +512,98 @@ function useVerifyEmail(
 	return [sendingEmail, requestSendVerification];
 }
 
+function useVerifyInstagram(
+	onVerifySuccess: () => void,
+	onVerifyFail: (err: Error) => void
+): [boolean, (username: string, verificationCode: string) => void] {
+	const [verifyingInstagram, setVerifyingInstagram] = useState(false);
+	const [username, setUsername] = useState<string | undefined>(undefined);
+	const [verificationCode, setVerificationCode] = useState<
+		string | undefined
+	>(undefined);
+
+	useEffect(function () {
+		(async function () {
+			if (verifyingInstagram) {
+				let response = await errorHandlingFetch(
+					(process.env.REACT_APP_BACKEND_URL as string) +
+						"/api/authentication/verify-instagram",
+					{
+						body: JSON.stringify({
+							username,
+							verificationCode,
+						}),
+						method: "POST",
+						...AuthenticationConstants.requiredConfig,
+						headers: {
+							"Content-Type": "application/json",
+						},
+					}
+				);
+
+				if (response && !response.error) {
+					let verified: boolean = response.verified;
+
+					if (!verified) {
+						onVerifyFail(
+							new Error(
+								"NO COMMENT BY USER WITH GIVEN USERNAME HAS BEEN FOUND ON THE VERIFICATION POST"
+							)
+						);
+					} else {
+						onVerifySuccess();
+					}
+				}
+
+				return setVerifyingInstagram(false);
+			}
+		})();
+	});
+
+	function requestVerifyInstagram(
+		username: string,
+		verificationCode: string
+	) {
+		if (
+			!AuthenticationConstants.acceptableInstagramUsername.test(username)
+		) {
+			return EventEmitter.emit(
+				"error",
+				"INSTAGRAM USERNAME PROVIDED IS INVALID"
+			);
+		}
+
+		if (
+			!AuthenticationConstants.acceptableVerificationCode.test(
+				verificationCode
+			)
+		) {
+			return EventEmitter.emit("error", "VERIFICATION CODE IS INVALID");
+		}
+
+        console.log("ver")
+        console.log(verificationCode);
+
+		setUsername(username);
+		setVerificationCode(verificationCode);
+		setVerifyingInstagram(true);
+	}
+
+	return [verifyingInstagram, requestVerifyInstagram];
+}
+
 export {
 	useUserData,
-	useSignUp,
+	useSignUpWithEmail,
 	useSignIn,
 	useSignOut,
 	useUsername,
+	useInstagramUsername,
 	useVerifyEmail,
+	useVerifyInstagram,
+	useSignUpWithInstagram,
 };
 
-export {  validatePreEmailVerificationInputs };
+export { validatePreEmailVerificationInputs };
 
 export { type UserDataState };
