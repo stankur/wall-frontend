@@ -1,21 +1,21 @@
 import { useContext, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useInternalUserData } from "../App";
-import { ResponsiveAuthenticationCard } from "../components/AuthenticationCard";
-import { ResponsivePlainLogoHero } from "../components/Hero";
-import { ResponsiveNavigation } from "../components/Navigation";
-import { CenteredColumnContainer, Page, ResponsiveDescription } from "../components/Utils";
-import { useSignUp } from "../hooks/authenticationHooks";
-import { DeviceContext } from "../hooks/deviceHooks";
-import { UserData } from "../types/types";
-import { EventEmitter } from "../Utils";
+import { useInternalUserData } from "../../App";
+import { ResponsiveAuthenticationCard } from "../../components/AuthenticationCard";
+import { ResponsivePlainLogoHero } from "../../components/Hero";
+import { ResponsiveNavigation } from "../../components/Navigation";
+import { CenteredColumnContainer, Page, ResponsiveDescription } from "../../components/Utils";
+import { useSignUpWithEmail } from "../../hooks/authenticationHooks";
+import { DeviceContext } from "../../hooks/deviceHooks";
+import { UserData } from "../../types/types";
+import { EventEmitter } from "../../Utils";
 
 function VerifyEmail() {
 	const [verificationCode, setVerificationCode] = useState("");
 	const [password, setPassword] = useState("");
 	const [userData, setUserData] = useInternalUserData();
 
-	const [signingUp, requestSignUp] = useSignUp(
+	const [signingUp, requestSignUp] = useSignUpWithEmail(
 		userData,
 		setUserData,
 		handleSignUpSuccess
@@ -90,7 +90,7 @@ function VerifyEmail() {
 			<ResponsivePlainLogoHero device={device} />
 			<div style={{ textAlign: "center" }}>
 				<ResponsiveDescription device={device}>
-					CREATE AN ACCOUNT
+					CREATE NEW ACCOUNT
 				</ResponsiveDescription>
 			</div>
 			<CenteredColumnContainer>

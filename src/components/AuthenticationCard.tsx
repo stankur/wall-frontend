@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React, { ReactElement, ReactNode } from "react";
 import styled
  from "styled-components";
 import { TwoSidedCard, BackgroundColorButton, MobileBackgroundColorButton, MobileTwoSidedCard } from "./Utils";
 import {desktopConstants, mobileConstants} from "../constants/ComponentConstants";
 import { Device } from "../types/types";
-
-import { v4 as uuid } from "uuid";
 
 const QuoteOuterContainer = styled.div`
 	height: 100%;
@@ -186,6 +184,21 @@ function AuthenticationCard({
 	);
 }
 
+interface EmptyAuthenticationCardProps {
+	content: ReactElement;
+}
+
+function EmptyAuthenticationCard({ content }: EmptyAuthenticationCardProps) {
+	return (
+		<TwoSidedCard
+			left={<Quote />}
+			right={content}
+			leftProportion={2}
+			rightProportion={5}
+		/>
+	);
+}
+
 //////////////////////////////////////////////////////////// MOBILE COMPONENTS ////////////////////////////////////////////////////////////
 
 const MobileQuoteOuterContainer = styled.div`
@@ -313,7 +326,7 @@ function MobileInputsGroup({
 function MobileAuthenticationCard({
 	onSubmitClick,
 	buttonText,
-	labeledInputData
+	labeledInputData,
 }: AuthenticationCardProps) {
 	return (
 		<MobileTwoSidedCard
@@ -322,11 +335,17 @@ function MobileAuthenticationCard({
 				<MobileInputsGroup
 					onSubmitClick={onSubmitClick}
 					buttonText={buttonText}
-                    labeledInputData={labeledInputData}
+					labeledInputData={labeledInputData}
 				/>
 			}
 		/>
 	);
+}
+
+function MobileEmptyAuthenticationCard({
+	content,
+}: EmptyAuthenticationCardProps) {
+	return <MobileTwoSidedCard top={<MobileQuote />} bottom={content} />;
 }
 
 //////////////////////////////////////////////////////////// RESPONSIVE COMPONENTS ////////////////////////////////////////////////////////////
@@ -339,14 +358,14 @@ function ResponsiveAuthenticationCard({
 	device,
 	buttonText,
 	onSubmitClick,
-    labeledInputData
+	labeledInputData,
 }: ResponsiveAuthenticationCardProps) {
 	if (device === "mobile") {
 		return (
 			<MobileAuthenticationCard
 				labeledInputData={labeledInputData}
 				buttonText={buttonText}
-                onSubmitClick={onSubmitClick}
+				onSubmitClick={onSubmitClick}
 			/>
 		);
 	}
@@ -360,4 +379,21 @@ function ResponsiveAuthenticationCard({
 	);
 }
 
-export { ResponsiveAuthenticationCard };
+interface ResponsiveEmptyAuthenticationCardProps
+	extends Omit<EmptyAuthenticationCardProps, "content"> {
+	content: ReactElement<any>;
+	device: Device;
+}
+
+function ResponsiveEmptyAuthenticationCard({
+	content,
+	device,
+}: ResponsiveEmptyAuthenticationCardProps) {
+	if (device === "mobile") {
+		return <MobileEmptyAuthenticationCard content={content} />;
+	}
+
+	return <EmptyAuthenticationCard content={content} />;
+}
+
+export { ResponsiveAuthenticationCard, ResponsiveEmptyAuthenticationCard };

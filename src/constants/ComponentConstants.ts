@@ -39,6 +39,7 @@ const desktopConstants = {
 	CropperContainerSize: "max(25vw, 300px)", //align with mainContentWidth
 	NoImageContainerHeight: "max(20vw, 300px)", //align with mainContentWidth
 	EmptyRoundCardHeight: "340px",
+    longButtonImageSize: "20px"
 };
 
 const mobileConstants = {
@@ -54,7 +55,7 @@ const mobileConstants = {
 	mediumSmallerFontSize: "20px",
 	largeFontSize: "75px",
 	buttonSize: "24px",
-	CropperContainerSize: "300px", //align with mainContentWidth
+	CropperContainerSize: "330px", //align with mainContentWidth
 	messageFormButtonSize: "42px",
 	smallGap: "7px",
 	smallerGap: "4px",
@@ -66,7 +67,7 @@ const mobileConstants = {
 	bigSmallGap: "73px",
 	bigGap: "85px",
 	descriptionCardGap: "25px",
-	mainContentWidth: "300px",
+	mainContentWidth: "330px",
 	messageFormWidth: "330px",
 	upvoteColor: [199, 235, 255],
 	downvoteColor: [255, 181, 176],
@@ -74,5 +75,6 @@ const mobileConstants = {
 	loadingBarHeight: "14px",
 	emptyRoundCardHeight: "380px",
 	emptyCaptionHeight: "110px",
+	longButtonImageSize: "18px",
 };
 export { desktopConstants, mobileConstants };

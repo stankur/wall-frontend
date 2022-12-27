@@ -1,4 +1,4 @@
-import React, { Children, ReactElement, ReactNode, useState } from "react";
+import React, { Children, ReactElement, ReactFragment, ReactNode, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { EventEmitter } from "../Utils";
 import {
@@ -216,6 +216,45 @@ const Description = styled.div`
 	width: ${desktopConstants.mainContentWidth};
 `;
 
+const LongButton = styled.div`
+	display: inline-flex;
+	justify-content: flex-start;
+	align-items: center;
+
+	gap: ${desktopConstants.smallGap};
+
+	border: 1px solid black;
+	border-radius: ${desktopConstants.radius};
+	background-color: rgb(
+		${desktopConstants.backgroundLite[0]},
+		${desktopConstants.backgroundLite[1]},
+		${desktopConstants.backgroundLite[2]}
+	);
+	width: 100%;
+	padding: ${desktopConstants.smallerGap};
+
+	box-sizing: border-box;
+
+	cursor: pointer;
+`;
+
+const LongButtonImage = styled.img.attrs(() => {
+	return { width: desktopConstants.longButtonImageSize };
+})``;
+
+const LongButtonText = styled.span`
+    font-size: ${desktopConstants.regularFontSize};
+`
+
+const RedirectSuggestionContainer = styled.div`
+	display: inline-flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	gap: ${desktopConstants.smallGap};
+`;
+
+
 //////////////////////////////////////////////////////////// MOBILE COMPONENTS ////////////////////////////////////////////////////////////
 
 const MobileOuterContainer = styled(OuterContainer)`
@@ -319,6 +358,25 @@ const CircleButton = styled.div<CircleButtonProps>`
 	border: 1px solid black;
 `;
 
+const MobileLongButton = styled(LongButton)`
+	border-radius: ${mobileConstants.innerRadius};
+	gap: ${mobileConstants.smallGap};
+    padding: ${mobileConstants.smallGap};
+`;
+
+const MobileLongButtonImage = styled.img.attrs(() => {
+	return { width: mobileConstants.longButtonImageSize };
+})``;
+
+const MobileLongButtonText = styled(LongButtonText)`
+	font-size: ${mobileConstants.regularFontSize};
+`;
+
+const MobileRedirectSuggestionContainer = styled(RedirectSuggestionContainer)`
+	gap: ${mobileConstants.smallGap};
+`;
+
+
 //////////////////////////////////////////////////////////// RESPONSIVE COMPONENTS ////////////////////////////////////////////////////////////
 
 interface ResponsiveDescriptionProps {
@@ -364,6 +422,75 @@ function ResponsiveBackgroundColorButton({
 	return <BackgroundColorButton text={text} onClick={onClick} />;
 }
 
+interface ResponsiveLongButtonProps {
+	device: Device;
+	children: React.PropsWithChildren<any>;
+}
+
+
+
+function ResponsiveLongButton({ device, children }: ResponsiveLongButtonProps) {
+	if (device === "mobile") {
+		return <MobileLongButton>{children}</MobileLongButton>;
+	}
+	return <LongButton>{children}</LongButton>;
+}
+
+interface ResponsiveLongButtonImageProps {
+	device: Device;
+	src: string;
+}
+
+function ResponsiveLongButtonImage({
+	device,
+	src,
+}: ResponsiveLongButtonImageProps) {
+	if (device === "mobile") {
+		return <MobileLongButtonImage src={src} />;
+	}
+
+	return <LongButtonImage src={src} />;
+}
+
+interface ResponsiveLongButtonTextProps {
+	device: Device;
+	text: string;
+}
+
+function ResponsiveLongButtonText({
+	device,
+	text,
+}: ResponsiveLongButtonTextProps) {
+	if (device === "mobile") {
+		return <MobileLongButtonText>{text}</MobileLongButtonText>;
+	}
+
+	return <LongButtonText>{text}</LongButtonText>;
+}
+
+interface ResponsiveRedirectSuggestionContainerProps {
+	device: Device;
+	children: ReactNode;
+}
+
+function ResponsiveRedirectSuggestionContainer({
+	device,
+	children,
+}: ResponsiveRedirectSuggestionContainerProps) {
+	if (device === "mobile") {
+		return (
+			<MobileRedirectSuggestionContainer>
+				{children}
+			</MobileRedirectSuggestionContainer>
+		);
+	}
+
+	return (
+		<RedirectSuggestionContainer>{children}</RedirectSuggestionContainer>
+	);
+}
+
+
 export {
 	Page,
 	TwoSidedCard,
@@ -389,7 +516,11 @@ export {
 	ResponsiveDescription,
 	ResponsiveWhiteButton,
 	ResponsiveBackgroundColorButton,
+	ResponsiveLongButton,
+	ResponsiveLongButtonImage,
+	ResponsiveLongButtonText,
 	GradientContainer,
+	ResponsiveRedirectSuggestionContainer,
 };
 
 export type { ResponsiveDescriptionProps };

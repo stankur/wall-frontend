@@ -1,22 +1,29 @@
-import React, { FormEvent, ReactNode, useContext, useState } from "react";
+import { FormEvent, ReactNode, useContext, useState } from "react";
 import {
 	Page,
 	CenteredColumnContainer,
 	ResponsiveDescription,
-    ResponsiveWhiteButton,
-} from "../components/Utils";
-import {  ResponsivePlainLogoHero } from "../components/Hero";
-import  { ResponsiveAuthenticationCard } from "../components/AuthenticationCard";
+	ResponsiveWhiteButton,
+} from "../../components/Utils";
+import { ResponsivePlainLogoHero } from "../../components/Hero";
+import { ResponsiveAuthenticationCard } from "../../components/AuthenticationCard";
 
 import styled from "styled-components";
-import {desktopConstants, mobileConstants} from "../constants/ComponentConstants";
+import {
+	desktopConstants,
+	mobileConstants,
+} from "../../constants/ComponentConstants";
 import { Link, useNavigate } from "react-router-dom";
-import { useUsername, useVerifyEmail, validatePreEmailVerificationInputs } from "../hooks/authenticationHooks";
-import { useInternalUserData } from "../App";
+import {
+	useUsername,
+	useVerifyEmail,
+	validatePreEmailVerificationInputs,
+} from "../../hooks/authenticationHooks";
+import { useInternalUserData } from "../../App";
 
-import { Device } from "../types/types";
-import { EventEmitter } from "../Utils";
-import { DeviceContext } from "../hooks/deviceHooks";
+import { Device } from "../../types/types";
+import { EventEmitter } from "../../Utils";
+import { DeviceContext } from "../../hooks/deviceHooks";
 
 const RedirectSuggestionContainer = styled.div`
 	display: inline-flex;
@@ -52,8 +59,8 @@ function ResponsiveRedirectSuggestionContainer({
 	);
 }
 
-function SignUp() {
-    const [username, requestChangeUsername] = useUsername();
+function SignUpWithEmail() {
+	const [username, requestChangeUsername] = useUsername();
 	const [email, setEmail] = useState<string>("");
 	const [userData] = useInternalUserData();
 	const [sendingEmail, requestSendVerification] = useVerifyEmail(
@@ -93,7 +100,7 @@ function SignUp() {
 			<ResponsivePlainLogoHero device={device} />
 			<div style={{ textAlign: "center" }}>
 				<ResponsiveDescription device={device}>
-					CREATE AN ACCOUNT
+					CREATE NEW ACCOUNT
 				</ResponsiveDescription>
 			</div>
 			<CenteredColumnContainer>
@@ -109,7 +116,7 @@ function SignUp() {
 						},
 						{
 							name: "EMAIL",
-                            description: "ONLY FOR VERIFICATION PURPOSE",
+							description: "ONLY FOR VERIFICATION PURPOSE",
 							value: email,
 							onChange: (e: FormEvent<HTMLInputElement>) =>
 								setEmail(e.currentTarget.value),
@@ -130,7 +137,6 @@ function SignUp() {
 								device={device}
 							/>
 						</Link>
-						<span>INSTEAD</span>
 					</ResponsiveRedirectSuggestionContainer>
 				</ResponsiveDescription>
 			</div>
@@ -138,4 +144,4 @@ function SignUp() {
 	);
 }
 
-export default SignUp;
+export default SignUpWithEmail;

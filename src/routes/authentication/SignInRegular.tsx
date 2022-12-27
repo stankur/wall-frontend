@@ -1,25 +1,24 @@
-import React, { ReactNode, useContext, useState } from "react";
+import  { ReactNode, useContext, useState } from "react";
 import {
 	Page,
 	CenteredColumnContainer,
 	ResponsiveDescription,
 	ResponsiveWhiteButton,
-} from "../components/Utils";
-import { ResponsivePlainLogoHero } from "../components/Hero";
-import { ResponsiveAuthenticationCard } from "../components/AuthenticationCard";
+} from "../../components/Utils";
+import { ResponsivePlainLogoHero } from "../../components/Hero";
+import { ResponsiveAuthenticationCard } from "../../components/AuthenticationCard";
 
 import styled from "styled-components";
 import {
 	desktopConstants,
 	mobileConstants,
-} from "../constants/ComponentConstants";
+} from "../../constants/ComponentConstants";
 import { Link, useNavigate } from "react-router-dom";
-import { useInternalUserData } from "../App";
-import { useSignIn, useUsername } from "../hooks/authenticationHooks";
-import { EventEmitter } from "../Utils";
-import { Device, UserData } from "../types/types";
-import { DeviceContext } from "../hooks/deviceHooks";
-import { ResponsiveNavigation } from "../components/Navigation";
+import { useInternalUserData } from "../../App";
+import { useSignIn, useUsername } from "../../hooks/authenticationHooks";
+import { EventEmitter } from "../../Utils";
+import { Device, UserData } from "../../types/types";
+import { DeviceContext } from "../../hooks/deviceHooks";
 
 const RedirectSuggestionContainer = styled.div`
 	display: inline-flex;
@@ -55,7 +54,7 @@ function ResponsiveRedirectSuggestionContainer({
 	);
 }
 
-function SignIn() {
+function SignInRegular() {
 	const navigate = useNavigate();
 	const [userData, setUserData] = useInternalUserData();
 	const [signingIn, requestSignIn] = useSignIn(
@@ -113,14 +112,13 @@ function SignIn() {
 			<div style={{ textAlign: "center" }}>
 				<ResponsiveDescription device={device}>
 					<ResponsiveRedirectSuggestionContainer device={device}>
-						<span>DON'T HAVE AN ACCOUNT?</span>
+						<span>NO ACCOUNT?</span>
 						<Link to={"/sign-up"}>
 							<ResponsiveWhiteButton
 								device={device}
 								text="SIGN UP"
 							/>
 						</Link>
-						<span>INSTEAD</span>
 					</ResponsiveRedirectSuggestionContainer>
 				</ResponsiveDescription>
 			</div>
@@ -128,4 +126,4 @@ function SignIn() {
 	);
 }
 
-export default SignIn;
+export default SignInRegular;
