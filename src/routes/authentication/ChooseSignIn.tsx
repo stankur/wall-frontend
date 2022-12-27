@@ -10,70 +10,75 @@ import {
 	ResponsiveLongButton,
 	ResponsiveLongButtonImage,
 	ResponsiveLongButtonText,
-    ResponsiveRedirectSuggestionContainer,
-    ResponsiveWhiteButton,
+	ResponsiveRedirectSuggestionContainer,
+	ResponsiveWhiteButton,
 } from "../../components/Utils";
-import { desktopConstants, mobileConstants } from "../../constants/ComponentConstants";
+import {
+	desktopConstants,
+	mobileConstants,
+} from "../../constants/ComponentConstants";
 import { DeviceContext } from "../../hooks/deviceHooks";
 import { Device } from "../../types/types";
-
-interface SignUpWithInstagramProps {
+interface SignInInstagramProps {
 	device: Device;
 }
 
-function SignUpWithInstagram({ device }: SignUpWithInstagramProps) {
+function SignInInstagram({ device }: SignInInstagramProps) {
 	return (
 		<ResponsiveLongButton device={device}>
 			<ResponsiveLongButtonImage device={device} src="/ig.png" />
 			<ResponsiveLongButtonText
 				device={device}
-				text="SIGN UP WITH INSTAGRAM"
+				text="INSTAGRAM-LINKED ACCOUNT SIGN IN"
 			/>
 		</ResponsiveLongButton>
 	);
 }
 
-interface SignUpWithEmailProps {
+interface SignInRegularProps {
 	device: Device;
 }
 
-function SignUpWithEmail({ device }: SignUpWithEmailProps) {
+function SignInRegular({ device }: SignInRegularProps) {
 	return (
 		<ResponsiveLongButton device={device}>
 			<ResponsiveLongButtonImage device={device} src="/mail.png" />
-			<ResponsiveLongButtonText device={device} text="SIGN UP WITH EMAIL" />
+			<ResponsiveLongButtonText
+				device={device}
+				text="REGULAR ACCOUNT SIGN IN"
+			/>
 		</ResponsiveLongButton>
 	);
-};
+}
 
-interface SignUpMethodsProps {
+interface SignInMethodsProps {
 	device: Device;
 }
 
-function SignUpMethods({ device }: SignUpMethodsProps) {
+function SignInMethods({ device }: SignInMethodsProps) {
 	return (
 		<>
 			<Link
-				to="/sign-up-with-email"
+				to="/sign-in-regular"
 				style={{ textDecoration: "none", color: "black" }}
 			>
-				<SignUpWithEmail device={device} />
+				<SignInRegular device={device} />
 			</Link>
 			<Link
-				to="/sign-up-with-instagram"
+				to="/sign-in-instagram"
 				style={{ textDecoration: "none", color: "black" }}
 			>
-				<SignUpWithInstagram device={device} />
+				<SignInInstagram device={device} />
 			</Link>
 		</>
 	);
 }
 
-interface SignUpMethodsGroupContainerProps {
+interface SignInMethodsGroupContainerProps {
 	device: Device;
 }
 
-const SignUpMethodsGroupContainer = styled.div<SignUpMethodsGroupContainerProps>`
+const SignInMethodsGroupContainer = styled.div<SignInMethodsGroupContainerProps>`
 	width: 100%;
 	height: 100%;
 
@@ -95,56 +100,52 @@ const SignUpMethodsGroupContainer = styled.div<SignUpMethodsGroupContainerProps>
 			: desktopConstants.mediumGap};
 `;
 
-interface SignUpMethodsGroupProps {
+interface SignInMethodsGroupProps {
 	device: Device;
 }
 
-function SignUpMethodsGroup({ device }: SignUpMethodsGroupProps) {
+function SignInMethodsGroup({ device }: SignInMethodsGroupProps) {
 	return (
-		<SignUpMethodsGroupContainer device={device}>
+		<SignInMethodsGroupContainer device={device}>
 			<span
 				style={{
 					fontSize:
 						device === "mobile"
 							? mobileConstants.regularFontSize
 							: desktopConstants.regularFontSize,
-					fontWeight: "bold",
 				}}
 			>
-				CHOOSE SIGN UP METHOD
+				CHOOSE SIGN IN METHOD
 			</span>
-			<SignUpMethods device={device} />
-		</SignUpMethodsGroupContainer>
+			<SignInMethods device={device} />
+		</SignInMethodsGroupContainer>
 	);
 }
 
-function ChooseSignUp() {
+function ChooseSignIn() {
 	const device = useContext(DeviceContext);
 	return (
 		<Page>
 			<ResponsivePlainLogoHero device={device} />
 			<div style={{ textAlign: "center" }}>
 				<ResponsiveDescription device={device}>
-					CREATE NEW ACCOUNT
+					SIGN IN TO EXISTING ACCOUNT
 				</ResponsiveDescription>
 			</div>
 			<CenteredColumnContainer>
 				<ResponsiveEmptyAuthenticationCard
 					device={device}
-					content={<SignUpMethodsGroup device={device} />}
+					content={<SignInMethodsGroup device={device} />}
 				/>
 			</CenteredColumnContainer>
 			<div style={{ textAlign: "center" }}>
 				<ResponsiveDescription device={device}>
 					<ResponsiveRedirectSuggestionContainer device={device}>
-						<span>HAVE AN ACCOUNT?</span>
-						<Link
-							to="/sign-in"
-						>
+						<span>NO ACCOUNT?</span>
+						<Link to={"/sign-up"}>
 							<ResponsiveWhiteButton
-								text="SIGN IN"
-								onClick={() => {}}
 								device={device}
+								text="SIGN UP"
 							/>
 						</Link>
 					</ResponsiveRedirectSuggestionContainer>
@@ -154,4 +155,5 @@ function ChooseSignUp() {
 	);
 }
 
-export default ChooseSignUp;
+
+export default ChooseSignIn;

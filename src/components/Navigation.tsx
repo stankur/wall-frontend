@@ -255,6 +255,9 @@ const MobileNavigationOuterContainer = styled(NavigationOuterContainer)`
 
 const MobileNavigationInnerContainer = styled(NavigationInnerContainer)`
 	width: ${mobileConstants.mainContentWidth};
+	&.isSticky {
+        justify-content: center;
+	}
 `;
 function MobileNavigation({
 	userData,
@@ -271,9 +274,6 @@ function MobileNavigation({
 			<MobileNavigationInnerContainer
 				className={isSticky ? "isSticky" : ""}
 			>
-				{isSticky && (
-					<NavigationLogoContainer>WALL</NavigationLogoContainer>
-				)}
 				<MobileNavigationButtons
 					userData={userData}
 					setUserData={setUserData}

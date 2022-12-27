@@ -275,7 +275,7 @@ function VerifyInstagram() {
 			<ResponsivePlainLogoHero device={device} />
 			<div style={{ textAlign: "center" }}>
 				<ResponsiveDescription device={device}>
-					CREATE AN ACCOUNT
+					CREATE NEW ACCOUNT
 				</ResponsiveDescription>
 			</div>
 			<CenteredColumnContainer>
@@ -324,7 +324,6 @@ function VerifyInstagram() {
 								device={device}
 							/>
 						</Link>
-						<span>INSTEAD</span>
 					</ResponsiveRedirectSuggestionContainer>
 				</ResponsiveDescription>
 			</div>

@@ -1,4 +1,4 @@
-import React, { ReactNode, useContext, useState } from "react";
+import  { ReactNode, useContext, useState } from "react";
 import {
 	Page,
 	CenteredColumnContainer,
@@ -54,7 +54,7 @@ function ResponsiveRedirectSuggestionContainer({
 	);
 }
 
-function SignInWithEmail() {
+function SignInRegular() {
 	const navigate = useNavigate();
 	const [userData, setUserData] = useInternalUserData();
 	const [signingIn, requestSignIn] = useSignIn(
@@ -112,14 +112,13 @@ function SignInWithEmail() {
 			<div style={{ textAlign: "center" }}>
 				<ResponsiveDescription device={device}>
 					<ResponsiveRedirectSuggestionContainer device={device}>
-						<span>DON'T HAVE AN ACCOUNT?</span>
+						<span>NO ACCOUNT?</span>
 						<Link to={"/sign-up"}>
 							<ResponsiveWhiteButton
 								device={device}
 								text="SIGN UP"
 							/>
 						</Link>
-						<span>INSTEAD</span>
 					</ResponsiveRedirectSuggestionContainer>
 				</ResponsiveDescription>
 			</div>
@@ -127,4 +126,4 @@ function SignInWithEmail() {
 	);
 }
 
-export default SignInWithEmail;
+export default SignInRegular;

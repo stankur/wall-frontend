@@ -581,9 +581,6 @@ function useVerifyInstagram(
 			return EventEmitter.emit("error", "VERIFICATION CODE IS INVALID");
 		}
 
-        console.log("ver")
-        console.log(verificationCode);
-
 		setUsername(username);
 		setVerificationCode(verificationCode);
 		setVerifyingInstagram(true);
